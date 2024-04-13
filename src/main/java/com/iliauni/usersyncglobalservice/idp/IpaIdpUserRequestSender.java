@@ -70,7 +70,7 @@ public class IpaIdpUserRequestSender<T extends IpaClient> implements IdpUserRequ
                         requestBuilder.buildHttpRequestEntity(client.getId(), requestBody),
                         String.class).getBody();
 
-        return idpObjectMapper.mapUserMapToUser(mapIpaUsersMethodOutputToMap(userJson).get(0));
+        return idpObjectMapper.mapUserMapToUser(mapIpaUserShowMethodOutputToMap(userJson));
     }
 
     @Override
@@ -85,7 +85,7 @@ public class IpaIdpUserRequestSender<T extends IpaClient> implements IdpUserRequ
                 requestBuilder.buildHttpRequestEntity(client.getId(), requestBody),
                 String.class).getBody();
 
-        List<MultiValueMap<String, Object>> userMaps = mapIpaUsersMethodOutputToMap(usersJson);
+        List<MultiValueMap<String, Object>> userMaps = mapIpaUserFindMethodOutputToMap(usersJson);
         List<User> users = new ArrayList<>();
 
         for (MultiValueMap<String, Object> userMap : userMaps) {
@@ -95,25 +95,45 @@ public class IpaIdpUserRequestSender<T extends IpaClient> implements IdpUserRequ
         return users;
     }
 
-    private List<MultiValueMap<String, Object>> mapIpaUsersMethodOutputToMap(String usersJson) {
+    private MultiValueMap<String, Object> mapIpaUserShowMethodOutputToMap(String usergroupsJson) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            JsonNode rootNode = mapper.readTree(usersJson);
+            JsonNode rootNode = mapper.readTree(usergroupsJson);
             JsonNode resultsNode = rootNode.path("result").path("result");
 
             MultiValueMap<String, Object> userMap = new LinkedMultiValueMap<>();
-            List<MultiValueMap<String, Object>> userMaps = new ArrayList<>();
+            userMap.add("uid", resultsNode.path("uid").get(0).asText());
+            userMap.add("givenname", resultsNode.path("givenname").get(0).asText());
+            userMap.add("sn", resultsNode.path("sn").get(0).asText());
+            userMap.add("mail", resultsNode.path("mail").get(0).asText());
 
-            for (JsonNode node : resultsNode) {
+            return userMap;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e); // ???
+        }
+    }
+
+    private List<MultiValueMap<String, Object>> mapIpaUserFindMethodOutputToMap(String usergroupsJson) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            JsonNode rootNode = objectMapper.readTree(usergroupsJson);
+            JsonNode resultNode = rootNode.path("result").path("result");
+
+            List<MultiValueMap<String, Object>> userMapList = new ArrayList<>();
+
+            for (JsonNode node : resultNode) {
+                MultiValueMap<String, Object> userMap = new LinkedMultiValueMap<>();
+
                 userMap.add("uid", node.path("uid").get(0).asText());
                 userMap.add("givenname", node.path("givenname").get(0).asText());
                 userMap.add("sn", node.path("sn").get(0).asText());
                 userMap.add("mail", node.path("mail").get(0).asText());
 
-                userMaps.add(userMap);
+                userMapList.add(userMap);
             }
 
-            return userMaps;
+            return userMapList;
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e); // ???
         }

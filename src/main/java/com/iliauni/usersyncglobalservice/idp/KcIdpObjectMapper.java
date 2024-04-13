@@ -15,6 +15,7 @@ public class KcIdpObjectMapper implements IdpObjectMapper {
         userMap.add("username", user.getUsername());
         userMap.add("firstName", user.getFirstname());
         userMap.add("lastName", user.getLastname());
+        userMap.add("email", user.getEmail());
         userMap.add("credentials", buildUserCredentialsMap(user.getPassword()));
 
         return userMap;
@@ -31,8 +32,10 @@ public class KcIdpObjectMapper implements IdpObjectMapper {
     @Override
     public User mapUserMapToUser(MultiValueMap<String, Object> userMap) {
         User user = new User();
-        user.setUsername(String.valueOf(userMap.get("username")));
-        user.setPassword(String.valueOf(userMap.get("password")));
+        user.setUsername((String) userMap.get("username").get(0));
+        user.setFirstname((String) userMap.get("firstName").get(0));
+        user.setLastname((String) userMap.get("lastName").get(0));
+        user.setEmail((String) userMap.get("email").get(0));
 
         return user;
     }
@@ -40,7 +43,7 @@ public class KcIdpObjectMapper implements IdpObjectMapper {
     @Override
     public Usergroup mapUsergroupMapToUsergroup(MultiValueMap<String, Object> usergroupMap) {
         Usergroup usergroup = new Usergroup();
-        usergroup.setName(String.valueOf(usergroupMap.get("name")));
+        usergroup.setName((String) usergroupMap.get("name").get(0));
 
         return usergroup;
     }

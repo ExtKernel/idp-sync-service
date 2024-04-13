@@ -1,4 +1,4 @@
-package com.iliauni.usersyncglobalservice.unit;
+package com.iliauni.usersyncglobalservice.unit.difference;
 
 import com.iliauni.usersyncglobalservice.difference.UserListMatcher;
 import com.iliauni.usersyncglobalservice.model.User;

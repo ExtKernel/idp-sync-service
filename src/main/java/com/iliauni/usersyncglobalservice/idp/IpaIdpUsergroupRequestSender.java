@@ -59,10 +59,10 @@ public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUse
     }
 
     @Override
-    public Usergroup getUsergroup(T client, String usergroup_name) {
+    public Usergroup getUsergroup(T client, String usergroupName) {
         MultiValueMap<String, Object> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("method", "group_show");
-        requestBody.add("params", new Object[]{usergroup_name, new HashMap<>()});
+        requestBody.add("params", new Object[]{usergroupName, new HashMap<>()});
 
         String usergroupJson = restTemplate.exchange(
                 requestBuilder.buildApiBaseUrl(ipaHostname, ipaApiEndpoint),
@@ -70,7 +70,7 @@ public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUse
                 requestBuilder.buildHttpRequestEntity(client.getId(), requestBody),
                 String.class).getBody();
 
-        return idpObjectMapper.mapUsergroupMapToUsergroup(mapIpaUsergroupsMethodOutputToMap(usergroupJson).get(0));
+        return idpObjectMapper.mapUsergroupMapToUsergroup(mapIpaUsergroupShowMethodOutputToMap(usergroupJson));
     }
 
     @Override
@@ -85,7 +85,7 @@ public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUse
                 requestBuilder.buildHttpRequestEntity(client.getId(), requestBody),
                 String.class).getBody();
 
-        List<MultiValueMap<String, Object>> usergroupMaps = mapIpaUsergroupsMethodOutputToMap(usersJson);
+        List<MultiValueMap<String, Object>> usergroupMaps = mapIpaUsergroupFindMethodOutputToMap(usersJson);
         List<Usergroup> usergroups = new ArrayList<>();
 
         for (MultiValueMap<String, Object> userMap : usergroupMaps) {
@@ -95,35 +95,54 @@ public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUse
         return usergroups;
     }
 
-    private List<MultiValueMap<String, Object>> mapIpaUsergroupsMethodOutputToMap(String usergroupsJson) {
+    private MultiValueMap<String, Object> mapIpaUsergroupShowMethodOutputToMap(String usergroupsJson) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode rootNode = mapper.readTree(usergroupsJson);
             JsonNode resultsNode = rootNode.path("result").path("result");
 
             MultiValueMap<String, Object> usergroupMap = new LinkedMultiValueMap<>();
-            List<MultiValueMap<String, Object>> usergroupMaps = new ArrayList<>();
+            usergroupMap.add("cn", resultsNode.path("cn").get(0).asText());
+            usergroupMap.add("description", resultsNode.path("description").get(0).asText());
 
-            for (JsonNode node : resultsNode) {
-                usergroupMap.add("uid", node.path("uid").get(0).asText());
-                usergroupMap.add("givenname", node.path("givenname").get(0).asText());
-                usergroupMap.add("sn", node.path("sn").get(0).asText());
-                usergroupMap.add("mail", node.path("mail").get(0).asText());
+            return usergroupMap;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e); // ???
+        }
+    }
 
-                usergroupMaps.add(usergroupMap);
+    private List<MultiValueMap<String, Object>> mapIpaUsergroupFindMethodOutputToMap(String usergroupsJson) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            JsonNode rootNode = objectMapper.readTree(usergroupsJson);
+            JsonNode resultNode = rootNode.path("result").path("result");
+
+            List<MultiValueMap<String, Object>> usergroupMapList = new ArrayList<>();
+
+            for (JsonNode node : resultNode) {
+                MultiValueMap<String, Object> usergroupMap = new LinkedMultiValueMap<>();
+
+                usergroupMap.add("cn", node.path("cn").get(0).asText());
+
+                if (!node.path("description").isEmpty()) {
+                    usergroupMap.add("description", node.path("description").get(0).asText());
+                }
+
+                usergroupMapList.add(usergroupMap);
             }
 
-            return usergroupMaps;
+            return usergroupMapList;
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e); // ???
         }
     }
 
     @Override
-    public void deleteUsergroup(T client, String usergroup_name) {
+    public void deleteUsergroup(T client, String usergroupName) {
         MultiValueMap<String, Object> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("method", "group_del");
-        requestBody.add("params", new Object[]{usergroup_name, new HashMap<>()});
+        requestBody.add("params", new Object[]{usergroupName, new HashMap<>()});
 
         restTemplate.exchange(
                 requestBuilder.buildApiBaseUrl(ipaHostname, ipaApiEndpoint),

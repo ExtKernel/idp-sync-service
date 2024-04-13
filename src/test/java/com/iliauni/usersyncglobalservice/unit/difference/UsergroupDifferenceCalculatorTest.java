@@ -1,4 +1,4 @@
-package com.iliauni.usersyncglobalservice.unit;
+package com.iliauni.usersyncglobalservice.unit.difference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

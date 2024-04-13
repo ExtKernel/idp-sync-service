@@ -16,12 +16,10 @@ public class IpaIdpRequestBuilder<T extends IpaClient> implements IdpRequestBuil
     @Value("${ipaHostname}")
     private String ipaHostname;
 
-    CookieJarService<T> cookieJarService;
     IpaClientService<T> ipaClientService;
 
     @Autowired
-    public IpaIdpRequestBuilder(CookieJarService<T> cookieJarService, IpaClientService<T> ipaClientService) {
-        this.cookieJarService = cookieJarService;
+    public IpaIdpRequestBuilder(IpaClientService<T> ipaClientService) {
         this.ipaClientService = ipaClientService;
     }
 
@@ -29,7 +27,7 @@ public class IpaIdpRequestBuilder<T extends IpaClient> implements IdpRequestBuil
     public HttpEntity<MultiValueMap<String, Object>> buildHttpRequestEntity(String clientId, MultiValueMap<String, Object> requestBody) {
         return new HttpEntity<>(
                 requestBody,
-                buildHeaders(cookieJarService.generateAndSave(ipaClientService.findById(clientId)).getCookie())
+                buildHeaders(ipaClientService.generateAndSaveCookieJar(clientId).getCookie())
         );
     }
 

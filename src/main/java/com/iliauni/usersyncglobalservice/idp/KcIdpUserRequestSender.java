@@ -78,8 +78,8 @@ public class KcIdpUserRequestSender<T extends KcClient> implements IdpUserReques
         List<MultiValueMap<String, Object>> userMaps = getUserMaps(client);
 
         for (MultiValueMap<String, Object> user : userMaps) {
-            if (Objects.equals(user.get("username").toString(), username)) {
-                return user.get("id").toString();
+            if (Objects.equals(user.get("username").get(0).toString(), username)) {
+                return user.get("id").get(0).toString();
             } else {
                 throw new KcUserWithUsernameNotFoundException("KC user with username " + username + " was not found");
             }

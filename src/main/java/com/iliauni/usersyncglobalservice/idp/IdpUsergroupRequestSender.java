@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface IdpUsergroupRequestSender<T extends Client> {
     Usergroup createUsergroup(T client, Usergroup usergroup);
-    Usergroup getUsergroup(T client, String usergroup_name);
+    Usergroup getUsergroup(T client, String usergroupName);
     List<Usergroup> getUsergroups(T client);
-    void deleteUsergroup(T client, String usergroup_name);
+    void deleteUsergroup(T client, String usergroupName);
 }
