@@ -1,0 +1,46 @@
+# Variables to inject in Java code
+ipaApiEndpoint: ${IPA_API_ENDPOINT}
+ipaHostname: ${IPA_HOSTNAME}
+ipaCertPath: ${IPA_CERT_PATH}
+ipaPrincipalUsername: ${PRINCIPAL_USERNAME}
+ipaPrincipalPassword: ${PRINCIPAL_PASSWORD}
+
+principalRoleName: ${PRINCIPAL_ROLE_NAME}
+
+eureka:
+    client:
+        service-url:
+            default-zone: ${EUREKA_URI:http://localhost:8761/eureka}
+logging:
+    level:
+        root: warn
+server:
+    port: ${SERVER_PORT}
+spring:
+    application:
+        name: user-sync-global-service
+    cloud:
+        loadbalancer:
+            cache:
+                enabled: true
+            enabled: true
+    datasource:
+        driver-class-name: org.postgresql.Driver
+        password: ${DATASOURCE_PASSWORD}
+        url: jdbc:postgresql://${DATASOURCE_URI}/${DATASOURCE_NAME}
+        username: ${DATASOURCE_USERNAME}
+    devtools:
+        livereload:
+            enabled: true
+            port: ${LIVERELOAD_PORT:35730}
+    main:
+        banner-mode: 'off'
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    issuer-uri: http://${KC_BASE_URL}/realms/${REALM}
+                opaquetoken:
+                    client-id: user-sync-global-service
+                    client-secret: ${CLIENT_SECRET}
+                    introspection-uri: http://${KC_BASE_URL}/realms/${REALM}/protocol/openid-connect/token/introspect
