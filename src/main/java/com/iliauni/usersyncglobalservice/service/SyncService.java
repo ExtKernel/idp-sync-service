@@ -1,10 +1,7 @@
 package com.iliauni.usersyncglobalservice.service;
 
-import com.iliauni.usersyncglobalservice.difference.UserDifferenceCalculator;
-import com.iliauni.usersyncglobalservice.difference.UsergroupDifferenceCalculator;
+import com.iliauni.usersyncglobalservice.difference.*;
 import com.iliauni.usersyncglobalservice.exception.UsergroupIsNullException;
-import com.iliauni.usersyncglobalservice.difference.UserListMatcher;
-import com.iliauni.usersyncglobalservice.difference.UsergroupListMatcher;
 import com.iliauni.usersyncglobalservice.idp.IdpUserRequestSender;
 import com.iliauni.usersyncglobalservice.idp.IdpUsergroupRequestSender;
 import com.iliauni.usersyncglobalservice.model.IpaClient;
@@ -33,10 +30,10 @@ public class SyncService {
     @Lazy
     private IpaClientService<IpaClient> ipaClientService;
 
-    private final UsergroupListMatcher usergroupListMatcher;
-    private final UserListMatcher userListMatcher;
-    private final UsergroupDifferenceCalculator usergroupDifferenceCalculator;
-    private final UserDifferenceCalculator userDifferenceCalculator;
+    private final ListMatcher<Usergroup> usergroupListMatcher;
+    private final ListMatcher<User> userListMatcher;
+    private final DifferenceCalculator<Usergroup> usergroupDifferenceCalculator;
+    private final DifferenceCalculator<User> userDifferenceCalculator;
     private IdpUserRequestSender<KcClient> kcIdpUserRequestSender;
     private IdpUsergroupRequestSender<KcClient> kcIdpUsergroupRequestSender;
     private IdpUserRequestSender<IpaClient> ipaIdpUserRequestSender;
