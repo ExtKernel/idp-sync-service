@@ -1,8 +1,9 @@
-package com.iliauni.usersyncglobalservice.idp;
+package com.iliauni.usersyncglobalservice.unit.idp;
 
-import com.iliauni.usersyncglobalservice.model.CookieJar;
-import com.iliauni.usersyncglobalservice.model.IpaClient;
-import com.iliauni.usersyncglobalservice.service.IpaClientService;
+import com.iliauni.usersyncglobalservice.idp.KcIdpRequestBuilder;
+import com.iliauni.usersyncglobalservice.model.AccessToken;
+import com.iliauni.usersyncglobalservice.model.KcClient;
+import com.iliauni.usersyncglobalservice.service.KcClientService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,39 +19,38 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class IpaIdpRequestBuilderTest {
+public class KcIdpRequestBuilderTest {
     @Mock
-    IpaClientService<IpaClient> ipaClientService;
+    KcClientService<KcClient> kcClientService;
 
     @InjectMocks
-    IpaIdpRequestBuilder<IpaClient> ipaIdpRequestBuilder;
+    KcIdpRequestBuilder<KcClient> kcIdpRequestBuilder;
 
     @Test
     public void buildHttpRequestEntityTest_WhenGivenClientIdAndRequestBody_ShouldReturnHttpEntity()
             throws Exception {
         String clientId = "test-client-id";
-        CookieJar cookieJar = new CookieJar();
-        cookieJar.setCookie("test-cookie");
+        AccessToken accessToken = new AccessToken();
+        accessToken.setToken("test-access-token");
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Cookie", cookieJar.getCookie());
-        headers.add("Referer", "https://" + null + "/ipa");
+        headers.setBearerAuth(accessToken.getToken());
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         MultiValueMap<String, Object> requestBody = new LinkedMultiValueMap<>();
 
-        when(ipaClientService.generateAndSaveCookieJar(clientId)).thenReturn(cookieJar);
+        when(kcClientService.generateAccessToken(clientId)).thenReturn(accessToken);
 
-        assertEquals(new HttpEntity<>(requestBody, headers), ipaIdpRequestBuilder.buildHttpRequestEntity(clientId, requestBody));
+        assertEquals(new HttpEntity<>(requestBody, headers), kcIdpRequestBuilder.buildHttpRequestEntity(clientId, requestBody));
     }
 
     @Test
     public void buildApiBaseUrl_WhenGivenKcBaseUrlAndKcRealm_ShouldReturnApiBaseUrl()
             throws Exception{
-        String ipaBaseUrl = "test-base-url";
-        String ipaApiEndpoint = "test-api-endpoint";
+        String kcBaseUrl = "test-base-url";
+        String kcRealm = "test-realm";
 
-        assertEquals("https://" + ipaBaseUrl + ipaApiEndpoint,
-                ipaIdpRequestBuilder.buildApiBaseUrl(ipaBaseUrl, ipaApiEndpoint));
+        assertEquals("http://" + kcBaseUrl + "/admin/realms/" + kcRealm,
+                kcIdpRequestBuilder.buildApiBaseUrl(kcBaseUrl, kcRealm));
     }
 }

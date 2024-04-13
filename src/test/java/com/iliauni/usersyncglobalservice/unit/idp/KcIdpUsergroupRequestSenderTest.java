@@ -1,6 +1,9 @@
-package com.iliauni.usersyncglobalservice.idp;
+package com.iliauni.usersyncglobalservice.unit.idp;
 
 import com.iliauni.usersyncglobalservice.exception.RestTemplateResponseErrorHandler;
+import com.iliauni.usersyncglobalservice.idp.KcIdpObjectMapper;
+import com.iliauni.usersyncglobalservice.idp.KcIdpRequestBuilder;
+import com.iliauni.usersyncglobalservice.idp.KcIdpUsergroupRequestSender;
 import com.iliauni.usersyncglobalservice.model.KcClient;
 import com.iliauni.usersyncglobalservice.model.Usergroup;
 import org.junit.jupiter.api.BeforeEach;
