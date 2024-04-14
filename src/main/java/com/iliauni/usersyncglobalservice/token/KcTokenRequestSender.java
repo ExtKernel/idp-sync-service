@@ -19,30 +19,28 @@ import java.util.*;
 @Component
 public class KcTokenRequestSender<T extends KcClient> implements TokenRequestSender<T> {
     private KcTokenRequestBuilder<T> requestBuilder;
-    private TokenExtractor extractor;
+    private TokenObjectMapper objectMapper;
     private RestTemplate restTemplate;
 
     @Autowired
     public KcTokenRequestSender(
             RestTemplateBuilder restTemplateBuilder,
             KcTokenRequestBuilder<T> requestBuilder,
-            TokenExtractor extractor) {
+            TokenObjectMapper objectMapper) {
         this.restTemplate = restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build();
         this.requestBuilder = requestBuilder;
-        this.extractor = extractor;
+        this.objectMapper = objectMapper;
     }
 
     @Override
     public AccessToken getAccessTokenByRefreshToken(
             T client,
             String tokenEndpointUrl) {
-        return extractor.extractAccessTokenFromJsonMap(
-                (Map<?, ?>) restTemplate.exchange(
+        return objectMapper.mapAccessTokenJsonMapToRefreshToken((Map<String, Object>)
+                restTemplate.exchange(
                         tokenEndpointUrl,
                         HttpMethod.POST,
-                        requestBuilder.buildHttpRequestEntity(
-                                "refresh_token",
-                                client),
+                        requestBuilder.buildHttpRequestEntityWithRefreshTokenGrantType(client),
                         Map.class).getBody());
     }
 
@@ -50,13 +48,11 @@ public class KcTokenRequestSender<T extends KcClient> implements TokenRequestSen
     public AccessToken getAccessTokenByCredentials(
             T client,
             String tokenEndpointUrl) {
-        return extractor.extractAccessTokenFromJsonMap(
-                (Map<?, ?>) restTemplate.exchange(
+        return objectMapper.mapAccessTokenJsonMapToRefreshToken((Map<String, Object>)
+                restTemplate.exchange(
                         tokenEndpointUrl,
                         HttpMethod.POST,
-                        requestBuilder.buildHttpRequestEntity(
-                                "password",
-                                client),
+                        requestBuilder.buildHttpRequestEntityWithPasswordGrantType(client),
                         Map.class).getBody()
         );
     }
@@ -65,13 +61,11 @@ public class KcTokenRequestSender<T extends KcClient> implements TokenRequestSen
     public RefreshToken getRefreshToken(
             T client,
             String tokenEndpointUrl) {
-        return extractor.extractRefreshTokenFromJsonMap(
-                (Map<?, ?>) restTemplate.exchange(
+        return objectMapper.mapRefreshTokenJsonMapToRefreshToken((Map<String, Object>)
+                restTemplate.exchange(
                         tokenEndpointUrl,
                         HttpMethod.POST,
-                        requestBuilder.buildHttpRequestEntity(
-                                "password",
-                                client),
+                        requestBuilder.buildHttpRequestEntityWithPasswordGrantType(client),
                         Map.class).getBody()
         );
     }

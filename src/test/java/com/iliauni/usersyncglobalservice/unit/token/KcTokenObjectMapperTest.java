@@ -2,7 +2,7 @@ package com.iliauni.usersyncglobalservice.unit.token;
 
 import com.iliauni.usersyncglobalservice.model.AccessToken;
 import com.iliauni.usersyncglobalservice.model.RefreshToken;
-import com.iliauni.usersyncglobalservice.token.KcTokenExtractor;
+import com.iliauni.usersyncglobalservice.token.KcTokenObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -10,10 +10,10 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class KcTokenExtractorTest {
+public class KcTokenObjectMapperTest {
 
     @Test
-    public void extractRefreshTokenFromJsonMap_WhenGivenJsonMap_ShouldReturnRefreshToken()
+    public void mapRefreshTokenJsonMapToRefreshToken_WhenGivenJsonMap_ShouldReturnRefreshToken()
             throws Exception {
         Map<String, Object> jsonMap = new HashMap<>();
         jsonMap.put("refresh_token", "test-refresh-token");
@@ -23,13 +23,13 @@ public class KcTokenExtractorTest {
                 (String) jsonMap.get("refresh_token"),
                 (int) jsonMap.get("refresh_expires_in"));
 
-        KcTokenExtractor kcTokenExtractor = new KcTokenExtractor();
-        assertEquals(refreshToken.getToken(), kcTokenExtractor.extractRefreshTokenFromJsonMap(jsonMap).getToken());
-        assertEquals(refreshToken.getExpiresIn(), kcTokenExtractor.extractRefreshTokenFromJsonMap(jsonMap).getExpiresIn());
+        KcTokenObjectMapper kcTokenExtractor = new KcTokenObjectMapper();
+        assertEquals(refreshToken.getToken(), kcTokenExtractor.mapRefreshTokenJsonMapToRefreshToken(jsonMap).getToken());
+        assertEquals(refreshToken.getExpiresIn(), kcTokenExtractor.mapRefreshTokenJsonMapToRefreshToken(jsonMap).getExpiresIn());
     }
 
     @Test
-    public void extractAccessTokenFromJsonMap_WhenGivenJsonMap_ShouldReturnAccessToken()
+    public void mapAccessTokenJsonMapToRefreshToken_WhenGivenJsonMap_ShouldReturnAccessToken()
             throws Exception {
         Map<String, Object> jsonMap = new HashMap<>();
         jsonMap.put("access_token", "test-access-token");
@@ -39,8 +39,8 @@ public class KcTokenExtractorTest {
                 (String) jsonMap.get("access_token"),
                 (int) jsonMap.get("expires_in"));
 
-        KcTokenExtractor kcTokenExtractor = new KcTokenExtractor();
-        assertEquals(accessToken.getToken(), kcTokenExtractor.extractAccessTokenFromJsonMap(jsonMap).getToken());
-        assertEquals(accessToken.getExpiresIn(), kcTokenExtractor.extractAccessTokenFromJsonMap(jsonMap).getExpiresIn());
+        KcTokenObjectMapper kcTokenExtractor = new KcTokenObjectMapper();
+        assertEquals(accessToken.getToken(), kcTokenExtractor.mapAccessTokenJsonMapToRefreshToken(jsonMap).getToken());
+        assertEquals(accessToken.getExpiresIn(), kcTokenExtractor.mapAccessTokenJsonMapToRefreshToken(jsonMap).getExpiresIn());
     }
 }

@@ -5,7 +5,7 @@ import com.iliauni.usersyncglobalservice.model.RefreshToken;
 
 import java.util.Map;
 
-public interface TokenExtractor {
+public interface TokenObjectMapper {
 
     /**
      * Extracts the refresh token and its expiration time
@@ -16,8 +16,8 @@ public interface TokenExtractor {
      * @return A RefreshToken object
      * initialized with the extracted refresh token and expiration time.
      */
-    RefreshToken extractRefreshTokenFromJsonMap(
-            Map<?, ?> jsonMap
+    RefreshToken mapRefreshTokenJsonMapToRefreshToken(
+            Map<String, Object> jsonMap
     );
 
     /**
@@ -29,7 +29,7 @@ public interface TokenExtractor {
      * @return A AccessToken object
      * initialized with the extracted access token and expiration time.
      */
-    AccessToken extractAccessTokenFromJsonMap(
-            Map<?, ?> jsonMap
+    AccessToken mapAccessTokenJsonMapToRefreshToken(
+            Map<String, Object> jsonMap
     );
 }

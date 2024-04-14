@@ -1,10 +1,7 @@
 package com.iliauni.usersyncglobalservice.token;
 
-import com.iliauni.usersyncglobalservice.exception.GrantTypeIsUnsupportedException;
 import com.iliauni.usersyncglobalservice.model.KcClient;
-import com.iliauni.usersyncglobalservice.model.Oauth2Client;
 import com.iliauni.usersyncglobalservice.service.KcClientService;
-import com.iliauni.usersyncglobalservice.service.Oauth2ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
@@ -14,10 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.util.Objects;
-
 @Component
-public class KcTokenRequestBuilder<T extends KcClient> {
+public class KcTokenRequestBuilder<T extends KcClient> implements TokenRequestBuilder<T> {
     @Lazy
     private KcClientService<T> clientService;
 
@@ -26,50 +21,23 @@ public class KcTokenRequestBuilder<T extends KcClient> {
         this.clientService = clientService;
     }
 
-    public HttpEntity<MultiValueMap<String, String>> buildHttpRequestEntity(String grantType, T client) {
-        if (Objects.equals(grantType, "password")) {
-            return buildHttpRequestEntityWithPasswordGrantType(
-                    client.getId(),
-                    client.getClientSecret(),
-                    client.getPrincipalUsername(),
-                    client.getPrincipalPassword()
-            );
-        } else if (Objects.equals(grantType, "refresh_token")) {
-            return buildHttpRequestEntityWithRefreshTokenGrantType(
-                    client.getId(),
-                    client.getClientSecret(),
-                    clientService.getLatestRefreshToken(client.getId()).getToken()
-            );
-        } else {
-            throw new
-                    GrantTypeIsUnsupportedException("Grant type is unsupported");
-        }
-    }
-
-    private HttpEntity<MultiValueMap<String, String>> buildHttpRequestEntityWithPasswordGrantType(
-            String clientId,
-            String clientSecret,
-            String principalUsername,
-            String principalPassword) {
+    public HttpEntity<MultiValueMap<String, String>> buildHttpRequestEntityWithPasswordGrantType(T client) {
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
-        requestBody.add("client_id", clientId);
-        requestBody.add("client_secret", clientSecret);
+        requestBody.add("client_id", client.getId());
+        requestBody.add("client_secret", client.getClientSecret());
+        requestBody.add("username", client.getPrincipalPassword());
+        requestBody.add("password", client.getPrincipalPassword());
         requestBody.add("grant_type", "password");
-        requestBody.add("username", principalUsername);
-        requestBody.add("password", principalPassword);
 
         return new HttpEntity<>(requestBody, setHeaders());
     }
 
-    private HttpEntity<MultiValueMap<String, String>> buildHttpRequestEntityWithRefreshTokenGrantType(
-            String clientId,
-            String clientSecret,
-            String refreshToken) {
+    public HttpEntity<MultiValueMap<String, String>> buildHttpRequestEntityWithRefreshTokenGrantType(T client) {
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
-        requestBody.add("client_id", clientId);
-        requestBody.add("client_secret", clientSecret);
+        requestBody.add("client_id", client.getId());
+        requestBody.add("client_secret", client.getClientSecret());
+        requestBody.add("refresh_token", clientService.getLatestRefreshToken(client.getId()).getToken());
         requestBody.add("grant_type", "refresh_token");
-        requestBody.add("refresh_token", refreshToken);
 
         return new HttpEntity<>(requestBody, setHeaders());
     }

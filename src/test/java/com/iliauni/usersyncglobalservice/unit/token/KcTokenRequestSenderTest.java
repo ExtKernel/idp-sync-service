@@ -5,7 +5,7 @@ import com.iliauni.usersyncglobalservice.model.KcClient;
 import com.iliauni.usersyncglobalservice.model.RefreshToken;
 import com.iliauni.usersyncglobalservice.token.KcTokenRequestBuilder;
 import com.iliauni.usersyncglobalservice.token.KcTokenRequestSender;
-import com.iliauni.usersyncglobalservice.token.TokenExtractor;
+import com.iliauni.usersyncglobalservice.token.TokenObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,7 +28,7 @@ public class KcTokenRequestSenderTest {
     private KcTokenRequestBuilder<KcClient> kcTokenRequestBuilder;
 
     @Mock
-    private TokenExtractor tokenExtractor;
+    private TokenObjectMapper tokenObjectMapper;
 
     @Mock
     private RestTemplate restTemplate;
@@ -48,13 +48,10 @@ public class KcTokenRequestSenderTest {
         when(restTemplate.exchange(
                 tokenEndpointUrl,
                 HttpMethod.POST,
-                kcTokenRequestBuilder.buildHttpRequestEntity(
-                        "refresh_token",
-                        client
-                ),
+                kcTokenRequestBuilder.buildHttpRequestEntityWithRefreshTokenGrantType(client),
                 Map.class)
         ).thenReturn(new ResponseEntity<>(jsonMap, HttpStatus.OK));
-        when(tokenExtractor.extractAccessTokenFromJsonMap(jsonMap)).thenReturn(accessToken);
+        when(tokenObjectMapper.mapAccessTokenJsonMapToRefreshToken(jsonMap)).thenReturn(accessToken);
 
         assertEquals(accessToken.getToken(), kcTokenRequestSender.getAccessTokenByRefreshToken(client, tokenEndpointUrl).getToken());
         assertEquals(accessToken.getExpiresIn(), kcTokenRequestSender.getAccessTokenByRefreshToken(client, tokenEndpointUrl).getExpiresIn());
@@ -70,13 +67,10 @@ public class KcTokenRequestSenderTest {
         when(restTemplate.exchange(
                 tokenEndpointUrl,
                 HttpMethod.POST,
-                kcTokenRequestBuilder.buildHttpRequestEntity(
-                        "password",
-                        client
-                ),
+                kcTokenRequestBuilder.buildHttpRequestEntityWithPasswordGrantType(client),
                 Map.class)
         ).thenReturn(new ResponseEntity<>(jsonMap, HttpStatus.OK));
-        when(tokenExtractor.extractAccessTokenFromJsonMap(jsonMap)).thenReturn(accessToken);
+        when(tokenObjectMapper.mapAccessTokenJsonMapToRefreshToken(jsonMap)).thenReturn(accessToken);
 
         assertEquals(accessToken.getToken(), kcTokenRequestSender.getAccessTokenByRefreshToken(client, tokenEndpointUrl).getToken());
         assertEquals(accessToken.getExpiresIn(), kcTokenRequestSender.getAccessTokenByRefreshToken(client, tokenEndpointUrl).getExpiresIn());
@@ -92,13 +86,10 @@ public class KcTokenRequestSenderTest {
         when(restTemplate.exchange(
                 tokenEndpointUrl,
                 HttpMethod.POST,
-                kcTokenRequestBuilder.buildHttpRequestEntity(
-                        "password",
-                        client
-                ),
+                kcTokenRequestBuilder.buildHttpRequestEntityWithPasswordGrantType(client),
                 Map.class)
         ).thenReturn(new ResponseEntity<>(jsonMap, HttpStatus.OK));
-        when(tokenExtractor.extractRefreshTokenFromJsonMap(jsonMap)).thenReturn(refreshToken);
+        when(tokenObjectMapper.mapRefreshTokenJsonMapToRefreshToken(jsonMap)).thenReturn(refreshToken);
 
         assertEquals(refreshToken.getToken(), kcTokenRequestSender.getRefreshToken(client, tokenEndpointUrl).getToken());
         assertEquals(refreshToken.getExpiresIn(), kcTokenRequestSender.getRefreshToken(client, tokenEndpointUrl).getExpiresIn());

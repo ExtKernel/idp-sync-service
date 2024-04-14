@@ -7,20 +7,18 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class KcTokenExtractor implements TokenExtractor {
-    public RefreshToken extractRefreshTokenFromJsonMap(
-            Map<?, ?> jsonMap
-    ) {
+public class KcTokenObjectMapper implements TokenObjectMapper {
+
+    @Override
+    public RefreshToken mapRefreshTokenJsonMapToRefreshToken(Map<String, Object> jsonMap) {
         return new RefreshToken(
                 (String) jsonMap.get("refresh_token"),
                 (int) jsonMap.get("refresh_expires_in"));
     }
 
-    public AccessToken extractAccessTokenFromJsonMap(
-            Map<?, ?> jsonMap
-    ) {
+    @Override
+    public AccessToken mapAccessTokenJsonMapToRefreshToken(Map<String, Object> jsonMap) {
         return new AccessToken(
                 (String) jsonMap.get("access_token"),
-                (int) jsonMap.get("expires_in"));
-    }
+                (int) jsonMap.get("expires_in"));    }
 }

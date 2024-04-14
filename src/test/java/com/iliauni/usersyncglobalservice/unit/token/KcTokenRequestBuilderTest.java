@@ -38,7 +38,7 @@ public class KcTokenRequestBuilderTest {
         requestBody.add("username", client.getPrincipalUsername());
         requestBody.add("password", client.getPrincipalPassword());
 
-        assertEquals(new HttpEntity<>(requestBody, buildHeaders()), kcTokenRequestBuilder.buildHttpRequestEntity("password", client));
+        assertEquals(new HttpEntity<>(requestBody, buildHeaders()), kcTokenRequestBuilder.buildHttpRequestEntityWithPasswordGrantType(client));
     }
 
     @Test
@@ -57,7 +57,7 @@ public class KcTokenRequestBuilderTest {
         requestBody.add("grant_type", "refresh_token");
         requestBody.add("refresh_token", refreshToken.getToken());
 
-        assertEquals(new HttpEntity<>(requestBody, buildHeaders()), kcTokenRequestBuilder.buildHttpRequestEntity("refresh_token", client));
+        assertEquals(new HttpEntity<>(requestBody, buildHeaders()), kcTokenRequestBuilder.buildHttpRequestEntityWithRefreshTokenGrantType(client));
     }
 
     private KcClient buildClientObject() {
