@@ -3,7 +3,6 @@ package com.iliauni.usersyncglobalservice.difference;
 import com.iliauni.usersyncglobalservice.model.User;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,15 +16,5 @@ public class UserListMatcher implements ListMatcher<User> {
         Set<User> set2 = new HashSet<>(list2);
 
         return set1.equals(set2);
-    }
-
-    @Override
-    public List<User> getListsDifference(List<User> originalList, List<User> targetList) {
-        Set<User> originalSet = new HashSet<>(originalList);
-        Set<User> differentSet = new HashSet<>(targetList);
-
-        differentSet.removeAll(originalSet);
-
-        return new ArrayList<>(differentSet);
     }
 }

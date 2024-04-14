@@ -41,45 +41,4 @@ public class UsergroupListMatcherTest {
         UsergroupListMatcher userListMatcher = new UsergroupListMatcher();
         assertFalse(userListMatcher.listsMatch(usergroupList1, usergroupList2));
     }
-
-    @Test
-    public void getListsDifference_WhenGivenDifferentLists_ShouldReturnDifference()
-            throws Exception {
-        List<Usergroup> usergroupList1 = new ArrayList<>();
-        List<Usergroup> usergroupList2 = new ArrayList<>();
-
-        // add the same usergroup to both lists
-        // so at this point, lists are equal
-        Usergroup usergroup1 = new Usergroup();
-        usergroupList1.add(usergroup1);
-        usergroupList2.add(usergroup1);
-
-        // add a new usergroup to the second list
-        // so lists are unequal
-        Usergroup usergroup2 = new Usergroup();
-        usergroupList2.add(usergroup2);
-
-        // add the difference of lists above to a list
-        List<Usergroup> differenceList = new ArrayList<>();
-        differenceList.add(usergroup2);
-
-        UsergroupListMatcher userListMatcher = new UsergroupListMatcher();
-        assertEquals(differenceList, userListMatcher.getListsDifference(usergroupList1, usergroupList2));
-    }
-
-    @Test
-    public void getListsDifference_WhenGivenEqualLists_ShouldReturnEmptyList()
-            throws Exception {
-        List<Usergroup> usergroupList1 = new ArrayList<>();
-        List<Usergroup> usergroupList2 = new ArrayList<>();
-
-        // add the same usergroup to both lists
-        // so lists are equal
-        Usergroup usergroup1 = new Usergroup();
-        usergroupList1.add(usergroup1);
-        usergroupList2.add(usergroup1);
-
-        UsergroupListMatcher usergroupListMatcher = new UsergroupListMatcher();
-        assertEquals(new ArrayList<>(), usergroupListMatcher.getListsDifference(usergroupList1, usergroupList2));
-    }
 }

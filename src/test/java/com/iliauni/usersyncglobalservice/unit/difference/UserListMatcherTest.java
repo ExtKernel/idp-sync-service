@@ -41,45 +41,4 @@ public class UserListMatcherTest {
         UserListMatcher userListMatcher = new UserListMatcher();
         assertFalse(userListMatcher.listsMatch(userList1, userList2));
     }
-
-    @Test
-    public void getListsDifference_WhenGivenDifferentLists_ShouldReturnDifference()
-            throws Exception {
-        List<User> userList1 = new ArrayList<>();
-        List<User> userList2 = new ArrayList<>();
-
-        // add the same user to both lists
-        // so at this point, lists are equal
-        User user1 = new User();
-        userList1.add(user1);
-        userList2.add(user1);
-
-        // add a new user to the second list
-        // so lists are unequal
-        User user2 = new User();
-        userList2.add(user2);
-
-        // add the difference of lists above to a list
-        List<User> differenceList = new ArrayList<>();
-        differenceList.add(user2);
-
-        UserListMatcher userListMatcher = new UserListMatcher();
-        assertEquals(differenceList, userListMatcher.getListsDifference(userList1, userList2));
-    }
-
-    @Test
-    public void getListsDifference_WhenGivenEqualLists_ShouldReturnEmptyList()
-            throws Exception {
-        List<User> userList1 = new ArrayList<>();
-        List<User> userList2 = new ArrayList<>();
-
-        // add the same user to both lists
-        // so lists are equal
-        User user1 = new User();
-        userList1.add(user1);
-        userList2.add(user1);
-
-        UserListMatcher userListMatcher = new UserListMatcher();
-        assertEquals(new ArrayList<>(), userListMatcher.getListsDifference(userList1, userList2));
-    }
 }
