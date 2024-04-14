@@ -64,6 +64,12 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
         return headers;
     }
 
+    @Override
+    public String buildApiBaseUrl(String baseUrl, String endpoint) {
+        return "https://" + baseUrl + endpoint;
+    }
+
+    @Override
     public RestTemplate getRestTemplate() {
         try {
             // Create a RestTemplate with the custom HttpClient, interceptor and error handler
