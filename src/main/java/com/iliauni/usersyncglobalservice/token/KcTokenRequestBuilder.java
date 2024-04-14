@@ -1,7 +1,9 @@
 package com.iliauni.usersyncglobalservice.token;
 
 import com.iliauni.usersyncglobalservice.exception.GrantTypeIsUnsupportedException;
+import com.iliauni.usersyncglobalservice.model.KcClient;
 import com.iliauni.usersyncglobalservice.model.Oauth2Client;
+import com.iliauni.usersyncglobalservice.service.KcClientService;
 import com.iliauni.usersyncglobalservice.service.Oauth2ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -15,12 +17,12 @@ import org.springframework.util.MultiValueMap;
 import java.util.Objects;
 
 @Component
-public class TokenRequestBuilder<T extends Oauth2Client> {
+public class KcTokenRequestBuilder<T extends KcClient> {
     @Lazy
-    private Oauth2ClientService<T> clientService;
+    private KcClientService<T> clientService;
 
     @Autowired
-    public TokenRequestBuilder(Oauth2ClientService<T> clientService) {
+    public KcTokenRequestBuilder(KcClientService<T> clientService) {
         this.clientService = clientService;
     }
 
@@ -54,7 +56,7 @@ public class TokenRequestBuilder<T extends Oauth2Client> {
         requestBody.add("client_secret", clientSecret);
         requestBody.add("grant_type", "password");
         requestBody.add("username", principalUsername);
-        requestBody.add("password", principalUsername);
+        requestBody.add("password", principalPassword);
 
         return new HttpEntity<>(requestBody, setHeaders());
     }

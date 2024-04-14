@@ -18,14 +18,14 @@ import java.util.*;
 @AllArgsConstructor
 @Component
 public class KcTokenRequestSender<T extends KcClient> implements TokenRequestSender<T> {
-    private TokenRequestBuilder<T> requestBuilder;
+    private KcTokenRequestBuilder<T> requestBuilder;
     private TokenExtractor extractor;
     private RestTemplate restTemplate;
 
     @Autowired
     public KcTokenRequestSender(
             RestTemplateBuilder restTemplateBuilder,
-            TokenRequestBuilder<T> requestBuilder,
+            KcTokenRequestBuilder<T> requestBuilder,
             TokenExtractor extractor) {
         this.restTemplate = restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build();
         this.requestBuilder = requestBuilder;

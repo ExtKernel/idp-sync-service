@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class KcTokenRetriever<T extends KcClient> implements TokenRetriever<T> {
     @Lazy
-    KcClientService clientService;
+    KcClientService<T> clientService;
 
     TokenRequestSender<T> requestSender;
 
     @Autowired
-    public KcTokenRetriever(KcClientService clientService, TokenRequestSender<T> requestSender) {
+    public KcTokenRetriever(KcClientService<T> clientService, TokenRequestSender<T> requestSender) {
         this.clientService = clientService;
         this.requestSender = requestSender;
     }
