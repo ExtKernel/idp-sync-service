@@ -3,6 +3,7 @@ package com.iliauni.usersyncglobalservice.idp;
 import com.iliauni.usersyncglobalservice.model.KcClient;
 import com.iliauni.usersyncglobalservice.service.KcClientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -12,6 +13,9 @@ import org.springframework.util.MultiValueMap;
 @Component
 public class KcIdpRequestBuilder<T extends KcClient> implements IdpRequestBuilder<T> {
     private final KcClientService<T> clientService;
+
+    @Value("${kcAdminCliClientId}")
+    private String kcAdminCliClientId;
 
     @Autowired
     public KcIdpRequestBuilder(KcClientService<T> clientService) {
@@ -24,7 +28,7 @@ public class KcIdpRequestBuilder<T extends KcClient> implements IdpRequestBuilde
             MultiValueMap<String, Object> requestBody) {
         return new HttpEntity<>(
                 requestBody,
-                buildHeaders(clientService.generateAccessToken(clientId).getToken())
+                buildHeaders(clientService.generateAccessToken(kcAdminCliClientId).getToken())
         );
     }
 

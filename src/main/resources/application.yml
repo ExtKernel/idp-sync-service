@@ -1,9 +1,12 @@
 # Variables to inject in Java code
 ipaApiEndpoint: ${IPA_API_ENDPOINT}
+ipaApiAuthEndpoint: ${IPA_API_AUTH_ENDPOINT}
 ipaHostname: ${IPA_HOSTNAME}
 ipaCertPath: ${IPA_CERT_PATH}
 ipaPrincipalUsername: ${PRINCIPAL_USERNAME}
 ipaPrincipalPassword: ${PRINCIPAL_PASSWORD}
+
+kcAdminCliClientId: ${KC_ADMIN_CLI_CLIENT_ID}
 
 principalRoleName: ${PRINCIPAL_ROLE_NAME}
 

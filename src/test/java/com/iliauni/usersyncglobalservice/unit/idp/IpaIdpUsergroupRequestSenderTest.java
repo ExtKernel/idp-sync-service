@@ -29,18 +29,18 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class IpaIdpUsergroupRequestSenderTest {
     @Mock
-    RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     @Mock
-    IpaIdpRequestBuilder<IpaClient> ipaIdpRequestBuilder;
+    private IpaIdpRequestBuilder<IpaClient> ipaIdpRequestBuilder;
 
     @Mock
-    IpaIdpObjectMapper ipaIdpObjectMapper;
+    private IpaIdpObjectMapper ipaIdpObjectMapper;
 
     @Mock
-    RestTemplateBuilder restTemplateBuilder;
+    private RestTemplateBuilder restTemplateBuilder;
 
-    IpaIdpUsergroupRequestSender<IpaClient> ipaIdpUsergroupRequestSender;
+    private IpaIdpUsergroupRequestSender<IpaClient> ipaIdpUsergroupRequestSender;
     private final String ipaHostname = "test-hostname";
     private final String ipaApiEndpoint = "test-api-endpoint";
 

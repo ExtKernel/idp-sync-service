@@ -21,10 +21,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class KcIdpRequestBuilderTest {
     @Mock
-    KcClientService<KcClient> kcClientService;
+    private KcClientService<KcClient> kcClientService;
 
     @InjectMocks
-    KcIdpRequestBuilder<KcClient> kcIdpRequestBuilder;
+    private KcIdpRequestBuilder<KcClient> kcIdpRequestBuilder;
 
     @Test
     public void buildHttpRequestEntityTest_WhenGivenClientIdAndRequestBody_ShouldReturnHttpEntity()
@@ -39,7 +39,7 @@ public class KcIdpRequestBuilderTest {
 
         MultiValueMap<String, Object> requestBody = new LinkedMultiValueMap<>();
 
-        when(kcClientService.generateAccessToken(clientId)).thenReturn(accessToken);
+        when(kcClientService.generateAccessToken(null)).thenReturn(accessToken);
 
         assertEquals(new HttpEntity<>(requestBody, headers), kcIdpRequestBuilder.buildHttpRequestEntity(clientId, requestBody));
     }

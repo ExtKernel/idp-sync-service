@@ -31,18 +31,18 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class KcIdpUserRequestSenderTest {
     @Mock
-    RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     @Mock
-    KcIdpRequestBuilder<KcClient> kcIdpRequestBuilder;
+    private KcIdpRequestBuilder<KcClient> kcIdpRequestBuilder;
 
     @Mock
-    KcIdpObjectMapper kcIdpObjectMapper;
+    private KcIdpObjectMapper kcIdpObjectMapper;
 
     @Mock
-    RestTemplateBuilder restTemplateBuilder;
+    private RestTemplateBuilder restTemplateBuilder;
 
-    KcIdpUserRequestSender<KcClient> kcIdpUserRequestSender;
+    private KcIdpUserRequestSender<KcClient> kcIdpUserRequestSender;
     private final String kcBaseUrl = "test-base-url";
     private final String kcRealm = "test-realm";
 

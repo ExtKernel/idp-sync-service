@@ -21,10 +21,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class IpaIdpRequestBuilderTest {
     @Mock
-    IpaClientService<IpaClient> ipaClientService;
+    private IpaClientService<IpaClient> ipaClientService;
 
     @InjectMocks
-    IpaIdpRequestBuilder<IpaClient> ipaIdpRequestBuilder;
+    private IpaIdpRequestBuilder<IpaClient> ipaIdpRequestBuilder;
 
     @Test
     public void buildHttpRequestEntityTest_WhenGivenClientIdAndRequestBody_ShouldReturnHttpEntity()
