@@ -1,9 +1,10 @@
 package com.iliauni.usersyncglobalservice.difference;
 
-import jakarta.ws.rs.core.MultivaluedHashMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DifferenceCalculator<T> {
-    MultivaluedHashMap<String, T> calculate(List<T> originalList, List<T> targetList);
+    MultiValueMap<String, Optional<T>> calculate(List<T> originalList, List<T> targetList);
 }

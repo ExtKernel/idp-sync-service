@@ -4,11 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.iliauni.usersyncglobalservice.difference.UsergroupDifferenceCalculator;
 import com.iliauni.usersyncglobalservice.model.Usergroup;
-import jakarta.ws.rs.core.MultivaluedHashMap;
-import jakarta.ws.rs.core.MultivaluedMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 public class UsergroupDifferenceCalculatorTest {
 
@@ -24,9 +26,9 @@ public class UsergroupDifferenceCalculatorTest {
         usergroupList1.add(usergroup1);
         usergroupList2.add(usergroup2);
 
-        MultivaluedMap<String, Usergroup> differenceMap = new MultivaluedHashMap<>();
-        differenceMap.add("new", usergroup2);
-        differenceMap.add("missing", usergroup1);
+        MultiValueMap<String, Optional<Usergroup>> differenceMap = new LinkedMultiValueMap<>();
+        differenceMap.add("new", Optional.of(usergroup2));
+        differenceMap.add("missing", Optional.of(usergroup1));
 
         UsergroupDifferenceCalculator usergroupDifferenceCalculator = new UsergroupDifferenceCalculator();
         assertEquals(differenceMap, usergroupDifferenceCalculator.calculate(usergroupList1, usergroupList2));
@@ -47,6 +49,6 @@ public class UsergroupDifferenceCalculatorTest {
         usergroupList2.add(usergroup2);
 
         UsergroupDifferenceCalculator usergroupDifferenceCalculator = new UsergroupDifferenceCalculator();
-        assertEquals(new MultivaluedHashMap<>(), usergroupDifferenceCalculator.calculate(usergroupList1, usergroupList2));
+        assertEquals(new LinkedMultiValueMap<>(), usergroupDifferenceCalculator.calculate(usergroupList1, usergroupList2));
     }
 }

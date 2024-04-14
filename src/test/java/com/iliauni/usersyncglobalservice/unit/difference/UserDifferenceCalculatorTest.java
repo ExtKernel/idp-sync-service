@@ -2,12 +2,13 @@ package com.iliauni.usersyncglobalservice.unit.difference;
 
 import com.iliauni.usersyncglobalservice.difference.UserDifferenceCalculator;
 import com.iliauni.usersyncglobalservice.model.User;
-import jakarta.ws.rs.core.MultivaluedHashMap;
-import jakarta.ws.rs.core.MultivaluedMap;
 import org.junit.jupiter.api.Test;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -25,9 +26,9 @@ public class UserDifferenceCalculatorTest {
         userList1.add(user1);
         userList2.add(user2);
 
-        MultivaluedMap<String, User> differenceMap = new MultivaluedHashMap<>();
-        differenceMap.add("new", user2);
-        differenceMap.add("missing", user1);
+        MultiValueMap<String, Optional<User>> differenceMap = new LinkedMultiValueMap<>();
+        differenceMap.add("new", Optional.of(user2));
+        differenceMap.add("missing", Optional.of(user1));
 
         UserDifferenceCalculator userDifferenceCalculator = new UserDifferenceCalculator();
         assertEquals(differenceMap, userDifferenceCalculator.calculate(userList1, userList2));
@@ -48,6 +49,6 @@ public class UserDifferenceCalculatorTest {
         userList2.add(user2);
 
         UserDifferenceCalculator userDifferenceCalculator = new UserDifferenceCalculator();
-        assertEquals(new MultivaluedHashMap<>(), userDifferenceCalculator.calculate(userList1, userList2));
+        assertEquals(new LinkedMultiValueMap<>(), userDifferenceCalculator.calculate(userList1, userList2));
     }
 }
