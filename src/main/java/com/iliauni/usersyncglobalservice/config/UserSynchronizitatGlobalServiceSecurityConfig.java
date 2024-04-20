@@ -53,7 +53,10 @@ public class UserSynchronizitatGlobalServiceSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, KeycloakAuthenticationConverter authenticationConverter) throws Exception {
+    public SecurityFilterChain filterChain(
+            HttpSecurity http,
+            KeycloakAuthenticationConverter authenticationConverter
+    ) throws Exception {
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(authenticationConverter)));
         http.cors(AbstractHttpConfigurer::disable);
         http.sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

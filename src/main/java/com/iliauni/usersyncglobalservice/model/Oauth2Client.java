@@ -14,10 +14,9 @@ import java.util.Objects;
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Entity
 public class Oauth2Client extends Client {
-
     @Column(name = "client_secret")
     private String clientSecret;
 

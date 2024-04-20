@@ -1,45 +1,35 @@
 package com.iliauni.usersyncglobalservice.token;
 
-import com.iliauni.usersyncglobalservice.exception.NoRecordOfRefreshTokenForTheClientException;
 import com.iliauni.usersyncglobalservice.model.AccessToken;
 import com.iliauni.usersyncglobalservice.model.KcClient;
 import com.iliauni.usersyncglobalservice.model.RefreshToken;
-import com.iliauni.usersyncglobalservice.service.KcClientService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-@Lazy
 @Component
-public class KcTokenRetriever<T extends KcClient> implements TokenRetriever<T> {
-    @Lazy
-    KcClientService<T> clientService;
-
-    TokenRequestSender<T> requestSender;
+public class KcTokenRetriever implements TokenRetriever<KcClient> {
+    private final TokenRequestSender<KcClient> requestSender;
 
     @Autowired
-    public KcTokenRetriever(KcClientService<T> clientService, TokenRequestSender<T> requestSender) {
-        this.clientService = clientService;
+    public KcTokenRetriever(
+            TokenRequestSender<KcClient> requestSender
+    ) {
         this.requestSender = requestSender;
     }
 
     @Override
     public AccessToken retrieveAccessToken(
-            T client,
-            String tokenEndpointUrl) {
-        try {
-            clientService.getLatestRefreshToken(client.getId());
-        } catch (NoRecordOfRefreshTokenForTheClientException exception) {
-            clientService.generateAndSaveRefreshToken(client.getId());
-        }
-
+            KcClient client,
+            String tokenEndpointUrl
+    ) {
         return requestSender.getAccessTokenByRefreshToken(client, tokenEndpointUrl);
     }
 
     @Override
     public RefreshToken retrieveRefreshToken(
-            T client,
-            String tokenEndpointUrl) {
+            KcClient client,
+            String tokenEndpointUrl
+    ) {
         return requestSender.getRefreshToken(client, tokenEndpointUrl);
     }
 }

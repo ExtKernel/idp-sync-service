@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class KcTokenRequestSenderTest {
     @Mock
-    private KcTokenRequestBuilder<KcClient> kcTokenRequestBuilder;
+    private KcTokenRequestBuilder kcTokenRequestBuilder;
 
     @Mock
     private TokenObjectMapper tokenObjectMapper;
@@ -34,7 +34,7 @@ public class KcTokenRequestSenderTest {
     private RestTemplate restTemplate;
 
     @InjectMocks
-    private KcTokenRequestSender<KcClient> kcTokenRequestSender;
+    private KcTokenRequestSender kcTokenRequestSender;
 
     private final String tokenEndpointUrl = "test-token-endpoint-url";
 
@@ -43,12 +43,13 @@ public class KcTokenRequestSenderTest {
         throws Exception {
         KcClient client = buildClientObject();
         AccessToken accessToken = buildAccessTokenObject();
+        RefreshToken refreshToken = buildRefreshTokenObject();
         Map<String, Object> jsonMap = buildAccessTokenMap(accessToken);
 
         when(restTemplate.exchange(
                 tokenEndpointUrl,
                 HttpMethod.POST,
-                kcTokenRequestBuilder.buildHttpRequestEntityWithRefreshTokenGrantType(client),
+                kcTokenRequestBuilder.buildHttpRequestEntityWithRefreshTokenGrantType(client, refreshToken.getToken()),
                 Map.class)
         ).thenReturn(new ResponseEntity<>(jsonMap, HttpStatus.OK));
         when(tokenObjectMapper.mapAccessTokenJsonMapToRefreshToken(jsonMap)).thenReturn(accessToken);

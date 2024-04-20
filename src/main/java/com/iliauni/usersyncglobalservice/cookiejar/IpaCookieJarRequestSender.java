@@ -11,26 +11,38 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+/**
+ * A component class implementing the {@link CookieJarRequestSender} interface for sending requests to obtain cookies from the FreeIPA IDP system.
+ *
+ * @param <T> the type of IPA client used for the request
+ */
 @Component
 public class IpaCookieJarRequestSender<T extends IpaClient> implements CookieJarRequestSender<T> {
     private final CookieJarRequestBuilder<T> requestBuilder;
 
-    @Value("${ipaHostname}")
-    private String ipaHostname;
-
-    @Value("${ipaApiAuthEndpoint}")
-    private String ipaApiEndpoint;
-
+    /**
+     * Constructs an {@code IpaCookieJarRequestSender} instance with the specified {@link CookieJarRequestBuilder}.
+     *
+     * @param requestBuilder the request builder for obtaining cookies
+     */
     @Autowired
     public IpaCookieJarRequestSender(
-            CookieJarRequestBuilder<T> requestBuilder) {
+            CookieJarRequestBuilder<T> requestBuilder
+    ) {
         this.requestBuilder = requestBuilder;
     }
 
+    /**
+     * @inheritDoc
+     * Generates and retrieves a cookie from the FreeIPA IDP system.
+     */
     @Override
-    public String getCookie(T client) {
+    public String getCookie(
+            T client,
+            String endpointUrl
+    ) {
         ResponseEntity<Map> response = requestBuilder.getRestTemplate().exchange(
-                requestBuilder.buildApiBaseUrl(ipaHostname, ipaApiEndpoint),
+                endpointUrl,
                 HttpMethod.POST,
                 requestBuilder.buildHttpRequestEntity(client),
                 Map.class);

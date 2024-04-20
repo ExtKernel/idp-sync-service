@@ -6,5 +6,8 @@ import org.springframework.util.MultiValueMap;
 
 public interface TokenRequestBuilder<T extends Oauth2Client> {
     HttpEntity<MultiValueMap<String, String>> buildHttpRequestEntityWithPasswordGrantType(T client);
-    HttpEntity<MultiValueMap<String, String>> buildHttpRequestEntityWithRefreshTokenGrantType(T client);
+    HttpEntity<MultiValueMap<String, String>> buildHttpRequestEntityWithRefreshTokenGrantType(
+            T client,
+            String refreshToken
+    );
 }

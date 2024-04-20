@@ -6,6 +6,7 @@ import com.iliauni.usersyncglobalservice.model.Usergroup;
 import com.iliauni.usersyncglobalservice.repository.UsergroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,7 @@ public class UsergroupService {
         this.repository = repository;
     }
 
+    @Transactional
     public Usergroup save(Optional<Usergroup> optionalUsergroup) throws UsergroupIsNullException {
         return optionalUsergroup.map(repository::save)
                 .orElseThrow(() -> new UsergroupIsNullException("User group is not present"));
@@ -37,11 +39,13 @@ public class UsergroupService {
         }
     }
 
+    @Transactional
     public Usergroup update(Optional<Usergroup> optionalUsergroup) throws UsergroupIsNullException {
         return optionalUsergroup.map(repository::save)
                 .orElseThrow(() -> new UsergroupIsNullException("User group is not present"));
     }
 
+    @Transactional
     public void deleteByName(String usergroupName) {
         repository.deleteUsergroupByName(usergroupName);
     }

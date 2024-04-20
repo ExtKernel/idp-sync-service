@@ -19,13 +19,13 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class KcTokenRetrieverTest {
     @Mock
-    private KcClientService<KcClient> kcClientService;
+    private KcClientService kcClientService;
 
     @Mock
     private TokenRequestSender<KcClient> kcTokenRequestSender;
 
     @InjectMocks
-    private KcTokenRetriever<KcClient> kcTokenRetriever;
+    private KcTokenRetriever kcTokenRetriever;
 
     private final String tokenEndpointUrl = "test-token-endpoint-url";
 
@@ -51,7 +51,7 @@ public class KcTokenRetrieverTest {
         RefreshToken refreshToken = buildRefreshTokenObject();
 
         when(kcClientService.getLatestRefreshToken(client.getId())).thenThrow(new NoRecordOfRefreshTokenForTheClientException("test-no-record-of-refresh-token-exception"));
-        when(kcClientService.generateAndSaveRefreshToken(client.getId())).thenReturn(refreshToken);
+        when(kcClientService.generateAndSaveRefreshToken(client.getId(), tokenEndpointUrl)).thenReturn(refreshToken);
         when(kcTokenRequestSender.getAccessTokenByRefreshToken(client, tokenEndpointUrl)).thenReturn(accessToken);
 
         assertEquals(accessToken.getToken(), kcTokenRetriever.retrieveAccessToken(client, tokenEndpointUrl).getToken());

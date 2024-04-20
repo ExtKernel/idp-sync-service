@@ -6,12 +6,12 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
+@Table(name = "sync_user")
 @Entity
 public class User {
     @Id

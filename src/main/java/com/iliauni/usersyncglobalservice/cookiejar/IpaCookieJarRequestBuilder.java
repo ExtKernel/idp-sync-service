@@ -37,6 +37,11 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
 
+/**
+ * A component class implementing the {@link CookieJarRequestBuilder} interface for building HTTP request entities and API base URLs specific to IPA cookie jar systems.
+ *
+ * @param <T> the type of IPA client used for the request
+ */
 @Component
 public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJarRequestBuilder<T> {
     @Value("${ipaHostname}")
@@ -45,6 +50,10 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
     @Value("${ipaCertPath}")
     private String ipaCertPath;
 
+    /**
+     * @inheritDoc
+     * Builds the HTTP request entity with the client principal's credentials.
+     */
     @Override
     public HttpEntity<MultiValueMap<String, String>> buildHttpRequestEntity(T client) {
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
@@ -55,6 +64,11 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
         return new HttpEntity<>(requestBody, setHeaders());
     }
 
+    /**
+     * Sets the HTTP headers with cookie included for the request.
+     *
+     * @return the constructed HTTP headers
+     */
     private HttpHeaders setHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -64,11 +78,10 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
         return headers;
     }
 
-    @Override
-    public String buildApiBaseUrl(String baseUrl, String endpoint) {
-        return "https://" + baseUrl + endpoint;
-    }
-
+    /**
+     * @inheritDoc
+     * Retrieves a configured RestTemplate instance with custom HttpClient, interceptor, and error handler.
+     */
     @Override
     public RestTemplate getRestTemplate() {
         try {
@@ -89,6 +102,11 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
         }
     }
 
+    /**
+     * Builds an HttpClient with custom SSL configuration using the IPA certificate.
+     *
+     * @return the configured HttpClient
+     */
     private HttpClient buildHttpClientWithIpaCert() throws
             NoSuchAlgorithmException,
             KeyStoreException,
@@ -121,9 +139,15 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
                 .build();
     }
 
+    /**
+     * Interceptor class to handle stateful behavior with RestTemplate.
+     */
     private class StatefulRestTemplateInterceptor implements ClientHttpRequestInterceptor {
         private String cookie;
 
+        /**
+         * Intercepts the HTTP request to add the cookie if available.
+         */
         @Override
         public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
             if (cookie != null) {

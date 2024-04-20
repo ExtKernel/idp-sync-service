@@ -15,20 +15,30 @@ import java.util.Optional;
 @Service
 public class RefreshTokenService<T extends Oauth2Client> {
     private RefreshTokenRepository repository;
-    TokenRetriever<T> tokenRetriever;
 
     @Autowired
-    public RefreshTokenService(RefreshTokenRepository repository, TokenRetriever<T> tokenRetriever) {
+    public RefreshTokenService(RefreshTokenRepository repository) {
         this.repository = repository;
-        this.tokenRetriever = tokenRetriever;
     }
 
-    public RefreshToken generateAndSave(T client, String tokenEndpointUrl) {
-        return generate(client, tokenEndpointUrl).map(token -> repository.save(token))
+    public RefreshToken generateAndSave(
+            T client,
+            String tokenEndpointUrl,
+            TokenRetriever tokenRetriever
+    ) {
+        return generate(
+                client,
+                tokenEndpointUrl,
+                tokenRetriever
+        ).map(token -> repository.save(token))
                 .orElseThrow(() -> new RefreshTokenIsNullException("Refresh token is null"));
     }
 
-    private Optional<RefreshToken> generate(T client, String tokenEndpointUrl) {
+    private Optional<RefreshToken> generate(
+            T client,
+            String tokenEndpointUrl,
+            TokenRetriever tokenRetriever
+            ) {
         return Optional.of(tokenRetriever.retrieveRefreshToken(client, tokenEndpointUrl));
     }
 

@@ -2,6 +2,11 @@ package com.iliauni.usersyncglobalservice.difference;
 
 import java.util.List;
 
+/**
+ * An interface for matching lists of elements of type T.
+ *
+ * @param <T> the type of elements in the lists
+ */
 public interface ListMatcher<T> {
     /**
      * Determines whether two lists match by comparing their elements.
@@ -10,5 +15,8 @@ public interface ListMatcher<T> {
      * @param list2 the second list to compare
      * @return true if the lists match, false otherwise
      */
-    boolean listsMatch(List<T> list1, List<T> list2);
+    boolean listsMatch(
+            List<T> list1,
+            List<T> list2
+    );
 }

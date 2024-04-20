@@ -1,8 +1,9 @@
 package com.iliauni.usersyncglobalservice.model;
 
 import jakarta.persistence.Entity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import lombok.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Data

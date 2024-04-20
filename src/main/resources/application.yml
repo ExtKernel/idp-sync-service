@@ -3,10 +3,12 @@ ipaApiEndpoint: ${IPA_API_ENDPOINT}
 ipaApiAuthEndpoint: ${IPA_API_AUTH_ENDPOINT}
 ipaHostname: ${IPA_HOSTNAME}
 ipaCertPath: ${IPA_CERT_PATH}
-ipaPrincipalUsername: ${PRINCIPAL_USERNAME}
-ipaPrincipalPassword: ${PRINCIPAL_PASSWORD}
+ipaPrincipalUsername: ${IPA_PRINCIPAL_USERNAME}
+ipaPrincipalPassword: ${IPA_PRINCIPAL_PASSWORD}
 
 kcAdminCliClientId: ${KC_ADMIN_CLI_CLIENT_ID}
+kcAdminCliClientPrincipalUsername: ${KC_ADMIN_CLI_CLIENT_PRINCIPAL_USERNAME}
+kcAdminCliClientPrincipalPassword: ${KC_ADMIN_CLI_CLIENT_PRINCIPAL_PASSWORD}
 
 principalRoleName: ${PRINCIPAL_ROLE_NAME}
 
@@ -16,7 +18,7 @@ eureka:
             default-zone: ${EUREKA_URI:http://localhost:8761/eureka}
 logging:
     level:
-        root: warn
+        root: debug
 server:
     port: ${SERVER_PORT}
 spring:
@@ -42,8 +44,8 @@ spring:
         oauth2:
             resourceserver:
                 jwt:
-                    issuer-uri: http://${KC_BASE_URL}/realms/${REALM}
+                    issuer-uri: http://${KC_BASE_URL}/realms/${KC_REALM}
                 opaquetoken:
                     client-id: user-sync-global-service
                     client-secret: ${CLIENT_SECRET}
-                    introspection-uri: http://${KC_BASE_URL}/realms/${REALM}/protocol/openid-connect/token/introspect
+                    introspection-uri: http://${KC_BASE_URL}/realms/${KC_REALM}/protocol/openid-connect/token/introspect

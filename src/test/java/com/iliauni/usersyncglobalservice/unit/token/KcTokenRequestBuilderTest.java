@@ -21,10 +21,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class KcTokenRequestBuilderTest {
     @Mock
-    private KcClientService<KcClient> kcClientService;
+    private KcClientService kcClientService;
 
     @InjectMocks
-    private KcTokenRequestBuilder<KcClient> kcTokenRequestBuilder;
+    private KcTokenRequestBuilder kcTokenRequestBuilder;
 
     @Test
     public void buildHttpRequestEntity_WhenGivenPasswordGrantTypeAndClient_ShouldReturnHttpEntity()
@@ -34,9 +34,10 @@ public class KcTokenRequestBuilderTest {
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("client_id", client.getId());
         requestBody.add("client_secret", client.getClientSecret());
-        requestBody.add("grant_type", "password");
         requestBody.add("username", client.getPrincipalUsername());
         requestBody.add("password", client.getPrincipalPassword());
+        requestBody.add("grant_type", "password");
+        requestBody.add("scope", "openid");
 
         assertEquals(new HttpEntity<>(requestBody, buildHeaders()), kcTokenRequestBuilder.buildHttpRequestEntityWithPasswordGrantType(client));
     }
@@ -54,10 +55,11 @@ public class KcTokenRequestBuilderTest {
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("client_id", client.getId());
         requestBody.add("client_secret", client.getClientSecret());
-        requestBody.add("grant_type", "refresh_token");
         requestBody.add("refresh_token", refreshToken.getToken());
+        requestBody.add("grant_type", "refresh_token");
+        requestBody.add("scope", "openid");
 
-        assertEquals(new HttpEntity<>(requestBody, buildHeaders()), kcTokenRequestBuilder.buildHttpRequestEntityWithRefreshTokenGrantType(client));
+        assertEquals(new HttpEntity<>(requestBody, buildHeaders()), kcTokenRequestBuilder.buildHttpRequestEntityWithRefreshTokenGrantType(client, refreshToken.getToken()));
     }
 
     private KcClient buildClientObject() {
