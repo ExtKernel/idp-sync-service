@@ -1,10 +1,12 @@
 package com.iliauni.usersyncglobalservice.idp;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.iliauni.usersyncglobalservice.exception.GetUsergroupMembersRequestJsonReadingException;
+import com.iliauni.usersyncglobalservice.exception.GetUsergroupRequestJsonReadingException;
+import com.iliauni.usersyncglobalservice.exception.GetUsergroupsRequestJsonReadingException;
+import com.iliauni.usersyncglobalservice.exception.UsergroupToJsonMappingException;
 import com.iliauni.usersyncglobalservice.model.Client;
-import com.iliauni.usersyncglobalservice.model.User;
 import com.iliauni.usersyncglobalservice.model.Usergroup;
-
-import java.util.List;
 
 /**
  * An interface for sending requests related to user groups in an Identity Provider (IDP) context.
@@ -13,36 +15,63 @@ import java.util.List;
  */
 public interface IdpUsergroupRequestSender<T extends Client> {
     /**
-     * Creates a user group using the specified client and user group object.
+     * Sends a request to create a user group using the specified client and user group object.
      *
      * @param client the client to use for the request
      * @param usergroup the user group object to create
-     * @return the created user group
+     * @return the user group
      */
-    Usergroup createUsergroup(T client, Usergroup usergroup);
+    Usergroup sendCreateUsergroupRequest(
+            T client,
+            Usergroup usergroup
+    ) throws UsergroupToJsonMappingException;
+
+    void sendAddUsergroupMemberRequest(
+            T client,
+            String usergroupName,
+            String username
+    );
 
     /**
-     * Retrieves a user group with the specified name using the specified client.
+     * Sends a request to get a JSON of user group with the specified name using the specified client.
      *
      * @param client the client to use for the request
      * @param usergroupName the name of the user group to retrieve
-     * @return the retrieved user group
+     * @return a JSON node containing retrieved user group
      */
-    Usergroup getUsergroup(T client, String usergroupName);
+    JsonNode sendGetUsergroupRequest(
+            T client,
+            String usergroupName
+    ) throws GetUsergroupRequestJsonReadingException;
 
     /**
-     * Retrieves all user groups using the specified client.
+     * Sends a request to get a list of user groups using the specified client.
      *
      * @param client the client to use for the request
-     * @return a list of all user groups
+     * @return a JSON node containing list of all user groups
      */
-    List<Usergroup> getUsergroups(T client);
+    JsonNode sendGetUsergroupsRequest(T client)
+            throws GetUsergroupsRequestJsonReadingException;
+
+    JsonNode sendGetUsergroupMembersRequest(
+            T client,
+            String usergroupName
+    ) throws GetUsergroupMembersRequestJsonReadingException;
 
     /**
-     * Deletes a user group with the specified name using the specified client.
+     * Sends a request to delete a user group with the specified name using the specified client.
      *
      * @param client the client to use for the request
      * @param usergroupName the name of the user group to delete
      */
-    void deleteUsergroup(T client, String usergroupName);
+    void sendDeleteUsergroupRequest(
+            T client,
+            String usergroupName
+    );
+
+    void sendRemoveUsergroupMemberRequest(
+            T client,
+            String usergroupName,
+            String username
+    );
 }

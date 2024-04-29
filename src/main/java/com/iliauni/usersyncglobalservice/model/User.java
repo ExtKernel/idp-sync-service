@@ -10,10 +10,23 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
 @RequiredArgsConstructor
 @Table(name = "sync_user")
 @Entity
 public class User {
+
+    public User(String username) {
+        this.username = username;
+    }
+
+    public User(String username, String firstname, String lastname, String email) {
+        this.username = username;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.email = email;
+    }
+
     @Id
     @Column(name = "username", nullable = false, unique = true)
     private String username;

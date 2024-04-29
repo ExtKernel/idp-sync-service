@@ -1,6 +1,6 @@
 package com.iliauni.usersyncglobalservice.difference;
 
-import org.springframework.util.MultiValueMap;
+import java.util.Map;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,10 +17,10 @@ public interface DifferenceCalculator<T> {
      *
      * @param originalList the original list
      * @param targetList the target list to compare against
-     * @return a multi-value map containing the differences between the original and target lists
+     * @return a map containing list representing the differences between the original and target lists
      *         organized by categories, where each category key is mapped to a list of optional elements
      */
-    MultiValueMap<String, Optional<T>> calculate(
+    Map<String, List<Optional<T>>> calculate(
             List<T> originalList,
             List<T> targetList
     );

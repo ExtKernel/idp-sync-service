@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * A component class implementing the {@link CookieJarRequestSender} interface for sending requests to obtain cookies from the FreeIPA IDP system.
  *
- * @param <T> the type of IPA client used for the request
+ * @param <T> the type of FreeIPA client used for the request
  */
 @Component
 public class IpaCookieJarRequestSender<T extends IpaClient> implements CookieJarRequestSender<T> {

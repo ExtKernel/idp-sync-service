@@ -11,9 +11,20 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
 @RequiredArgsConstructor
 @Entity
 public class Usergroup implements Serializable {
+
+    public Usergroup(String name) {
+        this.name = name;
+    }
+
+    public Usergroup(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
     @Id
     @Column(name = "name", nullable = false, unique = true)
     private String name;

@@ -1,22 +1,31 @@
 package com.iliauni.usersyncglobalservice.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.OneToMany;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.List;
 import java.util.Objects;
 
-@EqualsAndHashCode(callSuper = true)
+/**
+ * A superclass for any client, that uses cookies for auth.
+ * Provides all necessary fields to represent a basic client, which requires auth by cookies
+ * and to make a request using data from fields.
+ */
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@Entity
+@MappedSuperclass
 public class CookieClient extends Client {
     @OneToMany(fetch = FetchType.EAGER)
-    @Column(name = "cookie_jar", nullable = true)
+    @Column(name = "cookie", nullable = true)
     @ToString.Exclude
     private List<Cookie> cookies;
 

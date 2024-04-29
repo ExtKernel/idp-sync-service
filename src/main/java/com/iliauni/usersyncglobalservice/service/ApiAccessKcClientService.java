@@ -97,7 +97,7 @@ public class ApiAccessKcClientService implements Oauth2ClientService<ApiAccessKc
             return refreshTokens.get(refreshTokens.size() - 1);
         } else {
             throw new NoRecordOfRefreshTokenForTheClientException(
-                    "There is no record of refresh token for KC API access client with id: " + findById(id).getId());
+                    "There is no record of refresh token for Keycloak API access client with id: " + findById(id).getId());
         }
     }
 
@@ -105,7 +105,7 @@ public class ApiAccessKcClientService implements Oauth2ClientService<ApiAccessKc
     @Override
     public ApiAccessKcClient save(Optional<ApiAccessKcClient> optionalClient) throws ClientIsNullException {
         return optionalClient.map(repository::save)
-                .orElseThrow(() -> new ClientIsNullException("KC API access client is null"));
+                .orElseThrow(() -> new ClientIsNullException("Keycloak API access client is null"));
     }
 
     @Override
@@ -115,20 +115,20 @@ public class ApiAccessKcClientService implements Oauth2ClientService<ApiAccessKc
         if (!clients.isEmpty()) {
             return clients;
         } else {
-            throw new NoRecordOfClientsException("There is no record of KC API access clients in the database");
+            throw new NoRecordOfClientsException("There is no record of Keycloak API access clients in the database");
         }
     }
 
     @Override
     public ApiAccessKcClient findById(String id) throws ClientNotFoundException {
         return repository.findById(id)
-                .orElseThrow(() -> new ClientNotFoundException("KC API access client with id " + id + " was not found"));
+                .orElseThrow(() -> new ClientNotFoundException("Keycloak API access client with id " + id + " was not found"));
     }
 
     @Override
     public ApiAccessKcClient update(Optional<ApiAccessKcClient> optionalClient) throws ClientIsNullException {
         return optionalClient.map(repository::save)
-                .orElseThrow(() -> new ClientIsNullException("KC API access client is null"));
+                .orElseThrow(() -> new ClientIsNullException("Keycloak API access client is null"));
     }
 
     @Transactional

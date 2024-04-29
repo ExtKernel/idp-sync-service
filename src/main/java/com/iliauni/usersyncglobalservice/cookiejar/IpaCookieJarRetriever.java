@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 /**
  * A component class implementing the {@link CookieJarRetriever} interface for retrieving cookies from the FreeIPA IDP system.
  *
- * @param <T> the type of IPA client used for the retrieval
+ * @param <T> the type of FreeIPA client used for the retrieval
  */
 @Component
 public class IpaCookieJarRetriever<T extends IpaClient> implements CookieJarRetriever<T> {

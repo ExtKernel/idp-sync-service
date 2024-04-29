@@ -1,189 +1,193 @@
 package com.iliauni.usersyncglobalservice.idp.win;
 
-import com.iliauni.usersyncglobalservice.exception.RestTemplateResponseErrorHandler;
-import com.iliauni.usersyncglobalservice.idp.IdpObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iliauni.usersyncglobalservice.exception.CredentialsRepresentationBuildingException;
+import com.iliauni.usersyncglobalservice.exception.GetUserRequestJsonReadingException;
+import com.iliauni.usersyncglobalservice.exception.GetUsersRequestJsonReadingException;
+import com.iliauni.usersyncglobalservice.exception.UserToJsonMappingException;
+import com.iliauni.usersyncglobalservice.idp.IdpJsonObjectMapper;
 import com.iliauni.usersyncglobalservice.idp.IdpRequestBuilder;
 import com.iliauni.usersyncglobalservice.idp.IdpUserRequestSender;
 import com.iliauni.usersyncglobalservice.model.User;
 import com.iliauni.usersyncglobalservice.model.WinClient;
-import jakarta.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
 public class WinIdpUserRequestSender implements IdpUserRequestSender<WinClient> {
-    private final IdpRequestBuilder requestBuilder;
-    private final IdpObjectMapper objectMapper;
+    private final IdpRequestBuilder<WinClient> requestBuilder;
+    private final IdpJsonObjectMapper jsonObjectMapper;
+    private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
-    private String tokenUrl = null;
-
-    @Value("${KC_REALM}")
-    private String kcRealm;
-
-    @Value("${KC_BASE_URL}")
-    private String kcBaseUrl;
 
     @Autowired
     public WinIdpUserRequestSender(
-            @Qualifier("winIdpRequestBuilder") IdpRequestBuilder requestBuilder,
-            @Qualifier("winIdpObjectMapper") IdpObjectMapper objectMapper,
-            RestTemplateBuilder restTemplateBuilder
+            IdpRequestBuilder<WinClient> requestBuilder,
+            @Qualifier("winIdpJsonObjectMapper") IdpJsonObjectMapper jsonObjectMapper,
+            ObjectMapper objectMapper
     ) {
         this.requestBuilder = requestBuilder;
+        this.jsonObjectMapper = jsonObjectMapper;
+        this.restTemplate = requestBuilder.getRestTemplate();
         this.objectMapper = objectMapper;
-        this.restTemplate = restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build();
-    }
-
-    @PostConstruct
-    private void setUpTokenUrl() {
-        this.tokenUrl = "http://" + kcBaseUrl + "/realms/" + kcRealm + "/protocol/openid-connect/token";
     }
 
     @Override
-    public User createUser(
+    public User sendCreateUserRequest(
             WinClient client,
             User user
-    ) {
-        String winBaseUrl;
-
-        if (client.getFqdn() != null) {
-            winBaseUrl = getWinHostname(client);
-        } else {
-            winBaseUrl = getWinIpWithPort(client);
+    ) throws UserToJsonMappingException {
+        try {
+            restTemplate.exchange(
+                    requestBuilder.buildRequestUrl(
+                            client,
+                            "http",
+                            "/users/create/"
+                    ),
+                    HttpMethod.POST,
+                    requestBuilder.buildHttpRequestEntity(
+                            client.getId(),
+                            jsonObjectMapper.mapUserToJsonString(user),
+                            requestBuilder.buildAuthRequestUrl(
+                                    client,
+                                    "http"
+                            )
+                    ),
+                    String.class
+            );
+        } catch (JsonProcessingException exception) {
+            throw new UserToJsonMappingException(
+                    "An exception occurred while mapping user to JSON string: "
+                            + exception.getMessage()
+            );
         }
-
-        restTemplate.exchange(
-                requestBuilder.buildApiBaseUrl(winBaseUrl, "/users/create/"),
-                HttpMethod.POST,
-                requestBuilder.buildHttpRequestEntity(
-                        client.getId(),
-                        objectMapper.mapUserToMap(user),
-                        tokenUrl
-                ),
-                Map.class
-        );
 
         return user;
     }
 
     @Override
-    public User getUser(
+    public JsonNode sendGetUserRequest(
             WinClient client,
             String username
-    ) {
-        String winBaseUrl;
-
-        if (client.getFqdn() != null) {
-            winBaseUrl = getWinHostname(client);
-        } else {
-            winBaseUrl = getWinIpWithPort(client);
+    ) throws GetUserRequestJsonReadingException {
+        try {
+            return objectMapper.readTree(
+                    restTemplate.exchange(
+                            requestBuilder.buildRequestUrl(
+                                    client,
+                                    "http",
+                                    "/users/" + username + "/"
+                            ),
+                            HttpMethod.GET,
+                            requestBuilder.buildAuthOnlyHttpRequestEntity(
+                                    client.getId(),
+                                    requestBuilder.buildAuthRequestUrl(
+                                            client,
+                                            "http"
+                                    )
+                            ),
+                            String.class
+                    ).getBody()
+            );
+        } catch (JsonProcessingException exception) {
+            throw new GetUserRequestJsonReadingException(
+                    "An exception occurred while reading JSON received from the request to retrieve a user for Windows client with id "
+                            + client.getId() + ": "
+                            + exception.getMessage()
+            );
         }
-
-        return objectMapper.mapUserMapToUser((Map<String, Object>)
-                restTemplate.exchange(
-                        requestBuilder.buildApiBaseUrl(winBaseUrl, "/users/" + username + "/"),
-                        HttpMethod.GET,
-                        requestBuilder.buildOnlyAuthHttpRequestEntity(
-                                client.getId(),
-                                tokenUrl
-                        ),
-                        Map.class
-                ).getBody());
     }
 
     @Override
-    public List<User> getUsers(WinClient client) {
-        String winBaseUrl;
-
-        if (client.getFqdn() != null) {
-            winBaseUrl = getWinHostname(client);
-        } else {
-            winBaseUrl = getWinIpWithPort(client);
+    public JsonNode sendGetUsersRequest(WinClient client)
+            throws GetUsersRequestJsonReadingException {
+        try {
+            return objectMapper.readTree(
+                    restTemplate.exchange(
+                            requestBuilder.buildRequestUrl(
+                                    client,
+                                    "http",
+                                    "/users/"
+                            ),
+                            HttpMethod.GET,
+                            requestBuilder.buildAuthOnlyHttpRequestEntity(
+                                    client.getId(),
+                                    requestBuilder.buildAuthRequestUrl(
+                                            client,
+                                            "http"
+                                    )
+                            ),
+                            String.class
+                    ).getBody()
+            );
+        } catch (JsonProcessingException exception) {
+            throw new GetUsersRequestJsonReadingException(
+                    "An exception occurred while reading JSON received from the request to retrieve users for Windows client with id "
+                            + client.getId() + ": "
+                            + exception.getMessage()
+            );
         }
-
-        List<Map<String, Object>> userMaps = restTemplate.exchange(
-                requestBuilder.buildApiBaseUrl(winBaseUrl, "/users/"),
-                HttpMethod.GET,
-                requestBuilder.buildOnlyAuthHttpRequestEntity(
-                        client.getId(),
-                        tokenUrl
-                ),
-                List.class
-        ).getBody();
-
-        List<User> users = new ArrayList<>();
-        for (Map<String, Object> userMap : userMaps) {
-            users.add(objectMapper.mapUserMapToUser(userMap));
-        }
-
-        return users;
     }
 
     @Override
-    public Map<String, Object> updateUserPassword(
+    public String sendUpdateUserPasswordRequest(
             WinClient client,
             String username,
             String newPassword
     ) {
-        String winBaseUrl;
-
-        if (client.getFqdn() != null) {
-            winBaseUrl = getWinHostname(client);
-        } else {
-            winBaseUrl = getWinIpWithPort(client);
+        try {
+            restTemplate.exchange(
+                    requestBuilder.buildRequestUrl(
+                            client,
+                            "http",
+                            "/users/update-password/" + username
+                    ),
+                    HttpMethod.PATCH,
+                    requestBuilder.buildHttpRequestEntity(
+                            client.getId(),
+                            jsonObjectMapper.buildCredentialsRepresentation(newPassword),
+                            requestBuilder.buildAuthRequestUrl(
+                                    client,
+                                    "http"
+                            )
+                    ),
+                    String.class
+            );
+        } catch (JsonProcessingException exception) {
+            throw new CredentialsRepresentationBuildingException(
+                    "An exception occurred while building credentials representation: "
+                            + exception.getMessage()
+            );
         }
 
-        restTemplate.exchange(
-                requestBuilder.buildApiBaseUrl(winBaseUrl, "/users/update-password/" + username),
-                HttpMethod.PUT,
-                requestBuilder.buildOnlyAuthHttpRequestEntity(
-                        client.getId(),
-                        tokenUrl
-                ),
-                Map.class
-        );
-
-        return objectMapper.buildUserCredentialsMap(newPassword);
+        return newPassword;
     }
 
     @Override
-    public void deleteUser(
+    public void sendDeleteUserRequest(
             WinClient client,
             String username
     ) {
-        String winBaseUrl;
-
-        if (client.getFqdn() != null) {
-            winBaseUrl = getWinHostname(client);
-        } else {
-            winBaseUrl = getWinIpWithPort(client);
-        }
-
         restTemplate.exchange(
-                requestBuilder.buildApiBaseUrl(winBaseUrl, "/users/delete/" + username),
-                HttpMethod.PUT,
-                requestBuilder.buildOnlyAuthHttpRequestEntity(
-                        client.getId(),
-                        tokenUrl
+                requestBuilder.buildRequestUrl(
+                        client,
+                        "http",
+                        "/users/delete/" + username
                 ),
-                Map.class
+                HttpMethod.DELETE,
+                requestBuilder.buildAuthOnlyHttpRequestEntity(
+                        client.getId(),
+                        requestBuilder.buildAuthRequestUrl(
+                                client,
+                                "http"
+                        )
+                ),
+                String.class
         );
-    }
-
-    private String getWinHostname(WinClient client) {
-        // get a string until the first dot, which is, basically, a hostname
-        return client.getFqdn().split("\\.")[0];
-    }
-
-    private String getWinIpWithPort(WinClient client) {
-        return client.getIp() + ":" + client.getPort();
     }
 }

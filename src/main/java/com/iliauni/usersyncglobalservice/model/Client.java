@@ -1,6 +1,8 @@
 package com.iliauni.usersyncglobalservice.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -19,6 +21,12 @@ public class Client {
     @Column(name = "fqdn")
     private String fqdn;
 
+    @Column(name = "ip")
+    private String ip;
+
+    @Column(name = "port")
+    private String port;
+
     @Column(name = "principal_username")
     private String principalUsername;
 
@@ -27,17 +35,18 @@ public class Client {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Client client = (Client) o;
-        return getId() != null && Objects.equals(getId(), client.getId());
+        return Objects.equals(getId(), client.getId());
     }
 
     @Override
     public int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+        return Objects.hash(getId());
     }
 }

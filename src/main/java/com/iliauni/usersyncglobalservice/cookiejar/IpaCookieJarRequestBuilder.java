@@ -38,9 +38,9 @@ import org.springframework.web.client.RestTemplate;
 import javax.net.ssl.SSLContext;
 
 /**
- * A component class implementing the {@link CookieJarRequestBuilder} interface for building HTTP request entities and API base URLs specific to IPA cookie jar systems.
+ * A component class implementing the {@link CookieJarRequestBuilder} interface for building HTTP request entities and API base URLs specific to FreeIPA cookie jar systems.
  *
- * @param <T> the type of IPA client used for the request
+ * @param <T> the type of FreeIPA client used for the request
  */
 @Component
 public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJarRequestBuilder<T> {
@@ -103,7 +103,7 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
     }
 
     /**
-     * Builds an HttpClient with custom SSL configuration using the IPA certificate.
+     * Builds an HttpClient with custom SSL configuration using the FreeIPA certificate.
      *
      * @return the configured HttpClient
      */

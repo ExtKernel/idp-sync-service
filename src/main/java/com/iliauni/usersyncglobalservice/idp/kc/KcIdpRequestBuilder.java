@@ -2,56 +2,55 @@ package com.iliauni.usersyncglobalservice.idp.kc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.iliauni.usersyncglobalservice.exception.ClientHasNoFqdnOrIpOrPortException;
+import com.iliauni.usersyncglobalservice.exception.KcClientHasNoKcFqdnOrIpOrPortException;
+import com.iliauni.usersyncglobalservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.usersyncglobalservice.idp.IdpRequestBuilder;
 import com.iliauni.usersyncglobalservice.model.ApiAccessKcClient;
-import com.iliauni.usersyncglobalservice.service.KcClientService;
+import com.iliauni.usersyncglobalservice.model.KcClient;
+import com.iliauni.usersyncglobalservice.service.SyncKcClientService;
 import com.iliauni.usersyncglobalservice.service.Oauth2ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * A component class implementing the {@link IdpRequestBuilder} interface for building HTTP request entities and API base URLs specific to Keycloak (KC) IDP systems.
  */
 @Component
-public class KcIdpRequestBuilder implements IdpRequestBuilder {
+public class KcIdpRequestBuilder implements IdpRequestBuilder<KcClient> {
     private final Oauth2ClientService<ApiAccessKcClient> clientService;
-
-    @Value("${kcAdminCliClientId}")
-    private String kcAdminCliClientId;
+    private final RestTemplateBuilder restTemplateBuilder;
 
     /**
-     * Constructs a {@code KcIdpRequestBuilder} instance with the specified {@link KcClientService}.
+     * Constructs a {@code KcIdpRequestBuilder} instance with the specified {@link SyncKcClientService}.
      *
      * @param clientService the service for Admin CLI clients
      */
     @Autowired
     public KcIdpRequestBuilder(
-            Oauth2ClientService<ApiAccessKcClient> clientService
+            Oauth2ClientService<ApiAccessKcClient> clientService,
+            RestTemplateBuilder restTemplateBuilder
     ) {
         this.clientService = clientService;
+        this.restTemplateBuilder = restTemplateBuilder;
     }
 
-    /**
-     * @inheritDoc
-     * Includes the access token obtained from the Keycloak client service in the request headers.
-     */
     @Override
-    public HttpEntity<Map<String, Object>> buildHttpRequestEntity(
+    public HttpEntity<String> buildHttpRequestEntity(
             String clientId,
-            Map<String, Object> requestBody,
+            String requestBody,
             String tokenEndpointUrl
     ) {
         return new HttpEntity<>(
                 requestBody,
                 buildHeaders(
                         clientService.generateAccessToken(
-                                kcAdminCliClientId,
+                                clientId,
                                 tokenEndpointUrl
                         ).getToken()
                 )
@@ -59,7 +58,7 @@ public class KcIdpRequestBuilder implements IdpRequestBuilder {
     }
 
     @Override
-    public HttpEntity buildOnlyAuthHttpRequestEntity(
+    public HttpEntity buildAuthOnlyHttpRequestEntity(
             String clientId,
             String tokenEndpointUrl
     ) {
@@ -67,22 +66,35 @@ public class KcIdpRequestBuilder implements IdpRequestBuilder {
                 buildEmptyRequestBody(),
                 buildHeaders(
                         clientService.generateAccessToken(
-                                kcAdminCliClientId,
+                                clientId,
                                 tokenEndpointUrl
                         ).getToken()
                 )
         );
     }
 
-    /**
-     * @inheritDoc
-     */
     @Override
-    public String buildApiBaseUrl (
-            String kcBaseUrl,
-            String kcRealm
+    public String buildRequestUrl(
+            KcClient client,
+            String protocol,
+            String endpoint
     ) {
-        return "http://" + kcBaseUrl + "/admin/realms/" + kcRealm;
+        return protocol + "://" + getClientHostUrl(client) + endpoint;
+    }
+
+    @Override
+    public String buildAuthRequestUrl(
+            KcClient client,
+            String protocol
+    ) {
+        return protocol + "://"
+                + getClientKcHostUrl(client)
+                + "/realms/master/protocol/openid-connect/token";
+    }
+
+    @Override
+    public RestTemplate getRestTemplate() {
+        return restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build();
     }
 
     /**
@@ -97,6 +109,49 @@ public class KcIdpRequestBuilder implements IdpRequestBuilder {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         return headers;
+    }
+
+    private String getClientHostUrl(KcClient client) {
+        String clientFqdn = client.getFqdn();
+        String clientIp = client.getIp();
+        String clientPort = client.getPort();
+
+        if (clientFqdn != null & clientPort != null) {
+            return mergeHostWithPort(clientFqdn, clientPort);
+        } else if (clientIp != null & clientPort != null) {
+            return mergeHostWithPort(clientIp, clientPort);
+        } else {
+            throw new ClientHasNoFqdnOrIpOrPortException(
+                    "Keycloak client with ID "
+                            + client.getId()
+                            + " has no FQDN, IP or port"
+            );
+        }
+    }
+
+    private String getClientKcHostUrl(KcClient client) {
+        String kcFqdn = client.getKcFqdn();
+        String kcIp = client.getKcIp();
+        String kcPort = client.getPort();
+
+        if (kcFqdn != null & kcPort != null) {
+            return mergeHostWithPort(kcFqdn, kcPort);
+        } else if (kcIp != null & kcPort != null) {
+            return mergeHostWithPort(kcIp, kcPort);
+        } else {
+            throw new KcClientHasNoKcFqdnOrIpOrPortException(
+                    "Keycloak client with id "
+                            + client.getId()
+                            + " has no Keycloak FQDN, IP or port"
+            );
+        }
+    }
+
+    private String mergeHostWithPort(
+            String host,
+            String port
+    ) {
+        return host + ":" + port;
     }
 
     private ObjectNode buildEmptyRequestBody() {

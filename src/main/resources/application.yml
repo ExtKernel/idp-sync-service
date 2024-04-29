@@ -18,7 +18,7 @@ eureka:
             default-zone: ${EUREKA_URI:http://localhost:8761/eureka}
 logging:
     level:
-        root: debug
+        root: warn
 server:
     port: ${SERVER_PORT}
 spring:

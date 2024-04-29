@@ -3,8 +3,8 @@ package com.iliauni.usersyncglobalservice.idp.ipa;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iliauni.usersyncglobalservice.exception.RestTemplateResponseErrorHandler;
-import com.iliauni.usersyncglobalservice.idp.IdpObjectMapper;
+import com.iliauni.usersyncglobalservice.exception.*;
+import com.iliauni.usersyncglobalservice.idp.IdpJsonObjectMapper;
 import com.iliauni.usersyncglobalservice.idp.IdpRequestBuilder;
 import com.iliauni.usersyncglobalservice.idp.IdpUsergroupRequestSender;
 import com.iliauni.usersyncglobalservice.model.IpaClient;
@@ -17,18 +17,17 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * A component class implementing the {@link IdpUsergroupRequestSender} interface for sending requests related to user groups in an Identity Provider (IDP) context specific to FreeIPA (Identity, Policy, and Audit) systems.
  */
 @Component
-public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<IpaClient> {
-    private final IdpRequestBuilder requestBuilder;
-    private final IdpObjectMapper idpObjectMapper;
+public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUsergroupRequestSender<IpaClient> {
+    private final IdpRequestBuilder<IpaClient> requestBuilder;
+    private final IdpJsonObjectMapper jsonObjectMapper;
+    private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
 
     @Value("${ipaApiEndpoint}")
@@ -38,117 +37,138 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
     private String ipaAuthEndpoint;
 
     /**
-     * Constructs an {@code IpaIdpUsergroupRequestSender} instance with the specified {@link IdpRequestBuilder}, {@link IdpObjectMapper}, and {@link RestTemplateBuilder}.
+     * Constructs an {@code IpaIdpUsergroupRequestSender} instance with the specified {@link IdpRequestBuilder}, {@link IdpJsonObjectMapper}, and {@link RestTemplateBuilder}.
      *
-     * @param requestBuilder   the request builder for IPA IDP
-     * @param objectMapper     the object mapper for IPA IDP
-     * @param restTemplateBuilder the builder for creating RestTemplate
+     * @param requestBuilder the request builder for FreeIPA IDP
+     * @param jsonObjectMapper the object mapper for FreeIPA IDP
      */
     @Autowired
     public IpaIdpUsergroupRequestSender(
-            @Qualifier("ipaIdpRequestBuilder") IdpRequestBuilder requestBuilder,
-            @Qualifier("ipaIdpObjectMapper") IdpObjectMapper objectMapper,
-            RestTemplateBuilder restTemplateBuilder
+            IdpRequestBuilder<IpaClient> requestBuilder,
+            @Qualifier("ipaIdpJsonObjectMapper") IdpJsonObjectMapper jsonObjectMapper,
+            ObjectMapper objectMapper
     ) {
         this.requestBuilder = requestBuilder;
-        this.idpObjectMapper = objectMapper;
-        this.restTemplate = restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build();
+        this.jsonObjectMapper = jsonObjectMapper;
+        this.restTemplate = requestBuilder.getRestTemplate();
+        this.objectMapper = objectMapper;
     }
 
-    /**
-     * @inheritDoc
-     * Sends a request to create a user group using the IPA client and object mapper.
-     */
     @Override
-    public Usergroup createUsergroup(
+    public Usergroup sendCreateUsergroupRequest(
             IpaClient client,
             Usergroup usergroup
-    ) {
+    ) throws UsergroupToJsonMappingException {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_add");
-        requestBody.put("params", new Object[]{"", idpObjectMapper.mapUsergroupToMap(usergroup)});
+        try {
+            requestBody.put("params", new Object[]{
+                    usergroup.getName(),
+                    jsonObjectMapper.mapUsergroupToJsonString(usergroup)
+            });
+        } catch (JsonProcessingException exception) {
+            throw new UsergroupToJsonMappingException(
+                    "An exception occurred while mapping user group to JSON string: "
+                            + exception.getMessage()
+            );
+        }
 
-        String ipaHostname = getIpaHostname(client);
-        restTemplate.exchange(
-                requestBuilder.buildApiBaseUrl(ipaHostname, ipaApiEndpoint),
-                HttpMethod.POST,
-                requestBuilder.buildHttpRequestEntity(
-                        client.getId(),
-                        requestBody,
-                        buildAuthUrl(ipaHostname)
-                ),
-                Map.class
-        );
+        sendRestTemplateRequest(client, requestBody);
 
         return usergroup;
     }
 
-    /**
-     * @inheritDoc
-     * Sends a request to retrieve a user group with the specified name using the IPA client and object mapper.
-     */
     @Override
-    public Usergroup getUsergroup(
+    public void sendAddUsergroupMemberRequest(
+            IpaClient client,
+            String usergroupName,
+            String username
+    ) {
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("method", "group_add_member");
+        requestBody.put("params", new Object[]{
+                usergroupName,
+                new HashMap<>().put("user", username)
+        });
+
+        sendRestTemplateRequest(client, requestBody);
+    }
+
+    @Override
+    public JsonNode sendGetUsergroupRequest(
             IpaClient client,
             String usergroupName
-    ) {
+    ) throws GetUsergroupRequestJsonReadingException {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_show");
         requestBody.put("params", new Object[]{usergroupName, new HashMap<>()});
 
-        String ipaHostname = getIpaHostname(client);
-        String usergroupJson = restTemplate.exchange(
-                requestBuilder.buildApiBaseUrl(ipaHostname, ipaApiEndpoint),
-                HttpMethod.POST,
-                requestBuilder.buildHttpRequestEntity(
-                        client.getId(),
-                        requestBody,
-                        buildAuthUrl(ipaHostname)
-                ),
-                String.class
-        ).getBody();
-
-        return idpObjectMapper.mapUsergroupMapToUsergroup(mapIpaUsergroupShowMethodOutputToMap(usergroupJson));
+        try {
+            return objectMapper.readTree(
+                    sendRestTemplateRequest(
+                            client,
+                            requestBody
+                    )
+            );
+        } catch (JsonProcessingException exception) {
+            throw new GetUsergroupRequestJsonReadingException(
+                    "An exception occurred while reading JSON received from the request to retrieve a user group for FreeIPA client with id "
+                            + client.getId() + ": "
+                            + exception.getMessage()
+            );
+        }
     }
 
-    /**
-     * @inheritDoc
-     * Sends a request to retrieve all user groups using the IPA client and object mapper.
-     */
     @Override
-    public List<Usergroup> getUsergroups(IpaClient client) {
+    public JsonNode sendGetUsergroupsRequest(IpaClient client)
+            throws GetUsergroupsRequestJsonReadingException {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_find");
         requestBody.put("params", new Object[]{"", new HashMap<>()});
 
-        String ipaHostname = getIpaHostname(client);
-        String usersJson = restTemplate.exchange(
-                requestBuilder.buildApiBaseUrl(ipaHostname, ipaApiEndpoint),
-                HttpMethod.POST,
-                requestBuilder.buildHttpRequestEntity(
-                        client.getId(),
-                        requestBody,
-                        buildAuthUrl(ipaHostname)
-                ),
-                String.class
-        ).getBody();
-
-        List<Map<String, Object>> usergroupMaps = mapIpaUsergroupFindMethodOutputToMap(usersJson);
-        List<Usergroup> usergroups = new ArrayList<>();
-
-        for (Map<String, Object> userMap : usergroupMaps) {
-            usergroups.add(idpObjectMapper.mapUsergroupMapToUsergroup(userMap));
+        try {
+            return objectMapper.readTree(
+                    sendRestTemplateRequest(
+                            client,
+                            requestBody
+                    )
+            );
+        } catch (JsonProcessingException exception) {
+            throw new GetUsergroupsRequestJsonReadingException(
+                    "An exception occurred while reading JSON received from the request to retrieve user groups for FreeIPA client with id "
+                            + client.getId() + ": "
+                            + exception.getMessage()
+            );
         }
-
-        return usergroups;
     }
 
-    /**
-     * @inheritDoc
-     * Sends a request to delete a user group with the specified name using the IPA client.
-     */
     @Override
-    public void deleteUsergroup(
+    public JsonNode sendGetUsergroupMembersRequest(
+            IpaClient client,
+            String usergroupName
+    ) throws GetUsergroupMembersRequestJsonReadingException {
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("method", "group_show");
+        requestBody.put("params", new Object[]{usergroupName, new HashMap<>()});
+
+        try {
+            return objectMapper.readTree(
+                    sendRestTemplateRequest(
+                            client,
+                            requestBody
+                    )
+            );
+        } catch (JsonProcessingException exception) {
+            throw new GetUsergroupMembersRequestJsonReadingException(
+                    "An exception occurred while reading JSON received from the request to retrieve user group members for FreeIPA client with id "
+                            + client.getId() + ": "
+                            + exception.getMessage()
+            );
+        }
+    }
+
+    @Override
+    public void sendDeleteUsergroupRequest(
             IpaClient client,
             String usergroupName
     ) {
@@ -156,80 +176,52 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
         requestBody.put("method", "group_del");
         requestBody.put("params", new Object[]{usergroupName, new HashMap<>()});
 
-        String ipaHostname = getIpaHostname(client);
-        restTemplate.exchange(
-                requestBuilder.buildApiBaseUrl(ipaHostname, ipaApiEndpoint),
-                HttpMethod.POST,
-                requestBuilder.buildHttpRequestEntity(
-                        client.getId(),
-                        requestBody,
-                        buildAuthUrl(ipaHostname)
-                ),
-                String.class
-        ).getBody();
+        sendRestTemplateRequest(client, requestBody);
     }
 
-    private String getIpaHostname(IpaClient client) {
-        // get a string until the first dot, which is, basically, a hostname
-        return client.getFqdn().split("\\.")[0];
+    @Override
+    public void sendRemoveUsergroupMemberRequest(
+            IpaClient client,
+            String usergroupName,
+            String username
+    ) {
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("method", "group_remove_member");
+        requestBody.put("params", new Object[]{
+                usergroupName,
+                new HashMap<>().put("user", username)
+        });
+
+        sendRestTemplateRequest(
+                client,
+                requestBody
+        );
     }
 
-    private String buildAuthUrl(String ipaHostname) {
-        return requestBuilder.buildApiBaseUrl(ipaHostname, ipaAuthEndpoint);
-    }
-
-    /**
-     * Maps the JSON response of the "group_show" method to a {@link Map}.
-     *
-     * @param usergroupsJson the JSON response of the "group_show" method
-     * @return the user group data mapped to a MultiValueMap
-     */
-    private Map<String, Object> mapIpaUsergroupShowMethodOutputToMap(String usergroupsJson) {
-        ObjectMapper mapper = new ObjectMapper();
+    private String sendRestTemplateRequest(
+            IpaClient client,
+            Map<String, Object> requestBody
+    ) {
         try {
-            JsonNode rootNode = mapper.readTree(usergroupsJson);
-            JsonNode resultsNode = rootNode.path("result").path("result");
-
-            Map<String, Object> usergroupMap = new HashMap<>();
-            usergroupMap.put("cn", resultsNode.path("cn").get(0).asText());
-            usergroupMap.put("description", resultsNode.path("description").get(0).asText());
-
-            return usergroupMap;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e); // ???
-        }
-    }
-
-    /**
-     * Maps the JSON response of the "group_find" method to a list of {@link Map}.
-     *
-     * @param usergroupsJson the JSON response of the "group_find" method
-     * @return the user group data mapped to a list of MultiValueMap
-     */
-    private List<Map<String, Object>> mapIpaUsergroupFindMethodOutputToMap(String usergroupsJson) {
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        try {
-            JsonNode rootNode = objectMapper.readTree(usergroupsJson);
-            JsonNode resultNode = rootNode.path("result").path("result");
-
-            List<Map<String, Object>> usergroupMapList = new ArrayList<>();
-
-            for (JsonNode node : resultNode) {
-                Map<String, Object> usergroupMap = new HashMap<>();
-
-                usergroupMap.put("cn", node.path("cn").get(0).asText());
-
-                if (!node.path("description").isEmpty()) {
-                    usergroupMap.put("description", node.path("description").get(0).asText());
-                }
-
-                usergroupMapList.add(usergroupMap);
-            }
-
-            return usergroupMapList;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e); // ???
+            return restTemplate.exchange(
+                    requestBuilder.buildRequestUrl(
+                            client,
+                            "https",
+                            ipaApiEndpoint
+                    ),
+                    HttpMethod.POST,
+                    requestBuilder.buildHttpRequestEntity(
+                            client.getId(),
+                            objectMapper.writeValueAsString(requestBody),
+                            ipaAuthEndpoint
+                    ),
+                    String.class
+            ).getBody();
+        } catch (JsonProcessingException exception) {
+            throw new WritingRequestBodyToStringException(
+                    "An exception occurred while writing request body to a string: "
+                            + exception.getMessage()
+            );
         }
     }
 }

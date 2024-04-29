@@ -12,7 +12,6 @@ import java.util.Date;
 @Slf4j
 @RestControllerAdvice
 public class GlobalRestExceptionHandler {
-
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(InvalidClientPrincipalCredentialsException.class)
     public ErrorResponse handleInvalidClientPrincipalCredentialsException(

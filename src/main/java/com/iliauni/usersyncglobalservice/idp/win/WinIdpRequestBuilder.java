@@ -1,54 +1,57 @@
 package com.iliauni.usersyncglobalservice.idp.win;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.iliauni.usersyncglobalservice.exception.ClientHasNoFqdnOrIpOrPortException;
+import com.iliauni.usersyncglobalservice.exception.KcClientHasNoKcFqdnOrIpOrPortException;
+import com.iliauni.usersyncglobalservice.exception.KcClientHasNoKcRealmException;
+import com.iliauni.usersyncglobalservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.usersyncglobalservice.idp.IdpRequestBuilder;
 import com.iliauni.usersyncglobalservice.model.WinClient;
 import com.iliauni.usersyncglobalservice.service.Oauth2ClientService;
 import com.iliauni.usersyncglobalservice.service.WinClientService;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 @Component
-public class WinIdpRequestBuilder implements IdpRequestBuilder {
+public class WinIdpRequestBuilder implements IdpRequestBuilder<WinClient> {
     private final Oauth2ClientService<WinClient> clientService;
+    private final RestTemplateBuilder restTemplateBuilder;
 
     @Autowired
-    public WinIdpRequestBuilder(WinClientService clientService) {
+    public WinIdpRequestBuilder(
+            WinClientService clientService,
+            RestTemplateBuilder restTemplateBuilder
+    ) {
         this.clientService = clientService;
+        this.restTemplateBuilder = restTemplateBuilder;
     }
 
     @Override
     public HttpEntity<String> buildHttpRequestEntity(
             String clientId,
-            Map<String, Object> requestBody,
+            String requestBody,
             String tokenEndpointUrl
     ) {
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        try {
-            return new HttpEntity<>(
-                    objectMapper.writeValueAsString(requestBody),
-                    buildHeaders(
-                        clientService.generateAccessToken(
-                                clientId,
-                                tokenEndpointUrl
-                        ).getToken()
-                    )
-            );
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        return new HttpEntity<>(
+                requestBody,
+                buildHeaders(
+                    clientService.generateAccessToken(
+                            clientId,
+                            tokenEndpointUrl
+                    ).getToken()
+                )
+        );
     }
 
     @Override
-    public HttpEntity buildOnlyAuthHttpRequestEntity(
+    public HttpEntity buildAuthOnlyHttpRequestEntity(
             String clientId,
             String tokenEndpointUrl
     ) {
@@ -64,11 +67,59 @@ public class WinIdpRequestBuilder implements IdpRequestBuilder {
     }
 
     @Override
-    public String buildApiBaseUrl(
-            String hostname,
+    public String buildRequestUrl(
+            WinClient client,
+            String protocol,
             String endpoint
     ) {
-        return "http://" + hostname + endpoint;
+        String host;
+
+        if (client.getFqdn() != null) {
+            host = getWinHostUrl(client);
+        } else if (client.getIp() != null) {
+            host = getWinHostUrl(client);
+        } else {
+            throw new ClientHasNoFqdnOrIpOrPortException("Client with ID " + client.getId() + " has no FQDN or IP");
+        }
+
+        return protocol + "://" + host + endpoint;
+    }
+
+    @Override
+    public String buildAuthRequestUrl(
+            WinClient client,
+            String protocol
+    ) {
+        String kcFqdn = client.getKcFqdn();
+        String kcIp = client.getKcIp();
+        String kcPort = client.getPort();
+        String kcRealm = client.getRealm();
+
+        if (kcRealm == null) {
+            throw new KcClientHasNoKcRealmException(
+                    "Keycloak client with id "
+                            + client.getId()
+                            + " has no Keycloak Realm");
+        }
+
+        if (kcFqdn != null) {
+            return protocol + "://" + kcFqdn + ":" + kcPort
+                    + "/realms/" + kcRealm + "/protocol/openid-connect/token";
+        } else if (kcIp != null) {
+            return protocol + "://" + kcIp + ":" + kcPort
+                    + "/realms/" + kcRealm + "/protocol/openid-connect/token";
+        } else {
+            throw new KcClientHasNoKcFqdnOrIpOrPortException(
+                    "Keycloak client with id "
+                            + client.getId()
+                            + " has no Keycloak FQDN or IP"
+            );
+        }
+    }
+
+    @Override
+    public RestTemplate getRestTemplate() {
+        return restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build();
     }
 
     /**
@@ -83,6 +134,29 @@ public class WinIdpRequestBuilder implements IdpRequestBuilder {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         return headers;
+    }
+
+    private String getWinHostUrl(WinClient client) {
+        if (client.getFqdn() != null) {
+            return getWinHostname(client);
+        } else if (client.getIp() != null) {
+            return getWinIpWithPort(client);
+        } else {
+            throw new ClientHasNoFqdnOrIpOrPortException(
+                    "Windows client with ID "
+                            + client.getId()
+                            + " has no FQDN or IP"
+            );
+        }
+    }
+
+    private String getWinHostname(WinClient client) {
+        // get a string until the first dot, which is, basically, a hostname
+        return client.getFqdn().split("\\.")[0];
+    }
+
+    private String getWinIpWithPort(WinClient client) {
+        return client.getIp() + ":" + client.getPort();
     }
 
     private ObjectNode buildEmptyRequestBody() {

@@ -1,130 +1,87 @@
 package com.iliauni.usersyncglobalservice.service;
 
-import com.iliauni.usersyncglobalservice.difference.*;
-import com.iliauni.usersyncglobalservice.exception.UsergroupIsNullException;
-import com.iliauni.usersyncglobalservice.idp.IdpUserRequestSender;
-import com.iliauni.usersyncglobalservice.idp.IdpUsergroupRequestSender;
-import com.iliauni.usersyncglobalservice.model.IpaClient;
-import com.iliauni.usersyncglobalservice.model.KcClient;
-import com.iliauni.usersyncglobalservice.model.User;
-import com.iliauni.usersyncglobalservice.model.Usergroup;
-import jakarta.ws.rs.core.MultivaluedHashMap;
+import com.iliauni.usersyncglobalservice.difference.DifferenceCalculator;
+import com.iliauni.usersyncglobalservice.exception.NoRecordOfUsergroupsException;
+import com.iliauni.usersyncglobalservice.idp.IdpSyncHandler;
+import com.iliauni.usersyncglobalservice.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Lazy
 @Service
 public class SyncService {
-    @Lazy
-    private UsergroupService usergroupService;
-
-    @Lazy
-    private UserService userService;
-
-    @Lazy
-    private KcClientService<KcClient> kcClientService;
-
-    @Lazy
-    private IpaClientService<IpaClient> ipaClientService;
-
-    private final ListMatcher<Usergroup> usergroupListMatcher;
-    private final ListMatcher<User> userListMatcher;
+    private final IdpSyncHandler<KcClient> kcIdpSyncHandler;
+    private final IdpSyncHandler<IpaClient> ipaIdpSyncHandler;
+    private final IdpSyncHandler<WinClient> winIdpSyncHandler;
     private final DifferenceCalculator<Usergroup> usergroupDifferenceCalculator;
-    private final DifferenceCalculator<User> userDifferenceCalculator;
-    private IdpUserRequestSender<KcClient> kcIdpUserRequestSender;
-    private IdpUsergroupRequestSender<KcClient> kcIdpUsergroupRequestSender;
-    private IdpUserRequestSender<IpaClient> ipaIdpUserRequestSender;
-    private IdpUsergroupRequestSender<IpaClient> ipaIdpUsergroupRequestSender;
+    private final SyncKcClientService syncKcClientService;
+    private final IpaClientService ipaClientService;
+    private final WinClientService winClientService;
+    private final UsergroupService usergroupService;
 
     @Autowired
     public SyncService(
-            UsergroupService usergroupService,
-            UsergroupListMatcher usergroupListMatcher,
-            UserListMatcher userListMatcher,
-            UsergroupDifferenceCalculator usergroupDifferenceCalculator,
-            UserDifferenceCalculator userDifferenceCalculator) {
-        this.usergroupService = usergroupService;
-        this.usergroupListMatcher = usergroupListMatcher;
-        this.userListMatcher = userListMatcher;
+            @Lazy IdpSyncHandler<KcClient> kcIdpSyncHandler,
+            @Lazy IdpSyncHandler<IpaClient> ipaIdpSyncHandler,
+            @Lazy IdpSyncHandler<WinClient> winIdpSyncHandler,
+            DifferenceCalculator<Usergroup> usergroupDifferenceCalculator,
+            SyncKcClientService syncKcClientService,
+            IpaClientService ipaClientService,
+            WinClientService winClientService,
+            UsergroupService usergroupService
+    ) {
+        this.kcIdpSyncHandler = kcIdpSyncHandler;
+        this.ipaIdpSyncHandler = ipaIdpSyncHandler;
+        this.winIdpSyncHandler = winIdpSyncHandler;
         this.usergroupDifferenceCalculator = usergroupDifferenceCalculator;
-        this.userDifferenceCalculator = userDifferenceCalculator;
+        this.syncKcClientService = syncKcClientService;
+        this.ipaClientService = ipaClientService;
+        this.winClientService = winClientService;
+        this.usergroupService = usergroupService;
     }
 
-    public void sync(Optional<List<Usergroup>> usergroups) {
-        List<Usergroup> requestUsergroups = usergroups.orElseThrow(() -> new UsergroupIsNullException("User group is not present"));
+    public void sync(Optional<List<Usergroup>> optionalUsergroups) {
+        List<SyncKcClient> syncKcClients = syncKcClientService.findAll();
+//        List<IpaClient> ipaClients = ipaClientService.findAll();
+//        List<WinClient> winClients = winClientService.findAll();
+        List<Usergroup> dbUsergroups;
 
-        syncUsergroups(requestUsergroups);
-        syncUsergroupUsers(requestUsergroups);
-    }
-
-    private void syncUsergroups(List<Usergroup> requestUsergroups) {
-        List<Usergroup> dbUsergroups = usergroupService.findAll();
-
-        if (!usergroupListMatcher.listsMatch(dbUsergroups, requestUsergroups)) {
-            MultivaluedHashMap<String, Usergroup> differenceMap = usergroupDifferenceCalculator.calculate(dbUsergroups, requestUsergroups);
-
-            List<KcClient> kcClients = kcClientService.findAll();
-            List<IpaClient> ipaClients = ipaClientService.findAll();
-
-            for (Usergroup newUsergroup : differenceMap.getOrDefault("new", null)) {
-                for (KcClient kcClient : kcClients) {
-                    kcIdpUsergroupRequestSender.createUsergroup(kcClient, newUsergroup);
-                }
-
-                for (IpaClient ipaClient : ipaClients) {
-                    ipaIdpUsergroupRequestSender.createUsergroup(ipaClient, newUsergroup);
-                }
-
-                usergroupService.save(Optional.of(newUsergroup));
-            }
-            for (Usergroup missingUsergroup : differenceMap.getOrDefault("missing", null)) {
-                for (KcClient kcClient : kcClients) {
-                    kcIdpUsergroupRequestSender.deleteUsergroup(kcClient, missingUsergroup.getName());
-                }
-
-                for (IpaClient ipaClient : ipaClients) {
-                    ipaIdpUsergroupRequestSender.deleteUsergroup(ipaClient, missingUsergroup.getName());
-                }
-
-                usergroupService.deleteByName(missingUsergroup.getName());
-            }
+        try {
+            dbUsergroups = usergroupService.findAll();
+        } catch (NoRecordOfUsergroupsException exception) {
+            dbUsergroups = new ArrayList<>();
         }
-    }
 
-    private void syncUsergroupUsers(List<Usergroup> requestUsergroups) {
-        for (Usergroup usergroup : requestUsergroups) {
-            List<User> dbUsergroupUsers = usergroupService.findByName(usergroup.getName()).getUsers();
+        List<Usergroup> finalDbUsergroups = dbUsergroups;
+        optionalUsergroups.ifPresent(usergroups -> {
+            syncKcClients.forEach(client -> kcIdpSyncHandler.syncUsergroupChanges(
+                    client,
+                    usergroupDifferenceCalculator.calculate(
+                            finalDbUsergroups,
+                            usergroups
+                    ))
+            );
 
-            if (!userListMatcher.listsMatch(dbUsergroupUsers, usergroup.getUsers())) {
-                MultivaluedHashMap<String, User> differenceMap = userDifferenceCalculator.calculate(dbUsergroupUsers, usergroup.getUsers());
-
-                List<KcClient> kcClients = kcClientService.findAll();
-                List<IpaClient> ipaClients = ipaClientService.findAll();
-
-                for (User newUser : differenceMap.getOrDefault("new", null)) {
-                    for (KcClient kcClient : kcClients) {
-                        kcIdpUserRequestSender.createUser(kcClient, newUser);
-                    }
-
-                    for (IpaClient ipaClient : ipaClients) {
-                        ipaIdpUserRequestSender.createUser(ipaClient, newUser);
-                    }
-                }
-                for (User missingUser : differenceMap.getOrDefault("missing", null)) {
-                    for (KcClient kcClient : kcClients) {
-                        kcIdpUserRequestSender.deleteUser(kcClient, missingUser.getUsername());
-                    }
-
-                    for (IpaClient ipaClient : ipaClients) {
-                        ipaIdpUserRequestSender.deleteUser(ipaClient, missingUser.getUsername());
-                    }
-
-                    userService.deleteByUsername(missingUser.getUsername());
-                }
-            }
-        }
+//            ipaClients.forEach(client -> ipaIdpSyncHandler.syncUsergroupChanges(
+//                    client,
+//                    usergroupDifferenceCalculator.calculate(
+//                            usergroupService.findAll(),
+//                            usergroups
+//                    ))
+//            );
+//
+//            winClients.forEach(client -> winIdpSyncHandler.syncUsergroupChanges(
+//                    client,
+//                    usergroupDifferenceCalculator.calculate(
+//                            usergroupService.findAll(),
+//                            usergroups
+//                    ))
+//            );
+        });
     }
 }
