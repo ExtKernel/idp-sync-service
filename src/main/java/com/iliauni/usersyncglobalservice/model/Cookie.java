@@ -1,7 +1,10 @@
 package com.iliauni.usersyncglobalservice.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -13,7 +16,7 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @Entity
-public class Cookie {
+public class Cookie extends AuthModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

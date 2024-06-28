@@ -15,7 +15,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Entity
-public class Token {
+public class Token extends AuthModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
