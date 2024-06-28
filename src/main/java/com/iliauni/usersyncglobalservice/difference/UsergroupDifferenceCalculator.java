@@ -2,14 +2,10 @@ package com.iliauni.usersyncglobalservice.difference;
 
 import com.iliauni.usersyncglobalservice.model.User;
 import com.iliauni.usersyncglobalservice.model.Usergroup;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * A component class implementing the {@link DifferenceCalculator} interface
@@ -99,11 +95,23 @@ public class UsergroupDifferenceCalculator implements DifferenceCalculator<Userg
         targetList.stream()
                 .filter(originalList::contains)
                 .filter(usergroup -> {
-                    Usergroup originalUsergroup = originalList.get(originalList.indexOf(usergroup));
-                    Usergroup targetUsergroup = targetList.get(targetList.indexOf(usergroup));
+                    List<User> originalUsergroupMembers = originalList.get(originalList.indexOf(usergroup)).getUsers();
+                    // Null-check original Usergroup user list
+                    // Create an empty list, if user list is null
+                    if (originalUsergroupMembers == null) {
+                        originalUsergroupMembers = new ArrayList<>();
+                    }
+
+                    List<User> targetUsergroupMembers = targetList.get(targetList.indexOf(usergroup)).getUsers();
+                    // Null-check target Usergroup user list
+                    // Create an empty list, if user list is null
+                    if (targetUsergroupMembers == null) {
+                        targetUsergroupMembers = new ArrayList<>();
+                    }
+
                     return !userListMatcher.listsMatch(
-                            originalUsergroup.getUsers(),
-                            targetUsergroup.getUsers()
+                            originalUsergroupMembers,
+                            targetUsergroupMembers
                     );
                 })
                 .forEach(usergroup -> alteredUsergroups.add(Optional.of(usergroup)));
