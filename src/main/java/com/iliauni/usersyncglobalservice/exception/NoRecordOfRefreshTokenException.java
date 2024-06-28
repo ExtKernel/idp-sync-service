@@ -1,6 +1,6 @@
 package com.iliauni.usersyncglobalservice.exception;
 
-public class NoRecordOfRefreshTokenException extends RuntimeException {
+public class NoRecordOfRefreshTokenException extends Exception {
     public NoRecordOfRefreshTokenException(String message) {
         super(message);
     }

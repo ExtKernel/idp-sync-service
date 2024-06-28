@@ -1,6 +1,6 @@
 package com.iliauni.usersyncglobalservice.exception;
 
-public class KcTokenIsNullException extends RuntimeException {
+public class KcTokenIsNullException extends Exception {
     public KcTokenIsNullException(String message) {
         super(message);
     }

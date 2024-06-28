@@ -1,6 +1,6 @@
 package com.iliauni.usersyncglobalservice.exception;
 
-public class NullTokenException extends RuntimeException {
+public class NullTokenException extends Exception {
     public NullTokenException(String message) {
         super(message);
     }

@@ -1,6 +1,6 @@
 package com.iliauni.usersyncglobalservice.exception;
 
-public class NoRecordOfClientPrincipalCredentialsException extends RuntimeException {
+public class NoRecordOfClientPrincipalCredentialsException extends Exception {
     public NoRecordOfClientPrincipalCredentialsException(String message) {
         super(message);
     }

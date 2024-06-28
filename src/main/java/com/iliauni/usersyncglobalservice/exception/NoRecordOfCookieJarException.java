@@ -1,6 +1,6 @@
 package com.iliauni.usersyncglobalservice.exception;
 
-public class NoRecordOfCookieJarException extends RuntimeException {
+public class NoRecordOfCookieJarException extends Exception {
     public NoRecordOfCookieJarException(String message) {
         super(message);
     }

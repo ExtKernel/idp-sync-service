@@ -1,6 +1,6 @@
 package com.iliauni.usersyncglobalservice.exception;
 
-public class ClientNameDoesntFollowConventionException extends RuntimeException {
+public class ClientNameDoesntFollowConventionException extends Exception {
     public ClientNameDoesntFollowConventionException(String message) {
         super(message);
     }
