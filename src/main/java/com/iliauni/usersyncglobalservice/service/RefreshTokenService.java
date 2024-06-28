@@ -8,13 +8,14 @@ import com.iliauni.usersyncglobalservice.repository.RefreshTokenRepository;
 import com.iliauni.usersyncglobalservice.token.TokenRetriever;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.Optional;
 
 @Service
 public class RefreshTokenService<T extends Oauth2Client> {
-    private RefreshTokenRepository repository;
+    private final RefreshTokenRepository repository;
 
     @Autowired
     public RefreshTokenService(RefreshTokenRepository repository) {
@@ -30,7 +31,7 @@ public class RefreshTokenService<T extends Oauth2Client> {
                 client,
                 tokenEndpointUrl,
                 tokenRetriever
-        ).map(token -> repository.save(token))
+        ).map(repository::save)
                 .orElseThrow(() -> new RefreshTokenIsNullException("Refresh token is null"));
     }
 
@@ -42,15 +43,18 @@ public class RefreshTokenService<T extends Oauth2Client> {
         return Optional.of(tokenRetriever.retrieveRefreshToken(client, tokenEndpointUrl));
     }
 
+    @Transactional
     public RefreshToken save(Optional<RefreshToken> optionalToken) {
-        return optionalToken.map(token -> repository.save(token))
+        return optionalToken.map(repository::save)
                 .orElseThrow(() -> new RefreshTokenIsNullException("Refresh token is null"));
     }
 
+    @Transactional
     public void deleteAll() {
         repository.deleteAll();
     }
 
+    @Transactional
     public void deleteByDateBetween(
             Date creationDateFrom,
             Date creationDateTo) {
@@ -59,7 +63,7 @@ public class RefreshTokenService<T extends Oauth2Client> {
                 creationDateTo);
     }
 
-    public RefreshToken findLatest() {
+    public RefreshToken findLatest() throws NoRecordOfRefreshTokenException {
         try {
             return repository.findFirstByOrderByCreationDateDesc()
                     .orElseThrow(() -> new RefreshTokenIsNullException("Refresh token is null"));
@@ -70,14 +74,15 @@ public class RefreshTokenService<T extends Oauth2Client> {
         }
     }
 
-    public RefreshToken findByCreationDate(Date creationDate) {
+    public RefreshToken findByCreationDate(Date creationDate) throws NoRecordOfRefreshTokenException {
         try {
             return repository.findRefreshTokenByCreationDate(creationDate)
                     .orElseThrow(() -> new RefreshTokenIsNullException("Refresh token is null"));
         } catch (RefreshTokenIsNullException exception) {
             throw new NoRecordOfRefreshTokenException(
                     "There is no record of refresh token with creation date " +
-                            creationDate + " in the database: " + exception.getMessage()
+                            creationDate + " in the database: " + exception.getMessage(),
+                    exception
             );
         }
     }

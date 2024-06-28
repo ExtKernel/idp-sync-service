@@ -1,10 +1,12 @@
 package com.iliauni.usersyncglobalservice.service;
 
+import com.iliauni.usersyncglobalservice.exception.NoRecordOfRefreshTokenForTheClientException;
 import com.iliauni.usersyncglobalservice.model.AccessToken;
 import com.iliauni.usersyncglobalservice.model.Oauth2Client;
 import com.iliauni.usersyncglobalservice.model.RefreshToken;
 
 public interface Oauth2ClientService<T extends Oauth2Client> extends ClientService<T> {
+
     AccessToken generateAccessToken(
             String clientId,
             String tokenEndpointUrl
@@ -17,5 +19,6 @@ public interface Oauth2ClientService<T extends Oauth2Client> extends ClientServi
             String clientId,
             String tokenEndpointUrl
     );
-    RefreshToken getLatestRefreshToken(String clientId);
+    RefreshToken getLatestRefreshToken(String clientId)
+            throws NoRecordOfRefreshTokenForTheClientException;
 }

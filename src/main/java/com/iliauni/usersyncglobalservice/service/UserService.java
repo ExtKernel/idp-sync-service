@@ -21,17 +21,17 @@ public class UserService {
     }
 
     @Transactional
-    public User save(Optional<User> optionalUser) throws UserIsNullException {
+    public User save(Optional<User> optionalUser) {
         return optionalUser.map(repository::save)
                 .orElseThrow(() -> new UserIsNullException("User is not present"));
     }
 
-    public User findByName(String username) throws UserIsNullException {
+    public User findByName(String username) {
         return repository.findUserByUsername(username)
                 .orElseThrow(() -> new UserIsNullException("User " + username + " was not found"));
     }
 
-    public List<User> findAll() throws NoRecordOfUsersException {
+    public List<User> findAll() {
         if (!repository.findAll().isEmpty()) {
             return repository.findAll();
         } else {
@@ -40,7 +40,7 @@ public class UserService {
     }
 
     @Transactional
-    public User update(Optional<User> optionalUser) throws UserIsNullException {
+    public User update(Optional<User> optionalUser) {
         return optionalUser.map(repository::save)
                 .orElseThrow(() -> new UserIsNullException("User group is not present"));
     }

@@ -1,8 +1,5 @@
 package com.iliauni.usersyncglobalservice.service;
 
-import java.util.Date;
-import java.util.Optional;
-
 import com.iliauni.usersyncglobalservice.cookiejar.IpaCookieJarRetriever;
 import com.iliauni.usersyncglobalservice.exception.CookieJarIsNullException;
 import com.iliauni.usersyncglobalservice.exception.NoRecordOfCookieJarException;
@@ -11,6 +8,9 @@ import com.iliauni.usersyncglobalservice.model.IpaClient;
 import com.iliauni.usersyncglobalservice.repository.CookieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class CookieService<T extends IpaClient> {
@@ -29,7 +29,11 @@ public class CookieService<T extends IpaClient> {
         cookie.setCookie(generateCookie(client, endpointUrl));
         cookie.setCreationDate(new Date());
 
-        return save(Optional.of(cookie));
+        try {
+            return save(Optional.of(cookie));
+        } catch (CookieJarIsNullException e) {
+            throw new CookieJarIsNullException("Cookie jar is null");
+        }
     }
 
     private String generateCookie(T client, String endpointUrl) {
@@ -48,7 +52,7 @@ public class CookieService<T extends IpaClient> {
                 creationDateTo);
     }
 
-    public Cookie findLatest() {
+    public Cookie findLatest() throws NoRecordOfCookieJarException {
         try {
             return repository.findFirstByOrderByCreationDateDesc()
                     .orElseThrow(() -> new CookieJarIsNullException("Cookie jar is null"));
@@ -59,7 +63,7 @@ public class CookieService<T extends IpaClient> {
         }
     }
 
-    public Cookie findByCreationDate(Date creationDate) {
+    public Cookie findByCreationDate(Date creationDate) throws NoRecordOfCookieJarException {
         try {
             return repository.findCookieJarByCreationDate(creationDate)
                     .orElseThrow(() -> new CookieJarIsNullException("Cookie jar is null"));
@@ -71,7 +75,7 @@ public class CookieService<T extends IpaClient> {
         }
     }
 
-    private Cookie save(Optional<Cookie> optionalCookieJar) {
+    private Cookie save(Optional<Cookie> optionalCookieJar) throws CookieJarIsNullException {
         return optionalCookieJar.map(cookieJar -> repository.save(cookieJar))
                 .orElseThrow(() -> new CookieJarIsNullException("Cookie jar is null"));
     }
