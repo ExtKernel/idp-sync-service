@@ -1,13 +1,9 @@
 package com.iliauni.usersyncglobalservice.difference;
 
 import com.iliauni.usersyncglobalservice.model.User;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * A component class implementing the {@link DifferenceCalculator} interface for calculating the difference between two lists of {@link User} objects.

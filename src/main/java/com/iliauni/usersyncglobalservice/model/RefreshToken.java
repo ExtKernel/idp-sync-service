@@ -1,6 +1,6 @@
 package com.iliauni.usersyncglobalservice.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;

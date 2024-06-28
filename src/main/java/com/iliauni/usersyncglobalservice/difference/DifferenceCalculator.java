@@ -1,14 +1,13 @@
 package com.iliauni.usersyncglobalservice.difference;
 
-import java.util.Map;
-
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * An interface for calculating the difference between lists of elements of type T and organizing them into a map.
  *
- * @param <T> the type of elements in the lists
+ * @param <T> a type of elements in the lists
  */
 public interface DifferenceCalculator<T> {
     /**

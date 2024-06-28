@@ -19,12 +19,14 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @EnableMethodSecurity
 @EnableWebSecurity
 @Configuration
 public class UserSynchronizitatGlobalServiceSecurityConfig {
+
     @Value("${principalRoleName}")
     private String principalRoleName;
 

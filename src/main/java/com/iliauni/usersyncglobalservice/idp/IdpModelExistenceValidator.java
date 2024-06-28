@@ -6,7 +6,7 @@ import com.iliauni.usersyncglobalservice.model.Client;
 /**
  * An interface to validate model object existence on an Identity Provider (IDP) client.
  *
- * @param <T> the IDP client
+ * @param <T> an IDP client
  */
 public interface IdpModelExistenceValidator<T extends Client> {
     /**
@@ -36,15 +36,16 @@ public interface IdpModelExistenceValidator<T extends Client> {
     /**
      * Validates that user exists in the provided user group on the IDP client.
      *
-     * @param client the client to get user group from.
-     * @param usergroupName the name of the user group.
+     * @param client the client to get a user group from.
+     * @param usergroupName the name of a user group.
      * @param username the name of the user.
      * @return true, if the user exists in the user group. False, if it doesn't.
-     * @throws UsergroupDoesNotExistOnTheClientException if the user group doesn't exist on the client.
+     * @throws UsergroupDoesNotExistOnTheClientException if the user group doesn't exist on the client,
+     *                                                   and it's not possible to validate existence of the user.
      */
-    boolean validateUsergroupUserExistence(
+    boolean validateUsergroupMemberExistence(
             T client,
             String usergroupName,
             String username
-    ) throws UsergroupDoesNotExistOnTheClientException;
+    );
 }

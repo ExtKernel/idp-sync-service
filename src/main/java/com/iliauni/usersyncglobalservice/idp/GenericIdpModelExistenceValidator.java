@@ -1,24 +1,17 @@
 package com.iliauni.usersyncglobalservice.idp;
 
-import com.iliauni.usersyncglobalservice.exception.UsergroupDoesNotExistOnTheClientException;
 import com.iliauni.usersyncglobalservice.model.Client;
 import com.iliauni.usersyncglobalservice.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Lazy
-@Component
-public class GenericIdpModelExistenceValidator<T extends Client> implements IdpModelExistenceValidator<T> {
+public abstract class GenericIdpModelExistenceValidator<T extends Client> implements IdpModelExistenceValidator<T> {
     private final IdpUsergroupManager<T> usergroupManager;
     private final IdpUserManager<T> userManager;
 
-    @Autowired
     public GenericIdpModelExistenceValidator(
-            @Lazy IdpUsergroupManager<T> usergroupManager,
-            @Lazy IdpUserManager<T> userManager
+            IdpUsergroupManager<T> usergroupManager,
+            IdpUserManager<T> userManager
     ) {
         this.usergroupManager = usergroupManager;
         this.userManager = userManager;
@@ -45,11 +38,11 @@ public class GenericIdpModelExistenceValidator<T extends Client> implements IdpM
     }
 
     @Override
-    public boolean validateUsergroupUserExistence(
+    public boolean validateUsergroupMemberExistence(
             T client,
             String usergroupName,
             String username
-    ) throws UsergroupDoesNotExistOnTheClientException {
+    ) {
         return validateUserExistenceInList(
                 usergroupManager.getUsergroupMembers(client, usergroupName),
                 username

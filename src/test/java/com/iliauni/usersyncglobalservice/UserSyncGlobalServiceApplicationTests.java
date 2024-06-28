@@ -9,5 +9,4 @@ class UserSyncGlobalServiceApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }

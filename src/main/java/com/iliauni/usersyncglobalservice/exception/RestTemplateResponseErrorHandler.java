@@ -1,11 +1,12 @@
 package com.iliauni.usersyncglobalservice.exception;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import lombok.NoArgsConstructor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResponseErrorHandler;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @NoArgsConstructor
 @Component
@@ -29,7 +30,7 @@ public class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
             } else if (responseBodyText.contains("Invalid client or Invalid client credentials")) {
                 throw new
                         InvalidClientCredentialsExceptions(
-                                "Client ID or Client Secret is invalid");
+                                "The Client ID or Client Secret is invalid");
             } else if (responseBodyText.contains("Unsupported grant_type")) {
                 throw new
                         GrantTypeIsUnsupportedException("Grant type is unsupported");
