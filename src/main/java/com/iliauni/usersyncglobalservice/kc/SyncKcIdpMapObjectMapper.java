@@ -1,6 +1,5 @@
-package com.iliauni.usersyncglobalservice.idp.kc;
+package com.iliauni.usersyncglobalservice.kc;
 
-import com.iliauni.usersyncglobalservice.idp.IdpJsonObjectMapper;
 import com.iliauni.usersyncglobalservice.idp.IdpMapObjectMapper;
 import com.iliauni.usersyncglobalservice.model.User;
 import com.iliauni.usersyncglobalservice.model.Usergroup;
@@ -14,7 +13,7 @@ import java.util.Map;
  * This implementation provides methods to map {@link User} and {@link Usergroup} objects to map representations, as well as methods for building user credentials maps.
  */
 @Component
-public class KcIdpMapObjectMapper implements IdpMapObjectMapper {
+public class SyncKcIdpMapObjectMapper implements IdpMapObjectMapper {
     @Override
     public Map<String, Object> mapUserToMap(User user) {
         Map<String, Object> userMap = new HashMap<>();

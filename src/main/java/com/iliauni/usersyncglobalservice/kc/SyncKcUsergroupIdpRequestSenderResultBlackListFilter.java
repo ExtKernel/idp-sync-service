@@ -1,0 +1,9 @@
+package com.iliauni.usersyncglobalservice.kc;
+
+import com.iliauni.usersyncglobalservice.idp.GenericUsergroupIdpRequestSenderResultBlackListFilter;
+import com.iliauni.usersyncglobalservice.model.SyncKcClient;
+import org.springframework.stereotype.Component;
+
+@Component
+public class SyncKcUsergroupIdpRequestSenderResultBlackListFilter extends GenericUsergroupIdpRequestSenderResultBlackListFilter<SyncKcClient> {
+}

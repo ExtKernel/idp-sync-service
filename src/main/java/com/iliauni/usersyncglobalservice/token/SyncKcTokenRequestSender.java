@@ -2,7 +2,6 @@ package com.iliauni.usersyncglobalservice.token;
 
 import com.iliauni.usersyncglobalservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.usersyncglobalservice.model.AccessToken;
-import com.iliauni.usersyncglobalservice.model.KcClient;
 import com.iliauni.usersyncglobalservice.model.RefreshToken;
 import com.iliauni.usersyncglobalservice.model.SyncKcClient;
 import com.iliauni.usersyncglobalservice.service.Oauth2ClientService;
@@ -12,7 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.Map;
 
 @Component
 public class SyncKcTokenRequestSender implements TokenRequestSender<SyncKcClient> {
