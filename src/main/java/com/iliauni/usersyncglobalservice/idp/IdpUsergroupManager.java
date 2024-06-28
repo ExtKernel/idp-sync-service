@@ -2,7 +2,7 @@ package com.iliauni.usersyncglobalservice.idp;
 
 import com.iliauni.usersyncglobalservice.exception.UsergroupAlreadyExistsOnTheClientException;
 import com.iliauni.usersyncglobalservice.exception.UsergroupDoesNotExistOnTheClientException;
-import com.iliauni.usersyncglobalservice.exception.UsergroupUserAlreadyExistsOnTheClientException;
+import com.iliauni.usersyncglobalservice.exception.UsergroupMemberAlreadyExistsOnTheClientException;
 import com.iliauni.usersyncglobalservice.model.Client;
 import com.iliauni.usersyncglobalservice.model.User;
 import com.iliauni.usersyncglobalservice.model.Usergroup;
@@ -14,7 +14,7 @@ import java.util.List;
  * Mainly using request senders and JSON object mappers.
  * Mostly, it servers as an abstraction and connection point for request senders and object mappers
  *
- * @param <T> the type of client used for requests and mapping
+ * @param <T> a type of client used for requests and mapping
  */
 public interface IdpUsergroupManager<T extends Client> {
     /**
@@ -23,11 +23,12 @@ public interface IdpUsergroupManager<T extends Client> {
      * @param client the client to perform a request on
      * @param usergroup the user group to be created
      * @return the created user group
+     * @throws UsergroupAlreadyExistsOnTheClientException
      */
     Usergroup createUsergroup(
             T client,
             Usergroup usergroup
-    ) throws UsergroupAlreadyExistsOnTheClientException;
+    );
 
     /**
      * Adds a user to a user group using the specified
@@ -36,14 +37,15 @@ public interface IdpUsergroupManager<T extends Client> {
      * @param client the client to perform a request on.
      * @param usergroupName name of the user group.
      * @param username username of the user to be added.
-     * @throws UsergroupUserAlreadyExistsOnTheClientException if the user is already
+     * @throws UsergroupMemberAlreadyExistsOnTheClientException if the user is already
      *                                                       a member of the user group.
+     * @throws UsergroupDoesNotExistOnTheClientException
      */
     void addUsergroupMember(
             T client,
             String usergroupName,
             String username
-    ) throws UsergroupUserAlreadyExistsOnTheClientException;
+    );
 
     /**
      * Retrieves user group using the specified client and name of the user group.
@@ -51,6 +53,7 @@ public interface IdpUsergroupManager<T extends Client> {
      * @param client the client to perform a request on
      * @param usergroupName name of the user group
      * @return the retrieved user
+     * @throws UsergroupDoesNotExistOnTheClientException
      */
     Usergroup getUsergroup(
             T client,
@@ -71,6 +74,7 @@ public interface IdpUsergroupManager<T extends Client> {
      * @param client the client to perform a request on
      * @param usergroupName name of the user group
      * @return a list of members of the user group
+     * @throws UsergroupDoesNotExistOnTheClientException
      */
     List<User> getUsergroupMembers(
             T client,
@@ -82,11 +86,12 @@ public interface IdpUsergroupManager<T extends Client> {
      *
      * @param client the client to perform a request on
      * @param usergroupName name of the user group
+     * @throws UsergroupDoesNotExistOnTheClientException
      */
     void deleteUsergroup(
             T client,
             String usergroupName
-    ) throws UsergroupDoesNotExistOnTheClientException;
+    );
 
     /**
      * Removes users from a user group using the specified

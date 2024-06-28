@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * An interface to manage users in an Identity Provider (IDP) context, mainly using request senders and JSON object mappers
  *
- * @param <T> the type of client used for requests and mapping
+ * @param <T> a type of client used for requests and mapping
  */
 public interface IdpUserManager<T extends Client> {
     /**

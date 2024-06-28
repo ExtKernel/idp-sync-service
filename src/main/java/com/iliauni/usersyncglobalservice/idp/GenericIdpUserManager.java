@@ -1,38 +1,52 @@
 package com.iliauni.usersyncglobalservice.idp;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.reflect.TypeToken;
+import com.iliauni.usersyncglobalservice.exception.UserAlreadyExistsOnTheClientException;
+import com.iliauni.usersyncglobalservice.exception.UserDoesNotExistOnTheClientException;
 import com.iliauni.usersyncglobalservice.model.Client;
 import com.iliauni.usersyncglobalservice.model.User;
-import java.lang.reflect.Type;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
+import lombok.AccessLevel;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Lazy
-@Component
-public class GenericIdpUserManager<T extends Client> implements IdpUserManager<T> {
+public abstract class GenericIdpUserManager<T extends Client> implements IdpUserManager<T> {
+
+    @Getter(AccessLevel.PROTECTED)
     private final IdpJsonObjectMapper jsonObjectMapper;
+
+    @Getter(AccessLevel.PROTECTED)
     private final IdpUserRequestSender<T> requestSender;
 
-    public GenericIdpUserManager(GenericIdpModelManagerBeanDeterminer beanDeterminer) {
-        Type clientType = new TypeToken<T>(getClass()){}.getType();
+    @Getter(AccessLevel.PROTECTED)
+    private final IdpModelExistenceValidator<T> modelExistenceValidator;
 
-        this.jsonObjectMapper = beanDeterminer.determineJsonObjectMapper(clientType);
-        this.requestSender = beanDeterminer.determineIdpUserRequestSender(clientType);
+    @Getter(AccessLevel.PROTECTED)
+    private final UserIdpRequestSenderResultBlackListFilter<T> blackListFilter;
+
+    public GenericIdpUserManager(
+            IdpJsonObjectMapper jsonObjectMapper,
+            IdpUserRequestSender<T> requestSender,
+            IdpModelExistenceValidator<T> modelExistenceValidator,
+            UserIdpRequestSenderResultBlackListFilter<T> blackListFilter
+    ) {
+        this.jsonObjectMapper = jsonObjectMapper;
+        this.requestSender = requestSender;
+        this.modelExistenceValidator = modelExistenceValidator;
+        this.blackListFilter = blackListFilter;
     }
 
-    /**
-     * @inheritDoc
-     * At the moment, this method serves just as a proxy to the request sender
-     */
     @Override
     public User createUser(
             T client,
             User user
     ) {
+        validateUserDoesNotExists(
+                client,
+                user.getUsername()
+        );
+
         return requestSender.sendCreateUserRequest(
                 client,
                 user
@@ -44,13 +58,18 @@ public class GenericIdpUserManager<T extends Client> implements IdpUserManager<T
             T client,
             String username
     ) {
-        return jsonObjectMapper.mapUserJsonNodeToUser(
-                getDirectResult(
+        validateUserExists(
+                client,
+                username
+        );
+
+        return blackListFilter.filter(
+                client,
+                jsonObjectMapper.mapUserJsonNodeToUser(
                         requestSender.sendGetUserRequest(
                                 client,
                                 username
-                        )
-                )
+                        ))
         );
     }
 
@@ -59,17 +78,16 @@ public class GenericIdpUserManager<T extends Client> implements IdpUserManager<T
         List<User> users = new ArrayList<>();
 
         // iterate over JSON nodes which represent users and map each one to an object
-        for (JsonNode user : getDirectResult(requestSender.sendGetUsersRequest(client))) {
+        for (JsonNode user : requestSender.sendGetUsersRequest(client)) {
             users.add(jsonObjectMapper.mapUserJsonNodeToUser(user));
         }
 
-        return users;
+        return blackListFilter.filter(
+                client,
+                users
+        );
     }
 
-    /**
-     * @inheritDoc
-     * At the moment, this method serves just as a proxy to the request sender
-     */
     @Override
     public String updateUserPassword(
             T client,
@@ -83,29 +101,53 @@ public class GenericIdpUserManager<T extends Client> implements IdpUserManager<T
         );
     }
 
-    /**
-     * @inheritDoc
-     * At the moment, this method serves just as a proxy to the request sender
-     */
     @Override
     public void deleteUser(
             T client,
             String username
     ) {
+        validateUserExists(
+                client,
+                username
+        );
+
         requestSender.sendDeleteUserRequest(
                 client,
                 username
         );
     }
 
-    /**
-     * Returns the requested from FreeIPA API result as the API doesn't return
-     * it directly and wraps into a JSON path "result.result"
-     *
-     * @param ipaOutputJson an output of a request to the FreeIPA API
-     * @return the requested data without unnecessary API details
-     */
-    private JsonNode getDirectResult(JsonNode ipaOutputJson) {
-        return ipaOutputJson.path("result").path("result");
+    protected void validateUserExists(
+            T client,
+            String username
+    ) {
+        if (!modelExistenceValidator.validateUserExistence(
+                client,
+                username
+        )) {
+            throw new UserDoesNotExistOnTheClientException(
+                    "User with username "
+                            + username
+                            + " doesn't exist on the client with id "
+                            + client.getId()
+            );
+        }
+    }
+
+    protected void validateUserDoesNotExists(
+            T client,
+            String username
+    ) {
+        if (modelExistenceValidator.validateUserExistence(
+                client,
+                username
+        )) {
+            throw new UserAlreadyExistsOnTheClientException(
+                    "User with username "
+                            + username
+                            + " already exists on the client with id "
+                            + client.getId()
+            );
+        }
     }
 }
