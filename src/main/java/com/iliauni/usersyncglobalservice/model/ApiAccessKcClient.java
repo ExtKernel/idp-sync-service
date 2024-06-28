@@ -1,7 +1,10 @@
 package com.iliauni.usersyncglobalservice.model;
 
 import jakarta.persistence.Entity;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
@@ -14,9 +17,30 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Entity
 public class ApiAccessKcClient extends KcClient {
+    public ApiAccessKcClient(String id) {
+        super(id);
+    }
+
+    public ApiAccessKcClient(
+            String id,
+            String fqdn,
+            String clientSecret
+    ) {
+        super(id, fqdn, clientSecret);
+    }
+
+    public ApiAccessKcClient(
+            String id,
+            String ip,
+            String port,
+            String clientSecret
+    ) {
+        super(id, ip, port, clientSecret);
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

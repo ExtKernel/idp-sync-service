@@ -1,5 +1,8 @@
 package com.iliauni.usersyncglobalservice.controller;
 
+import com.iliauni.usersyncglobalservice.exception.ClientIsNullException;
+import com.iliauni.usersyncglobalservice.exception.ClientNotFoundException;
+import com.iliauni.usersyncglobalservice.exception.NoRecordOfClientsException;
 import com.iliauni.usersyncglobalservice.model.ApiAccessKcClient;
 import com.iliauni.usersyncglobalservice.service.Oauth2ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,21 +23,33 @@ public class ApiAccessKcClientController {
 
     @PostMapping()
     public ApiAccessKcClient save(@RequestBody ApiAccessKcClient client) {
-        return clientService.save(Optional.ofNullable(client));
+        try {
+            return clientService.save(Optional.ofNullable(client));
+        } catch (ClientIsNullException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @GetMapping()
     public List<ApiAccessKcClient> findAll() {
-        return clientService.findAll();
+        try {
+            return clientService.findAll();
+        } catch (NoRecordOfClientsException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @GetMapping("/{id}")
     public ApiAccessKcClient findById(@PathVariable String id) {
-        return clientService.findById(id);
+        try {
+            return clientService.findById(id);
+        } catch (ClientNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @PutMapping()
-    public ApiAccessKcClient update(@RequestBody ApiAccessKcClient client) {
+    public ApiAccessKcClient update(@RequestBody ApiAccessKcClient client) throws ClientIsNullException {
         return clientService.update(Optional.ofNullable(client));
     }
 
