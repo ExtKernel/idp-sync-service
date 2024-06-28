@@ -1,8 +1,10 @@
 package com.iliauni.usersyncglobalservice.controller;
 
+import com.iliauni.usersyncglobalservice.exception.ClientIsNullException;
+import com.iliauni.usersyncglobalservice.exception.ClientNotFoundException;
+import com.iliauni.usersyncglobalservice.exception.NoRecordOfClientsException;
 import com.iliauni.usersyncglobalservice.model.WinClient;
 import com.iliauni.usersyncglobalservice.service.Oauth2ClientService;
-import com.iliauni.usersyncglobalservice.service.WinClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,22 +22,22 @@ public class WinClientController {
     }
 
     @PostMapping()
-    public WinClient save(@RequestBody WinClient client) {
+    public WinClient save(@RequestBody WinClient client) throws ClientIsNullException {
         return clientService.save(Optional.ofNullable(client));
     }
 
     @GetMapping()
-    public List<WinClient> findAll() {
+    public List<WinClient> findAll() throws NoRecordOfClientsException {
         return clientService.findAll();
     }
 
     @GetMapping("/{id}")
-    public WinClient findById(@PathVariable String id) {
+    public WinClient findById(@PathVariable String id) throws ClientNotFoundException {
         return clientService.findById(id);
     }
 
     @PutMapping()
-    public WinClient update(@RequestBody WinClient client) {
+    public WinClient update(@RequestBody WinClient client) throws ClientIsNullException {
         return clientService.update(Optional.ofNullable(client));
     }
 

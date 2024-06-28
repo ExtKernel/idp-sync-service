@@ -1,9 +1,12 @@
-package com.iliauni.usersyncglobalservice.idp.win;
+package com.iliauni.usersyncglobalservice.win;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iliauni.usersyncglobalservice.exception.*;
+import com.iliauni.usersyncglobalservice.exception.RestTemplateResponseErrorHandler;
+import com.iliauni.usersyncglobalservice.exception.UsergroupJsonReadingException;
+import com.iliauni.usersyncglobalservice.exception.UsergroupMembersJsonReadingException;
+import com.iliauni.usersyncglobalservice.exception.UsergroupsJsonReadingException;
 import com.iliauni.usersyncglobalservice.idp.IdpJsonObjectMapper;
 import com.iliauni.usersyncglobalservice.idp.IdpRequestBuilder;
 import com.iliauni.usersyncglobalservice.idp.IdpUsergroupRequestSender;
@@ -12,7 +15,7 @@ import com.iliauni.usersyncglobalservice.model.WinClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.*;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -40,31 +43,24 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
     public Usergroup sendCreateUsergroupRequest(
             WinClient client,
             Usergroup usergroup
-    ) throws UsergroupToJsonMappingException {
-        try {
-            restTemplate.exchange(
-                    requestBuilder.buildRequestUrl(
-                            client,
-                            "http",
-                            "/groups/create/"
-                    ),
-                    HttpMethod.POST,
-                    requestBuilder.buildHttpRequestEntity(
-                            client.getId(),
-                            jsonObjectMapper.mapUsergroupToJsonString(usergroup),
-                            requestBuilder.buildAuthRequestUrl(
-                                    client,
-                                    "http"
-                            )
-                    ),
-                    String.class
-                );
-        } catch (JsonProcessingException exception) {
-            throw new UsergroupToJsonMappingException(
-                    "An exception occurred while mapping user group to JSON string: "
-                            + exception.getMessage()
+    ) {
+        restTemplate.exchange(
+                requestBuilder.buildRequestUrl(
+                        client,
+                        "http",
+                        "/groups/create/"
+                ),
+                HttpMethod.POST,
+                requestBuilder.buildHttpRequestEntity(
+                        client.getId(),
+                        jsonObjectMapper.mapUsergroupToJsonString(usergroup),
+                        requestBuilder.buildAuthRequestUrl(
+                                client,
+                                "http"
+                        )
+                ),
+                String.class
             );
-        }
 
         return usergroup;
     }
@@ -99,7 +95,7 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
     public JsonNode sendGetUsergroupRequest(
             WinClient client,
             String usergroupName
-    ) throws GetUsergroupRequestJsonReadingException {
+    ) {
         try {
             return objectMapper.readTree(
                     restTemplate.exchange(
@@ -121,17 +117,17 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
                     ).getBody()
             );
         } catch (JsonProcessingException exception) {
-            throw new GetUsergroupRequestJsonReadingException(
+            throw new UsergroupJsonReadingException(
                     "An exception occurred while reading JSON received from the request to retrieve a user group for Windows client with id "
                             + client.getId() + ": "
-                            + exception.getMessage()
+                            + exception.getMessage(),
+                    exception
             );
         }
     }
 
     @Override
-    public JsonNode sendGetUsergroupsRequest(WinClient client)
-            throws GetUsergroupsRequestJsonReadingException {
+    public JsonNode sendGetUsergroupsRequest(WinClient client) {
         try {
             return objectMapper.readTree(
                     restTemplate.exchange(
@@ -152,10 +148,11 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
                     ).getBody()
             );
         } catch (JsonProcessingException exception) {
-            throw new GetUsergroupsRequestJsonReadingException(
+            throw new UsergroupsJsonReadingException(
                     "An exception occurred while reading JSON received from the request to retrieve user groups for Windows client with id "
                             + client.getId() + ": "
-                            + exception.getMessage()
+                            + exception.getMessage(),
+                    exception
             );
         }
     }
@@ -164,7 +161,7 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
     public JsonNode sendGetUsergroupMembersRequest(
             WinClient client,
             String usergroupName
-    ) throws GetUsergroupMembersRequestJsonReadingException {
+    ) {
         try {
             return objectMapper.readTree(
                     restTemplate.exchange(
@@ -186,10 +183,11 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
                     ).getBody()
             );
         } catch (JsonProcessingException exception) {
-            throw new GetUsergroupMembersRequestJsonReadingException(
+            throw new UsergroupMembersJsonReadingException(
                     "An exception occurred while reading JSON received from the request to retrieve user group members for Windows client with id "
                             + client.getId() + ": "
-                            + exception.getMessage()
+                            + exception.getMessage(),
+                    exception
             );
         }
     }

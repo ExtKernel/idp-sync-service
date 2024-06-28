@@ -1,12 +1,10 @@
-package com.iliauni.usersyncglobalservice.idp.win;
+package com.iliauni.usersyncglobalservice.win;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iliauni.usersyncglobalservice.exception.CredentialsRepresentationBuildingException;
-import com.iliauni.usersyncglobalservice.exception.GetUserRequestJsonReadingException;
-import com.iliauni.usersyncglobalservice.exception.GetUsersRequestJsonReadingException;
-import com.iliauni.usersyncglobalservice.exception.UserToJsonMappingException;
+import com.iliauni.usersyncglobalservice.exception.UserJsonReadingException;
+import com.iliauni.usersyncglobalservice.exception.UsersJsonReadingException;
 import com.iliauni.usersyncglobalservice.idp.IdpJsonObjectMapper;
 import com.iliauni.usersyncglobalservice.idp.IdpRequestBuilder;
 import com.iliauni.usersyncglobalservice.idp.IdpUserRequestSender;
@@ -41,31 +39,24 @@ public class WinIdpUserRequestSender implements IdpUserRequestSender<WinClient> 
     public User sendCreateUserRequest(
             WinClient client,
             User user
-    ) throws UserToJsonMappingException {
-        try {
-            restTemplate.exchange(
-                    requestBuilder.buildRequestUrl(
-                            client,
-                            "http",
-                            "/users/create/"
-                    ),
-                    HttpMethod.POST,
-                    requestBuilder.buildHttpRequestEntity(
-                            client.getId(),
-                            jsonObjectMapper.mapUserToJsonString(user),
-                            requestBuilder.buildAuthRequestUrl(
-                                    client,
-                                    "http"
-                            )
-                    ),
-                    String.class
-            );
-        } catch (JsonProcessingException exception) {
-            throw new UserToJsonMappingException(
-                    "An exception occurred while mapping user to JSON string: "
-                            + exception.getMessage()
-            );
-        }
+    ) {
+        restTemplate.exchange(
+                requestBuilder.buildRequestUrl(
+                        client,
+                        "http",
+                        "/users/create/"
+                ),
+                HttpMethod.POST,
+                requestBuilder.buildHttpRequestEntity(
+                        client.getId(),
+                        jsonObjectMapper.mapUserToJsonString(user),
+                        requestBuilder.buildAuthRequestUrl(
+                                client,
+                                "http"
+                        )
+                ),
+                String.class
+        );
 
         return user;
     }
@@ -74,7 +65,7 @@ public class WinIdpUserRequestSender implements IdpUserRequestSender<WinClient> 
     public JsonNode sendGetUserRequest(
             WinClient client,
             String username
-    ) throws GetUserRequestJsonReadingException {
+    ) {
         try {
             return objectMapper.readTree(
                     restTemplate.exchange(
@@ -95,8 +86,9 @@ public class WinIdpUserRequestSender implements IdpUserRequestSender<WinClient> 
                     ).getBody()
             );
         } catch (JsonProcessingException exception) {
-            throw new GetUserRequestJsonReadingException(
-                    "An exception occurred while reading JSON received from the request to retrieve a user for Windows client with id "
+            throw new UserJsonReadingException(
+                    "An exception occurred while reading JSON received from the request"
+                            + " to retrieve a user for Windows client with id "
                             + client.getId() + ": "
                             + exception.getMessage()
             );
@@ -104,8 +96,7 @@ public class WinIdpUserRequestSender implements IdpUserRequestSender<WinClient> 
     }
 
     @Override
-    public JsonNode sendGetUsersRequest(WinClient client)
-            throws GetUsersRequestJsonReadingException {
+    public JsonNode sendGetUsersRequest(WinClient client) {
         try {
             return objectMapper.readTree(
                     restTemplate.exchange(
@@ -126,8 +117,9 @@ public class WinIdpUserRequestSender implements IdpUserRequestSender<WinClient> 
                     ).getBody()
             );
         } catch (JsonProcessingException exception) {
-            throw new GetUsersRequestJsonReadingException(
-                    "An exception occurred while reading JSON received from the request to retrieve users for Windows client with id "
+            throw new UsersJsonReadingException(
+                    "An exception occurred while reading JSON received from the request"
+                            + " to retrieve users for Windows client with id "
                             + client.getId() + ": "
                             + exception.getMessage()
             );
@@ -140,30 +132,23 @@ public class WinIdpUserRequestSender implements IdpUserRequestSender<WinClient> 
             String username,
             String newPassword
     ) {
-        try {
-            restTemplate.exchange(
-                    requestBuilder.buildRequestUrl(
-                            client,
-                            "http",
-                            "/users/update-password/" + username
-                    ),
-                    HttpMethod.PATCH,
-                    requestBuilder.buildHttpRequestEntity(
-                            client.getId(),
-                            jsonObjectMapper.buildCredentialsRepresentation(newPassword),
-                            requestBuilder.buildAuthRequestUrl(
-                                    client,
-                                    "http"
-                            )
-                    ),
-                    String.class
-            );
-        } catch (JsonProcessingException exception) {
-            throw new CredentialsRepresentationBuildingException(
-                    "An exception occurred while building credentials representation: "
-                            + exception.getMessage()
-            );
-        }
+        restTemplate.exchange(
+                requestBuilder.buildRequestUrl(
+                        client,
+                        "http",
+                        "/users/update-password/" + username
+                ),
+                HttpMethod.PATCH,
+                requestBuilder.buildHttpRequestEntity(
+                        client.getId(),
+                        jsonObjectMapper.buildCredentialsRepresentation(newPassword),
+                        requestBuilder.buildAuthRequestUrl(
+                                client,
+                                "http"
+                        )
+                ),
+                String.class
+        );
 
         return newPassword;
     }

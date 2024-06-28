@@ -1,16 +1,15 @@
-package com.iliauni.usersyncglobalservice.idp.win;
+package com.iliauni.usersyncglobalservice.win;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.iliauni.usersyncglobalservice.exception.ClientHasNoFqdnOrIpOrPortException;
-import com.iliauni.usersyncglobalservice.exception.KcClientHasNoKcFqdnOrIpOrPortException;
+import com.iliauni.usersyncglobalservice.exception.ClientHasNoFqdnOrIpAndPortException;
+import com.iliauni.usersyncglobalservice.exception.KcClientHasNoKcFqdnOrIpAndPortException;
 import com.iliauni.usersyncglobalservice.exception.KcClientHasNoKcRealmException;
 import com.iliauni.usersyncglobalservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.usersyncglobalservice.idp.IdpRequestBuilder;
 import com.iliauni.usersyncglobalservice.model.WinClient;
 import com.iliauni.usersyncglobalservice.service.Oauth2ClientService;
 import com.iliauni.usersyncglobalservice.service.WinClientService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
@@ -79,12 +78,16 @@ public class WinIdpRequestBuilder implements IdpRequestBuilder<WinClient> {
         } else if (client.getIp() != null) {
             host = getWinHostUrl(client);
         } else {
-            throw new ClientHasNoFqdnOrIpOrPortException("Client with ID " + client.getId() + " has no FQDN or IP");
+            throw new ClientHasNoFqdnOrIpAndPortException("Client with ID " + client.getId() + " has no FQDN or IP");
         }
 
         return protocol + "://" + host + endpoint;
     }
 
+    /**
+     * @throws KcClientHasNoKcRealmException if the client has no info
+     *                                       to get a Keycloak Realm from.
+     */
     @Override
     public String buildAuthRequestUrl(
             WinClient client,
@@ -109,7 +112,7 @@ public class WinIdpRequestBuilder implements IdpRequestBuilder<WinClient> {
             return protocol + "://" + kcIp + ":" + kcPort
                     + "/realms/" + kcRealm + "/protocol/openid-connect/token";
         } else {
-            throw new KcClientHasNoKcFqdnOrIpOrPortException(
+            throw new KcClientHasNoKcFqdnOrIpAndPortException(
                     "Keycloak client with id "
                             + client.getId()
                             + " has no Keycloak FQDN or IP"
@@ -142,7 +145,7 @@ public class WinIdpRequestBuilder implements IdpRequestBuilder<WinClient> {
         } else if (client.getIp() != null) {
             return getWinIpWithPort(client);
         } else {
-            throw new ClientHasNoFqdnOrIpOrPortException(
+            throw new ClientHasNoFqdnOrIpAndPortException(
                     "Windows client with ID "
                             + client.getId()
                             + " has no FQDN or IP"
