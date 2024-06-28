@@ -3,12 +3,8 @@ ipaApiEndpoint: ${IPA_API_ENDPOINT}
 ipaApiAuthEndpoint: ${IPA_API_AUTH_ENDPOINT}
 ipaHostname: ${IPA_HOSTNAME}
 ipaCertPath: ${IPA_CERT_PATH}
-ipaPrincipalUsername: ${IPA_PRINCIPAL_USERNAME}
-ipaPrincipalPassword: ${IPA_PRINCIPAL_PASSWORD}
 
 kcAdminCliClientId: ${KC_ADMIN_CLI_CLIENT_ID}
-kcAdminCliClientPrincipalUsername: ${KC_ADMIN_CLI_CLIENT_PRINCIPAL_USERNAME}
-kcAdminCliClientPrincipalPassword: ${KC_ADMIN_CLI_CLIENT_PRINCIPAL_PASSWORD}
 
 principalRoleName: ${PRINCIPAL_ROLE_NAME}
 
