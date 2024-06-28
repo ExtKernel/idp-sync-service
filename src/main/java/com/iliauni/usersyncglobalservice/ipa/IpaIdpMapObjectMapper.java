@@ -1,4 +1,4 @@
-package com.iliauni.usersyncglobalservice.idp.ipa;
+package com.iliauni.usersyncglobalservice.ipa;
 
 import com.iliauni.usersyncglobalservice.idp.IdpMapObjectMapper;
 import com.iliauni.usersyncglobalservice.model.User;

@@ -1,8 +1,10 @@
-package com.iliauni.usersyncglobalservice.idp.ipa;
+package com.iliauni.usersyncglobalservice.ipa;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iliauni.usersyncglobalservice.exception.UserToJsonMappingException;
+import com.iliauni.usersyncglobalservice.exception.UsergroupToJsonMappingException;
 import com.iliauni.usersyncglobalservice.idp.IdpJsonObjectMapper;
 import com.iliauni.usersyncglobalservice.idp.IdpMapObjectMapper;
 import com.iliauni.usersyncglobalservice.model.User;
@@ -26,15 +28,29 @@ public class IpaIdpJsonObjectMapper implements IdpJsonObjectMapper {
     }
 
     @Override
-    public String mapUserToJsonString(User user)
-            throws JsonProcessingException {
-        return objectMapper.writeValueAsString(mapObjectMapper.mapUserToMap(user));
+    public String mapUserToJsonString(User user) {
+        try {
+            return objectMapper.writeValueAsString(mapObjectMapper.mapUserToMap(user));
+        } catch (JsonProcessingException exception) {
+            throw new UserToJsonMappingException(
+                    "An exception occurred while mapping a FreeIPA user to a JSON string: "
+                            + exception.getMessage(),
+                    exception
+            );
+        }
     }
 
     @Override
-    public String mapUsergroupToJsonString(Usergroup usergroup)
-            throws JsonProcessingException {
-        return objectMapper.writeValueAsString(mapObjectMapper.mapUsergroupToMap(usergroup));
+    public String mapUsergroupToJsonString(Usergroup usergroup) {
+        try {
+            return objectMapper.writeValueAsString(mapObjectMapper.mapUsergroupToMap(usergroup));
+        } catch (JsonProcessingException exception) {
+            throw new UsergroupToJsonMappingException(
+                    "An exception occurred while mapping a FreeIPA user group to a JSON string: "
+                            + exception.getMessage(),
+                    exception
+            );
+        }
     }
 
     @Override

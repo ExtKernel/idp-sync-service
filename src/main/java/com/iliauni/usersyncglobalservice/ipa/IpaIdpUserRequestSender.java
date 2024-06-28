@@ -1,9 +1,11 @@
-package com.iliauni.usersyncglobalservice.idp.ipa;
+package com.iliauni.usersyncglobalservice.ipa;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iliauni.usersyncglobalservice.exception.*;
+import com.iliauni.usersyncglobalservice.exception.UserJsonReadingException;
+import com.iliauni.usersyncglobalservice.exception.UsersJsonReadingException;
+import com.iliauni.usersyncglobalservice.exception.WritingRequestBodyToStringException;
 import com.iliauni.usersyncglobalservice.idp.IdpJsonObjectMapper;
 import com.iliauni.usersyncglobalservice.idp.IdpRequestBuilder;
 import com.iliauni.usersyncglobalservice.idp.IdpUserRequestSender;
@@ -12,7 +14,6 @@ import com.iliauni.usersyncglobalservice.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -21,7 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A component class implementing the {@link IdpUserRequestSender} interface for sending user-related requests in an Identity Provider (IDP) context specific to FreeIPA (Identity, Policy, and Audit) systems.
+ * A component class implementing the {@link IdpUserRequestSender} interface for sending user-related requests
+ * in an Identity Provider (IDP) context specific to FreeIPA (Identity, Policy, and Audit) systems.
  */
 @Component
 public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> {
@@ -36,12 +38,6 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
     @Value("${ipaApiAuthEndpoint}")
     private String ipaAuthEndpoint;
 
-    /**
-     * Constructs an {@code IpaIdpUserRequestSender} instance with the specified {@link IdpRequestBuilder}, {@link IdpJsonObjectMapper}, and {@link RestTemplateBuilder}.
-     *
-     * @param requestBuilder the request builder for FreeIPA IDP
-     * @param objectMapper the object mapper for FreeIPA IDP
-     */
     @Autowired
     public IpaIdpUserRequestSender(
             IdpRequestBuilder<IpaClient> requestBuilder,
@@ -58,17 +54,10 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
     public User sendCreateUserRequest(
             IpaClient client,
             User user
-    ) throws UserToJsonMappingException {
+    ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "user_add");
-        try {
-            requestBody.put("params", new Object[]{"", jsonObjectMapper.mapUserToJsonString(user)});
-        } catch (JsonProcessingException exception) {
-            throw new UserToJsonMappingException(
-                    "An exception occurred while mapping user to JSON string: "
-                            + exception.getMessage()
-            );
-        }
+        requestBody.put("params", new Object[]{"", jsonObjectMapper.mapUserToJsonString(user)});
 
         sendRestTemplateRequest(
                 client,
@@ -82,7 +71,7 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
     public JsonNode sendGetUserRequest(
             IpaClient client,
             String username
-    ) throws GetUserRequestJsonReadingException {
+    ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "user_show");
         requestBody.put("params", new Object[]{username, new HashMap<>()});
@@ -94,17 +83,18 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
                             requestBody
                     ));
         } catch (JsonProcessingException exception) {
-            throw new GetUserRequestJsonReadingException(
-                    "An exception occurred while reading JSON received from the request to retrieve a user for FreeIPA client with id "
+            throw new UserJsonReadingException(
+                    "An exception occurred while reading JSON received from the request"
+                            + " to retrieve a user for a FreeIPA client with id "
                             + client.getId() + ": "
-                            + exception.getMessage()
+                            + exception.getMessage(),
+                    exception
             );
         }
     }
 
     @Override
-    public JsonNode sendGetUsersRequest(IpaClient client)
-            throws GetUsersRequestJsonReadingException {
+    public JsonNode sendGetUsersRequest(IpaClient client) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "user_find");
         requestBody.put("params", new Object[]{"", new HashMap<>()});
@@ -116,10 +106,12 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
                             requestBody
                     ));
         } catch (JsonProcessingException exception) {
-            throw new GetUsersRequestJsonReadingException(
-                    "An exception occurred while reading JSON received from the request to retrieve users for FreeIPA client with id "
+            throw new UsersJsonReadingException(
+                    "An exception occurred while reading JSON received from the request"
+                            + " to retrieve users for a FreeIPA client with id "
                             + client.getId() + ": "
-                            + exception.getMessage()
+                            + exception.getMessage(),
+                    exception
             );
         }
     }
@@ -129,20 +121,13 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
             IpaClient client,
             String username,
             String newPassword
-    ) throws CredentialsRepresentationBuildingException {
+    ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "passwd");
-        try {
-            requestBody.put("params", new Object[]{
-                    username,
-                    jsonObjectMapper.buildCredentialsRepresentation(newPassword)
-            });
-        } catch (JsonProcessingException exception) {
-            throw new CredentialsRepresentationBuildingException(
-                    "An exception occurred while building credentials representation: "
-                            + exception.getMessage()
-            );
-        }
+        requestBody.put("params", new Object[]{
+                username,
+                jsonObjectMapper.buildCredentialsRepresentation(newPassword)
+        });
 
         sendRestTemplateRequest(
                 client,
@@ -189,7 +174,8 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
         } catch (JsonProcessingException exception) {
             throw new WritingRequestBodyToStringException(
                     "An exception occurred while writing request body to a string: "
-                            + exception.getMessage()
+                            + exception.getMessage(),
+                    exception
             );
         }
     }

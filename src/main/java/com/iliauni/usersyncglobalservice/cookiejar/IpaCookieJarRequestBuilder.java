@@ -1,16 +1,5 @@
 package com.iliauni.usersyncglobalservice.cookiejar;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.Collections;
-
 import com.iliauni.usersyncglobalservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.usersyncglobalservice.model.IpaClient;
 import org.apache.hc.client5.http.classic.HttpClient;
@@ -36,11 +25,21 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Collections;
 
 /**
  * A component class implementing the {@link CookieJarRequestBuilder} interface for building HTTP request entities and API base URLs specific to FreeIPA cookie jar systems.
  *
- * @param <T> the type of FreeIPA client used for the request
+ * @param <T> a type of FreeIPA client used for the request
  */
 @Component
 public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJarRequestBuilder<T> {

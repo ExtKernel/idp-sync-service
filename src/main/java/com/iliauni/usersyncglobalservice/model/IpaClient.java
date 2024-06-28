@@ -2,7 +2,7 @@ package com.iliauni.usersyncglobalservice.model;
 
 import jakarta.persistence.Entity;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
@@ -12,9 +12,28 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Entity
 public class IpaClient extends CookieClient {
+    public IpaClient(String id) {
+        super(id);
+    }
+
+    public IpaClient(
+            String id,
+            String fqdn
+    ) {
+        super(id, fqdn);
+    }
+
+    public IpaClient(
+            String id,
+            String ip,
+            String port
+    ) {
+        super(id, ip, port);
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

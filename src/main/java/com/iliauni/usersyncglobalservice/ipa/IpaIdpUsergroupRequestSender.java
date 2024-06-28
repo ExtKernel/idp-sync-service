@@ -1,9 +1,12 @@
-package com.iliauni.usersyncglobalservice.idp.ipa;
+package com.iliauni.usersyncglobalservice.ipa;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iliauni.usersyncglobalservice.exception.*;
+import com.iliauni.usersyncglobalservice.exception.UsergroupJsonReadingException;
+import com.iliauni.usersyncglobalservice.exception.UsergroupMembersJsonReadingException;
+import com.iliauni.usersyncglobalservice.exception.UsergroupsJsonReadingException;
+import com.iliauni.usersyncglobalservice.exception.WritingRequestBodyToStringException;
 import com.iliauni.usersyncglobalservice.idp.IdpJsonObjectMapper;
 import com.iliauni.usersyncglobalservice.idp.IdpRequestBuilder;
 import com.iliauni.usersyncglobalservice.idp.IdpUsergroupRequestSender;
@@ -12,7 +15,6 @@ import com.iliauni.usersyncglobalservice.model.Usergroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -21,10 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A component class implementing the {@link IdpUsergroupRequestSender} interface for sending requests related to user groups in an Identity Provider (IDP) context specific to FreeIPA (Identity, Policy, and Audit) systems.
+ * A component class implementing the {@link IdpUsergroupRequestSender} interface for sending requests
+ * related to user groups in an Identity Provider (IDP) context
+ * specific to FreeIPA (Identity, Policy, and Audit) systems.
  */
 @Component
-public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUsergroupRequestSender<IpaClient> {
+public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<IpaClient> {
     private final IdpRequestBuilder<IpaClient> requestBuilder;
     private final IdpJsonObjectMapper jsonObjectMapper;
     private final ObjectMapper objectMapper;
@@ -36,12 +40,6 @@ public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUse
     @Value("${ipaApiAuthEndpoint}")
     private String ipaAuthEndpoint;
 
-    /**
-     * Constructs an {@code IpaIdpUsergroupRequestSender} instance with the specified {@link IdpRequestBuilder}, {@link IdpJsonObjectMapper}, and {@link RestTemplateBuilder}.
-     *
-     * @param requestBuilder the request builder for FreeIPA IDP
-     * @param jsonObjectMapper the object mapper for FreeIPA IDP
-     */
     @Autowired
     public IpaIdpUsergroupRequestSender(
             IdpRequestBuilder<IpaClient> requestBuilder,
@@ -58,20 +56,13 @@ public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUse
     public Usergroup sendCreateUsergroupRequest(
             IpaClient client,
             Usergroup usergroup
-    ) throws UsergroupToJsonMappingException {
+    ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_add");
-        try {
-            requestBody.put("params", new Object[]{
-                    usergroup.getName(),
-                    jsonObjectMapper.mapUsergroupToJsonString(usergroup)
-            });
-        } catch (JsonProcessingException exception) {
-            throw new UsergroupToJsonMappingException(
-                    "An exception occurred while mapping user group to JSON string: "
-                            + exception.getMessage()
-            );
-        }
+        requestBody.put("params", new Object[]{
+                usergroup.getName(),
+                jsonObjectMapper.mapUsergroupToJsonString(usergroup)
+        });
 
         sendRestTemplateRequest(client, requestBody);
 
@@ -98,7 +89,7 @@ public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUse
     public JsonNode sendGetUsergroupRequest(
             IpaClient client,
             String usergroupName
-    ) throws GetUsergroupRequestJsonReadingException {
+    ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_show");
         requestBody.put("params", new Object[]{usergroupName, new HashMap<>()});
@@ -111,17 +102,18 @@ public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUse
                     )
             );
         } catch (JsonProcessingException exception) {
-            throw new GetUsergroupRequestJsonReadingException(
-                    "An exception occurred while reading JSON received from the request to retrieve a user group for FreeIPA client with id "
+            throw new UsergroupJsonReadingException(
+                    "An exception occurred while reading JSON received from the request"
+                            + " to retrieve a user group for FreeIPA client with id "
                             + client.getId() + ": "
-                            + exception.getMessage()
+                            + exception.getMessage(),
+                    exception
             );
         }
     }
 
     @Override
-    public JsonNode sendGetUsergroupsRequest(IpaClient client)
-            throws GetUsergroupsRequestJsonReadingException {
+    public JsonNode sendGetUsergroupsRequest(IpaClient client) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_find");
         requestBody.put("params", new Object[]{"", new HashMap<>()});
@@ -134,10 +126,12 @@ public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUse
                     )
             );
         } catch (JsonProcessingException exception) {
-            throw new GetUsergroupsRequestJsonReadingException(
-                    "An exception occurred while reading JSON received from the request to retrieve user groups for FreeIPA client with id "
+            throw new UsergroupsJsonReadingException(
+                    "An exception occurred while reading JSON received from the request"
+                            + " to retrieve user groups for FreeIPA client with id "
                             + client.getId() + ": "
-                            + exception.getMessage()
+                            + exception.getMessage(),
+                    exception
             );
         }
     }
@@ -146,7 +140,7 @@ public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUse
     public JsonNode sendGetUsergroupMembersRequest(
             IpaClient client,
             String usergroupName
-    ) throws GetUsergroupMembersRequestJsonReadingException {
+    ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_show");
         requestBody.put("params", new Object[]{usergroupName, new HashMap<>()});
@@ -159,10 +153,12 @@ public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUse
                     )
             );
         } catch (JsonProcessingException exception) {
-            throw new GetUsergroupMembersRequestJsonReadingException(
-                    "An exception occurred while reading JSON received from the request to retrieve user group members for FreeIPA client with id "
+            throw new UsergroupMembersJsonReadingException(
+                    "An exception occurred while reading JSON received from the request"
+                            + " to retrieve user group members for FreeIPA client with id "
                             + client.getId() + ": "
-                            + exception.getMessage()
+                            + exception.getMessage(),
+                    exception
             );
         }
     }
@@ -220,7 +216,8 @@ public class IpaIdpUsergroupRequestSender<T extends IpaClient> implements IdpUse
         } catch (JsonProcessingException exception) {
             throw new WritingRequestBodyToStringException(
                     "An exception occurred while writing request body to a string: "
-                            + exception.getMessage()
+                            + exception.getMessage(),
+                    exception
             );
         }
     }

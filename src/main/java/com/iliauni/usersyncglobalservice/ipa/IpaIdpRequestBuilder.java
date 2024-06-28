@@ -1,8 +1,8 @@
-package com.iliauni.usersyncglobalservice.idp.ipa;
+package com.iliauni.usersyncglobalservice.ipa;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.iliauni.usersyncglobalservice.exception.ClientHasNoFqdnOrIpOrPortException;
+import com.iliauni.usersyncglobalservice.exception.ClientHasNoFqdnOrIpAndPortException;
 import com.iliauni.usersyncglobalservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.usersyncglobalservice.idp.IdpRequestBuilder;
 import com.iliauni.usersyncglobalservice.model.IpaClient;
@@ -42,7 +42,8 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 
 /**
- * A component class implementing the {@link IdpRequestBuilder} interface for building HTTP request entities and API base URLs specific to FreeIPA (Identity, Policy, and Audit) IDP systems.
+ * A component class implementing the {@link IdpRequestBuilder} interface
+ * for building HTTP request entities and API base URLs specific to FreeIPA (Identity, Policy, and Audit) IDP systems.
  */
 @Component
 public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
@@ -222,7 +223,7 @@ public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
         } else if (clientIp != null & clientPort != null) {
             return mergeHostWithPort(clientIp, clientPort);
         } else {
-            throw new ClientHasNoFqdnOrIpOrPortException(
+            throw new ClientHasNoFqdnOrIpAndPortException(
                     "Keycloak client with ID "
                             + client.getId()
                             + " has no FQDN, IP or port"

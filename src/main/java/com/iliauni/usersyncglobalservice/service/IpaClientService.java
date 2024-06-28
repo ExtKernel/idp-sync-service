@@ -29,7 +29,7 @@ public class IpaClientService implements CookieClientService<IpaClient> {
     }
 
     @Override
-    public Cookie generateAndSaveCookieJar(String clientId, String endpointUrl) {
+    public Cookie generateAndSaveCookieJar(String clientId, String endpointUrl) throws ClientNotFoundException, ClientIsNullException {
         IpaClient client = findById(clientId);
         List<Cookie> cookies;
 
@@ -56,7 +56,7 @@ public class IpaClientService implements CookieClientService<IpaClient> {
     }
 
     @Override
-    public List<IpaClient> findAll() {
+    public List<IpaClient> findAll() throws NoRecordOfClientsException {
         List<IpaClient> clients = repository.findAll();
 
         if (!clients.isEmpty()) {

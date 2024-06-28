@@ -1,5 +1,8 @@
 package com.iliauni.usersyncglobalservice.controller;
 
+import com.iliauni.usersyncglobalservice.exception.ClientIsNullException;
+import com.iliauni.usersyncglobalservice.exception.ClientNotFoundException;
+import com.iliauni.usersyncglobalservice.exception.NoRecordOfClientsException;
 import com.iliauni.usersyncglobalservice.model.IpaClient;
 import com.iliauni.usersyncglobalservice.service.CookieClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,22 +22,22 @@ public class IpaClientController {
     }
 
     @PostMapping()
-    public IpaClient save(@RequestBody IpaClient client) {
+    public IpaClient save(@RequestBody IpaClient client) throws ClientIsNullException {
         return clientService.save(Optional.ofNullable(client));
     }
 
     @GetMapping()
-    public List<IpaClient> findAll() {
+    public List<IpaClient> findAll() throws NoRecordOfClientsException {
         return clientService.findAll();
     }
 
     @GetMapping("/{id}")
-    public IpaClient findById(@PathVariable String id) {
+    public IpaClient findById(@PathVariable String id) throws ClientNotFoundException {
         return clientService.findById(id);
     }
 
     @PutMapping()
-    public IpaClient update(@RequestBody IpaClient client) {
+    public IpaClient update(@RequestBody IpaClient client) throws ClientIsNullException {
         return clientService.update(Optional.ofNullable(client));
     }
 
