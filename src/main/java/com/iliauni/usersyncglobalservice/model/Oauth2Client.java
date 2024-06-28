@@ -5,7 +5,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
@@ -16,9 +16,32 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
 @MappedSuperclass
 public class Oauth2Client extends Client {
+    public Oauth2Client(String id) {
+        super(id);
+    }
+
+    public Oauth2Client(
+            String id,
+            String fqdn,
+            String clientSecret
+    ) {
+        super(id, fqdn);
+        this.clientSecret = clientSecret;
+    }
+
+    public Oauth2Client(
+            String id,
+            String ip,
+            String port,
+            String clientSecret
+    ) {
+        super(id, ip, port);
+        this.clientSecret = clientSecret;
+    }
+
     @Column(name = "client_secret")
     private String clientSecret;
 

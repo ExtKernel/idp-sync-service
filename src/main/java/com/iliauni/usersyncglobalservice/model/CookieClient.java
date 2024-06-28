@@ -5,7 +5,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
@@ -21,9 +21,28 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
 @MappedSuperclass
 public class CookieClient extends Client {
+    public CookieClient(String id) {
+        super(id);
+    }
+
+    public CookieClient(
+            String id,
+            String fqdn
+    ) {
+        super(id, fqdn);
+    }
+
+    public CookieClient(
+            String id,
+            String ip,
+            String port
+    ) {
+        super(id, ip, port);
+    }
+
     @OneToMany(fetch = FetchType.EAGER)
     @Column(name = "cookie", nullable = true)
     @ToString.Exclude

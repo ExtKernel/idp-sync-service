@@ -3,7 +3,7 @@ package com.iliauni.usersyncglobalservice.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
@@ -19,9 +19,30 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
 @MappedSuperclass
 public class KcClient extends Oauth2Client {
+    public KcClient(String id) {
+        super(id);
+    }
+
+    public KcClient(
+            String id,
+            String fqdn,
+            String clientSecret
+    ) {
+        super(id, fqdn, clientSecret);
+    }
+
+    public KcClient(
+            String id,
+            String ip,
+            String port,
+            String clientSecret
+    ) {
+        super(id, ip, port, clientSecret);
+    }
+
     // the realm to which the client belongs to
     @Column(name = "realm")
     private String realm;
