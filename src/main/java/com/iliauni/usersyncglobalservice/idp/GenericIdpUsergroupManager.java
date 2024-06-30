@@ -40,12 +40,17 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
         this.blackListFilter = blackListFilter;
     }
 
+    /**
+     * @param validate validate that the user group doesn't exist
+     *                before sending a request to create or not.
+     */
     @Override
     public Usergroup createUsergroup(
             T client,
-            Usergroup usergroup
+            Usergroup usergroup,
+            boolean validate
     ) {
-        validateUsergroupDoesNotExist(
+        if (validate) validateUsergroupDoesNotExist(
                 client,
                 usergroup.getName()
         );
@@ -56,21 +61,29 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
         );
     }
 
+    /**
+     * @param validate validate that the user group exists
+     *                and hasn't the user as a member already
+     *                before sending a request to add the member or not.
+     */
     @Override
     public void addUsergroupMember(
             T client,
             String usergroupName,
-            String username
+            String username,
+            boolean validate
     ) {
-        validateUsergroupExists(
-                client,
-                usergroupName
-        );
-        validateUsergroupMemberDoesNotExist(
-                client,
-                usergroupName,
-                username
-        );
+        if (validate) {
+            validateUsergroupExists(
+                    client,
+                    usergroupName
+            );
+            validateUsergroupMemberDoesNotExist(
+                    client,
+                    usergroupName,
+                    username
+            );
+        }
 
         requestSender.sendAddUsergroupMemberRequest(
                 client,
@@ -79,12 +92,17 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
         );
     }
 
+    /**
+     * @param validate validate that the user group exists
+     *                before sending a request to get it or not.
+     */
     @Override
     public Usergroup getUsergroup(
             T client,
-            String usergroupName
+            String usergroupName,
+            boolean validate
     ) {
-        validateUsergroupExists(
+        if (validate) validateUsergroupExists(
                 client,
                 usergroupName
         );
@@ -104,9 +122,15 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
 
         for (JsonNode usergroupJson : requestSender.sendGetUsergroupsRequest(client)) {
             Usergroup usergroup = jsonObjectMapper.mapUsergroupJsonNodeToUsergroup(usergroupJson);
+
+            // call getUsergroupMembers without validation
+            // because if called from this method,
+            // it means the usergroup exists and doesn't need a validation
             usergroup.setUsers(getUsergroupMembers(
                     client,
-                    usergroup.getName())
+                    usergroup.getName(),
+                    false
+                )
             );
             usergroups.add(usergroup);
         }
@@ -117,12 +141,17 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
         );
     }
 
+    /**
+     * @param validate validate that the user group exists before
+     *                sending a request to get its members or not.
+     */
     @Override
     public List<User> getUsergroupMembers(
             T client,
-            String usergroupName
+            String usergroupName,
+            boolean validate
     ) {
-        validateUsergroupExists(
+        if (validate) validateUsergroupExists(
                 client,
                 usergroupName
         );
@@ -144,12 +173,17 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
         return users;
     }
 
+    /**
+     * @param validate validate that the user group exists
+     *                before sending a request to delete it or not.
+     */
     @Override
     public void deleteUsergroup(
             T client,
-            String usergroupName
+            String usergroupName,
+            boolean validate
     ) {
-        validateUsergroupExists(
+        if (validate) validateUsergroupExists(
                 client,
                 usergroupName
         );
@@ -160,21 +194,29 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
         );
     }
 
+    /**
+     * @param validate validate that the user exists
+     *                and is a member of the usergroup
+     *                before sending a request to remove the member or not.
+     */
     @Override
     public void removeUsergroupMember(
             T client,
             String usergroupName,
-            String username
+            String username,
+            boolean validate
     ) {
-        validateUserExists(
-                client,
-                username
-        );
-        validateUsergroupMemberExists(
-                client,
-                usergroupName,
-                username
-        );
+        if (validate) {
+            validateUserExists(
+                    client,
+                    username
+            );
+            validateUsergroupMemberExists(
+                    client,
+                    usergroupName,
+                    username
+            );
+        }
 
         requestSender.sendRemoveUsergroupMemberRequest(
                 client,

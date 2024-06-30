@@ -75,7 +75,7 @@ public abstract class GenericUsergroupIdpSyncHandler<T extends Client>
         usergroups.forEach(usergroup -> {
             usergroup.ifPresent(u -> {
                 if (isNew) {
-                    usergroupManager.createUsergroup(client, u);
+                    usergroupManager.createUsergroup(client, u, true);
                 } else if (isAltered) {
                     Map<String, List<Optional<User>>> userDifferenceMap = userDifferenceCalculator
                             .calculate(
@@ -100,7 +100,7 @@ public abstract class GenericUsergroupIdpSyncHandler<T extends Client>
                                 );
                             });
                 } else {
-                    usergroupManager.deleteUsergroup(client, u.getName());
+                    usergroupManager.deleteUsergroup(client, u.getName(), true);
                 }
             });
         });
@@ -129,13 +129,15 @@ public abstract class GenericUsergroupIdpSyncHandler<T extends Client>
                         usergroupManager.addUsergroupMember(
                                 client,
                                 group.getName(),
-                                u.getUsername()
+                                u.getUsername(),
+                                true
                         );
                     } else {
                         usergroupManager.removeUsergroupMember(
                                 client,
                                 group.getName(),
-                                u.getUsername()
+                                u.getUsername(),
+                                true
                         );
                     }
                 });

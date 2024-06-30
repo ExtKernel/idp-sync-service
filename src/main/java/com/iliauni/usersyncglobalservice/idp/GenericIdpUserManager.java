@@ -37,15 +37,25 @@ public abstract class GenericIdpUserManager<T extends Client> implements IdpUser
         this.blackListFilter = blackListFilter;
     }
 
+    /**
+     * @param validate validate that the user doesn't exist
+     *                before sending a request to create or not.
+     */
     @Override
     public User createUser(
             T client,
-            User user
+            User user,
+            boolean validate
     ) {
-        validateUserDoesNotExists(
-                client,
-                user.getUsername()
-        );
+        try {
+            validateUserDoesNotExists(
+                    client,
+                    user.getUsername()
+            );
+        } catch (UserAlreadyExistsOnTheClientException exception) {
+            return null;
+        }
+
 
         return requestSender.sendCreateUserRequest(
                 client,
@@ -53,10 +63,15 @@ public abstract class GenericIdpUserManager<T extends Client> implements IdpUser
         );
     }
 
+    /**
+     * @param validate validate that the user exists
+     *                before sending a request to get it or not.
+     */
     @Override
     public User getUser(
             T client,
-            String username
+            String username,
+            boolean validate
     ) {
         validateUserExists(
                 client,
@@ -88,12 +103,22 @@ public abstract class GenericIdpUserManager<T extends Client> implements IdpUser
         );
     }
 
+    /**
+     * @param validate validate that the user group exists
+     *                before sending a request to update its password or not.
+     */
     @Override
     public String updateUserPassword(
             T client,
             String username,
-            String newPassword
+            String newPassword,
+            boolean validate
     ) {
+        validateUserExists(
+                client,
+                username
+        );
+
         return requestSender.sendUpdateUserPasswordRequest(
                 client,
                 username,
@@ -101,10 +126,15 @@ public abstract class GenericIdpUserManager<T extends Client> implements IdpUser
         );
     }
 
+    /**
+     * @param validate validate that the user group exists
+     *                before sending a request to delete it or not.
+     */
     @Override
     public void deleteUser(
             T client,
-            String username
+            String username,
+            boolean validate
     ) {
         validateUserExists(
                 client,

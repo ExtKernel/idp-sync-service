@@ -7,6 +7,7 @@ import com.iliauni.usersyncglobalservice.model.User;
 import com.iliauni.usersyncglobalservice.model.Usergroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public class IpaIdpUsergroupManager extends GenericIdpUsergroupManager<IpaClient
     public IpaIdpUsergroupManager(
             @Qualifier("ipaIdpJsonObjectMapper") IdpJsonObjectMapper jsonObjectMapper,
             IdpUsergroupRequestSender<IpaClient> requestSender,
-            IdpModelExistenceValidator<IpaClient> modelExistenceValidator,
+            @Lazy IdpModelExistenceValidator<IpaClient> modelExistenceValidator,
             UsergroupIdpRequestSenderResultBlackListFilter<IpaClient> blackListFilter
     ) {
         super(
@@ -31,8 +32,12 @@ public class IpaIdpUsergroupManager extends GenericIdpUsergroupManager<IpaClient
     }
 
     @Override
-    public Usergroup getUsergroup(IpaClient client, String usergroupName) {
-        validateUsergroupExists(
+    public Usergroup getUsergroup(
+            IpaClient client,
+            String usergroupName,
+            boolean validate
+    ) {
+        if (validate) validateUsergroupExists(
                 client,
                 usergroupName
         );
@@ -56,9 +61,15 @@ public class IpaIdpUsergroupManager extends GenericIdpUsergroupManager<IpaClient
         for (JsonNode usergroupJson : getDirectResult(
                 super.getRequestSender().sendGetUsergroupsRequest(client))) {
             Usergroup usergroup = super.getJsonObjectMapper().mapUsergroupJsonNodeToUsergroup(usergroupJson);
+
+            // call getUsergroupMembers without validation
+            // because if called from this method,
+            // it means the usergroup exists and doesn't need a validation
             usergroup.setUsers(getUsergroupMembers(
                     client,
-                    usergroup.getName())
+                    usergroup.getName(),
+                    false
+                )
             );
             usergroups.add(usergroup);
         }
@@ -70,8 +81,12 @@ public class IpaIdpUsergroupManager extends GenericIdpUsergroupManager<IpaClient
     }
 
     @Override
-    public List<User> getUsergroupMembers(IpaClient client, String usergroupName) {
-        validateUsergroupExists(
+    public List<User> getUsergroupMembers(
+            IpaClient client,
+            String usergroupName,
+            boolean validate
+    ) {
+        if (validate) validateUsergroupExists(
                 client,
                 usergroupName
         );

@@ -4,6 +4,7 @@ import com.iliauni.usersyncglobalservice.idp.*;
 import com.iliauni.usersyncglobalservice.model.WinClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,7 +18,7 @@ public class WinIdpUserManager extends GenericIdpUserManager<WinClient> {
     public WinIdpUserManager(
             @Qualifier("winIdpJsonObjectMapper") IdpJsonObjectMapper jsonObjectMapper,
             IdpUserRequestSender<WinClient> requestSender,
-            IdpModelExistenceValidator<WinClient> modelExistenceValidator,
+            @Lazy IdpModelExistenceValidator<WinClient> modelExistenceValidator,
             UserIdpRequestSenderResultBlackListFilter<WinClient> blackListFilter
     ) {
         super(

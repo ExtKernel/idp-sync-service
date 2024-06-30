@@ -2,86 +2,203 @@ package com.iliauni.usersyncglobalservice.service;
 
 import com.iliauni.usersyncglobalservice.difference.DifferenceCalculator;
 import com.iliauni.usersyncglobalservice.exception.NoRecordOfUsergroupsException;
-import com.iliauni.usersyncglobalservice.idp.IdpSyncHandler;
+import com.iliauni.usersyncglobalservice.exception.NoRecordOfUsersException;
+import com.iliauni.usersyncglobalservice.idp.*;
 import com.iliauni.usersyncglobalservice.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-@Lazy
 @Service
 public class SyncService {
-    private final IdpSyncHandler<KcClient> kcIdpSyncHandler;
-    private final IdpSyncHandler<IpaClient> ipaIdpSyncHandler;
-    private final IdpSyncHandler<WinClient> winIdpSyncHandler;
-    private final DifferenceCalculator<Usergroup> usergroupDifferenceCalculator;
-    private final SyncKcClientService syncKcClientService;
-    private final IpaClientService ipaClientService;
-    private final WinClientService winClientService;
-    private final UsergroupService usergroupService;
+    UsergroupService usergroupService;
+    UserService userService;
+    DifferenceCalculator<Usergroup> usergroupDifferenceCalculator;
+    DifferenceCalculator<User> userDifferenceCalculator;
+    UsergroupDbSyncHandler usergroupDbSyncHandler;
+    UserDbSyncHandler userDbSyncHandler;
+    CookieClientService<IpaClient> ipaCookieClientService;
+    UsergroupIdpSyncHandler<IpaClient> ipaUsergroupIdpSyncHandler;
+    UserIdpSyncHandler<IpaClient> ipaUserIdpSyncHandler;
+    IdpUserManager<IpaClient> ipaIdpUserManager;
+    Oauth2ClientService<SyncKcClient> syncKcOauth2ClientService;
+    UsergroupIdpSyncHandler<SyncKcClient> syncKcUsergroupIdpSyncHandler;
+    UserIdpSyncHandler<SyncKcClient> syncKcUserIdpSyncHandler;
+    IdpUserManager<SyncKcClient> syncKcIdpUserManager;
+    Oauth2ClientService<WinClient> winOauth2ClientService;
+    UsergroupIdpSyncHandler<WinClient> winUsergroupIdpSyncHandler;
+    UserIdpSyncHandler<WinClient> winUserIdpSyncHandler;
+    IdpUserManager<WinClient> winIdpUserManager;
 
     @Autowired
     public SyncService(
-            @Lazy IdpSyncHandler<KcClient> kcIdpSyncHandler,
-            @Lazy IdpSyncHandler<IpaClient> ipaIdpSyncHandler,
-            @Lazy IdpSyncHandler<WinClient> winIdpSyncHandler,
+            UsergroupService usergroupService, UserService userService,
             DifferenceCalculator<Usergroup> usergroupDifferenceCalculator,
-            SyncKcClientService syncKcClientService,
-            IpaClientService ipaClientService,
-            WinClientService winClientService,
-            UsergroupService usergroupService
+            DifferenceCalculator<User> userDifferenceCalculator,
+            UsergroupDbSyncHandler usergroupDbSyncHandler,
+            UserDbSyncHandler userDbSyncHandler,
+            CookieClientService<IpaClient> ipaCookieClientService,
+            UsergroupIdpSyncHandler<IpaClient> ipaUsergroupIdpSyncHandler,
+            UserIdpSyncHandler<IpaClient> ipaUserIdpSyncHandler,
+            IdpUserManager<IpaClient> ipaIdpUserManager,
+            Oauth2ClientService<SyncKcClient> syncKcOauth2ClientService,
+            UsergroupIdpSyncHandler<SyncKcClient> syncKcUsergroupIdpSyncHandler,
+            UserIdpSyncHandler<SyncKcClient> syncKcUserIdpSyncHandler,
+            IdpUserManager<SyncKcClient> syncKcIdpUserManager,
+            Oauth2ClientService<WinClient> winOauth2ClientService,
+            UsergroupIdpSyncHandler<WinClient> winUsergroupIdpSyncHandler,
+            UserIdpSyncHandler<WinClient> winUserIdpSyncHandler,
+            IdpUserManager<WinClient> winIdpUserManager
     ) {
-        this.kcIdpSyncHandler = kcIdpSyncHandler;
-        this.ipaIdpSyncHandler = ipaIdpSyncHandler;
-        this.winIdpSyncHandler = winIdpSyncHandler;
-        this.usergroupDifferenceCalculator = usergroupDifferenceCalculator;
-        this.syncKcClientService = syncKcClientService;
-        this.ipaClientService = ipaClientService;
-        this.winClientService = winClientService;
         this.usergroupService = usergroupService;
+        this.userService = userService;
+        this.usergroupDifferenceCalculator = usergroupDifferenceCalculator;
+        this.userDifferenceCalculator = userDifferenceCalculator;
+        this.usergroupDbSyncHandler = usergroupDbSyncHandler;
+        this.userDbSyncHandler = userDbSyncHandler;
+        this.ipaCookieClientService = ipaCookieClientService;
+        this.ipaUsergroupIdpSyncHandler = ipaUsergroupIdpSyncHandler;
+        this.ipaUserIdpSyncHandler = ipaUserIdpSyncHandler;
+        this.ipaIdpUserManager = ipaIdpUserManager;
+        this.syncKcOauth2ClientService = syncKcOauth2ClientService;
+        this.syncKcUsergroupIdpSyncHandler = syncKcUsergroupIdpSyncHandler;
+        this.syncKcUserIdpSyncHandler = syncKcUserIdpSyncHandler;
+        this.syncKcIdpUserManager = syncKcIdpUserManager;
+        this.winOauth2ClientService = winOauth2ClientService;
+        this.winUsergroupIdpSyncHandler = winUsergroupIdpSyncHandler;
+        this.winUserIdpSyncHandler = winUserIdpSyncHandler;
+        this.winIdpUserManager = winIdpUserManager;
     }
 
-    public void sync(Optional<List<Usergroup>> optionalUsergroups) {
-        List<SyncKcClient> syncKcClients = syncKcClientService.findAll();
-//        List<IpaClient> ipaClients = ipaClientService.findAll();
-//        List<WinClient> winClients = winClientService.findAll();
-        List<Usergroup> dbUsergroups;
+    public void syncUsergroups(Optional<List<Usergroup>> optionalUsergroups) {
+        // sync users first to not have a situation
+        // that we're adding a non-existing user as a member to a user group
+//        syncUsersFromIdpClients(
+//                ipaCookieClientService,
+//                ipaIdpUserManager
+//        );
+        syncUsersFromIdpClients(
+                syncKcOauth2ClientService,
+                syncKcIdpUserManager
+        );
+//        syncUsersFromIdpClients(
+//                winOauth2ClientService,
+//                winIdpUserManager
+//        );
 
-        try {
-            dbUsergroups = usergroupService.findAll();
-        } catch (NoRecordOfUsergroupsException exception) {
-            dbUsergroups = new ArrayList<>();
-        }
-
-        List<Usergroup> finalDbUsergroups = dbUsergroups;
         optionalUsergroups.ifPresent(usergroups -> {
-            syncKcClients.forEach(client -> kcIdpSyncHandler.syncUsergroupChanges(
-                    client,
-                    usergroupDifferenceCalculator.calculate(
-                            finalDbUsergroups,
-                            usergroups
-                    ))
+            List<Usergroup> dbUsergroups;
+
+            try {
+                dbUsergroups = usergroupService.findAll();
+            } catch (NoRecordOfUsergroupsException exception) {
+                dbUsergroups = new ArrayList<>();
+            }
+
+            Map<String, List<Optional<Usergroup>>> differenceMap = usergroupDifferenceCalculator.calculate(
+                    dbUsergroups,
+                    usergroups
             );
 
-//            ipaClients.forEach(client -> ipaIdpSyncHandler.syncUsergroupChanges(
-//                    client,
-//                    usergroupDifferenceCalculator.calculate(
-//                            usergroupService.findAll(),
-//                            usergroups
-//                    ))
+            // sync with IDPs first to not have a situation
+            // that we already have updated the DB
+            // and a difference calculator isn't returning any difference
+//            syncUsergroupsForAllIdpClients(
+//                    differenceMap,
+//                    ipaCookieClientService,
+//                    ipaUsergroupIdpSyncHandler
 //            );
-//
-//            winClients.forEach(client -> winIdpSyncHandler.syncUsergroupChanges(
-//                    client,
-//                    usergroupDifferenceCalculator.calculate(
-//                            usergroupService.findAll(),
-//                            usergroups
-//                    ))
+            syncUsergroupsForAllIdpClients(
+                    differenceMap,
+                    syncKcOauth2ClientService,
+                    syncKcUsergroupIdpSyncHandler
+            );
+//            syncUsergroupsForAllIdpClients(
+//                    differenceMap,
+//                    winOauth2ClientService,
+//                    winUsergroupIdpSyncHandler
 //            );
+
+            // sync with the local DB, when it's safe to do so and no more comparing with it is needed
+            usergroupDbSyncHandler.sync(differenceMap);
+        });
+    }
+
+    public void syncUsers(Optional<List<User>> optionalUsers) {
+        optionalUsers.ifPresent(users -> {
+            List<User> dbUsers;
+
+            try {
+                dbUsers = userService.findAll();
+            } catch (NoRecordOfUsersException exception) {
+                dbUsers = new ArrayList<>();
+            }
+
+            Map<String, List<Optional<User>>> differenceMap = userDifferenceCalculator.calculate(
+                    dbUsers,
+                    users
+            );
+
+            // sync with IDPs first to not have a situation
+            // that we already have updated the DB
+            // and a difference calculator isn't returning any difference
+//            syncUsersForAllIdpClients(
+//                    differenceMap,
+//                    ipaCookieClientService,
+//                    ipaUserIdpSyncHandler
+//            );
+            syncUsersForAllIdpClients(
+                    differenceMap,
+                    syncKcOauth2ClientService,
+                    syncKcUserIdpSyncHandler
+            );
+//            syncUsersForAllIdpClients(
+//                    differenceMap,
+//                    winOauth2ClientService,
+//                    winUserIdpSyncHandler
+//            );
+
+            // sync with the local DB, when it's safe to do so and no more comparing with it is needed
+            userDbSyncHandler.sync(differenceMap);
+        });
+    }
+
+    private <T extends Client> void syncUsergroupsForAllIdpClients(
+            Map<String, List<Optional<Usergroup>>> differenceMap,
+            ClientService<T> clientService,
+            UsergroupIdpSyncHandler<T> usergroupIdpSyncHandler
+    ) {
+        clientService.findAll().forEach(client -> {
+            usergroupIdpSyncHandler.sync(
+                    client,
+                    differenceMap
+            );
+        });
+    }
+
+    private <T extends Client> void syncUsersForAllIdpClients(
+            Map<String, List<Optional<User>>> differenceMap,
+            ClientService<T> clientService,
+            UserIdpSyncHandler<T> userIdpSyncHandler
+    ) {
+        clientService.findAll().forEach(client -> {
+            userIdpSyncHandler.sync(
+                    client,
+                    differenceMap
+            );
+        });
+    }
+
+    private <T extends Client> void syncUsersFromIdpClients(
+            ClientService<T> clientService,
+            IdpUserManager<T> userManager
+    ) {
+        clientService.findAll().forEach(client -> {
+            syncUsers(Optional.of(userManager.getUsers(client)));
         });
     }
 }

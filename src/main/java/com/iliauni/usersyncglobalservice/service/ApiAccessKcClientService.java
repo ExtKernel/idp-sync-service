@@ -3,6 +3,7 @@ package com.iliauni.usersyncglobalservice.service;
 import com.iliauni.usersyncglobalservice.model.ApiAccessKcClient;
 import com.iliauni.usersyncglobalservice.token.TokenRetriever;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,7 @@ public class ApiAccessKcClientService extends GenericOauth2ClientService<ApiAcce
     public ApiAccessKcClientService(
             JpaRepository<ApiAccessKcClient, String> repository,
             RefreshTokenService<ApiAccessKcClient> refreshTokenService,
-            TokenRetriever<ApiAccessKcClient> tokenRetriever
+            @Lazy TokenRetriever<ApiAccessKcClient> tokenRetriever
     ) {
         super(
                 repository,

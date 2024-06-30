@@ -63,9 +63,9 @@ public abstract class GenericUserIdpSyncHandler<T extends Client> implements Use
         users.forEach(user -> {
             user.ifPresent(u -> {
                 if (isNew) {
-                    userManager.createUser(client, u);
+                    userManager.createUser(client, u, true);
                 } else {
-                    userManager.deleteUser(client, u.getUsername());
+                    userManager.deleteUser(client, u.getUsername(), true);
                 }
             });
         });

@@ -5,6 +5,7 @@ import com.iliauni.usersyncglobalservice.service.UsergroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequestMapping("/secured/group")
@@ -25,6 +26,11 @@ public class UsergroupController {
     @GetMapping("/{usergroupName}")
     public Usergroup findByName(@PathVariable String usergroupName) {
         return service.findByName(usergroupName);
+    }
+
+    @GetMapping()
+    public List<Usergroup> findAll() {
+        return service.findAll();
     }
 
     @PutMapping()

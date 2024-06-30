@@ -22,6 +22,7 @@ public abstract class GenericIdpModelExistenceValidator<T extends Client> implem
             T client,
             String usergroupName
     ) {
+        // turn off the validation, because it's not needed and causes stackoverflow
         return usergroupManager.getUsergroups(client).stream()
                 .anyMatch(usergroup -> usergroup.getName().equals(usergroupName));
     }
@@ -43,8 +44,9 @@ public abstract class GenericIdpModelExistenceValidator<T extends Client> implem
             String usergroupName,
             String username
     ) {
+        // turn off the validation, because it's not needed and causes stackoverflow
         return validateUserExistenceInList(
-                usergroupManager.getUsergroupMembers(client, usergroupName),
+                usergroupManager.getUsergroupMembers(client, usergroupName, false),
                 username
         );
     }

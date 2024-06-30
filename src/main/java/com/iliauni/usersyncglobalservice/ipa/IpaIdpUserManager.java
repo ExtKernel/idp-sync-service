@@ -6,6 +6,7 @@ import com.iliauni.usersyncglobalservice.model.IpaClient;
 import com.iliauni.usersyncglobalservice.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class IpaIdpUserManager extends GenericIdpUserManager<IpaClient> {
     public IpaIdpUserManager(
             @Qualifier("ipaIdpJsonObjectMapper") IdpJsonObjectMapper jsonObjectMapper,
             IdpUserRequestSender<IpaClient> requestSender,
-            IdpModelExistenceValidator<IpaClient> modelExistenceValidator,
+            @Lazy IdpModelExistenceValidator<IpaClient> modelExistenceValidator,
             UserIdpRequestSenderResultBlackListFilter<IpaClient> blackListFilter
     ) {
         super(
@@ -30,7 +31,11 @@ public class IpaIdpUserManager extends GenericIdpUserManager<IpaClient> {
     }
 
     @Override
-    public User getUser(IpaClient client, String username) {
+    public User getUser(
+            IpaClient client,
+            String username,
+            boolean validate
+    ) {
         validateUserExists(
                 client,
                 username
