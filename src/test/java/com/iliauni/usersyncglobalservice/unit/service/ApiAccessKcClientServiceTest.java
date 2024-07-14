@@ -3,8 +3,8 @@ package com.iliauni.usersyncglobalservice.unit.service;
 import com.iliauni.usersyncglobalservice.exception.ModelIsNullException;
 import com.iliauni.usersyncglobalservice.exception.ModelNotFoundException;
 import com.iliauni.usersyncglobalservice.exception.NoRecordOfRefreshTokenForTheClientException;
-import com.iliauni.usersyncglobalservice.model.ApiAccessKcClient;
 import com.iliauni.usersyncglobalservice.model.AccessToken;
+import com.iliauni.usersyncglobalservice.model.ApiAccessKcClient;
 import com.iliauni.usersyncglobalservice.model.RefreshToken;
 import com.iliauni.usersyncglobalservice.repository.ApiAccessKcClientRepository;
 import com.iliauni.usersyncglobalservice.service.ApiAccessKcClientService;
@@ -20,7 +20,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class ApiAccessKcClientServiceTest {

@@ -24,19 +24,19 @@ public class SyncKcClient extends KcClient {
 
     public SyncKcClient(
             String id,
-            String fqdn,
-            String clientSecret
+            String clientSecret,
+            String fqdn
     ) {
-        super(id, fqdn, clientSecret);
+        super(id, clientSecret, fqdn);
     }
 
     public SyncKcClient(
             String id,
+            String clientSecret,
             String ip,
-            String port,
-            String clientSecret
+            String port
     ) {
-        super(id, ip, port, clientSecret);
+        super(id, clientSecret, ip, port);
     }
 
     @Override

@@ -26,19 +26,19 @@ public class WinClient extends KcClient {
 
     public WinClient(
             String id,
-            String fqdn,
-            String clientSecret
+            String clientSecret,
+            String fqdn
     ) {
-        super(id, fqdn, clientSecret);
+        super(id, clientSecret, fqdn);
     }
 
     public WinClient(
             String id,
+            String clientSecret,
             String ip,
-            String port,
-            String clientSecret
+            String port
     ) {
-        super(id, ip, port, clientSecret);
+        super(id, clientSecret, ip, port);
     }
 
     @Override

@@ -25,8 +25,8 @@ public class Oauth2Client extends Client {
 
     public Oauth2Client(
             String id,
-            String fqdn,
-            String clientSecret
+            String clientSecret,
+            String fqdn
     ) {
         super(id, fqdn);
         this.clientSecret = clientSecret;
@@ -34,9 +34,9 @@ public class Oauth2Client extends Client {
 
     public Oauth2Client(
             String id,
+            String clientSecret,
             String ip,
-            String port,
-            String clientSecret
+            String port
     ) {
         super(id, ip, port);
         this.clientSecret = clientSecret;
