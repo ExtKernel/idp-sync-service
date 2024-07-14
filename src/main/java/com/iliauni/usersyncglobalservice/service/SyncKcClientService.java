@@ -1,7 +1,7 @@
 package com.iliauni.usersyncglobalservice.service;
 
 import com.iliauni.usersyncglobalservice.model.SyncKcClient;
-import com.iliauni.usersyncglobalservice.token.TokenRetriever;
+import com.iliauni.usersyncglobalservice.token.TokenManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,12 +14,12 @@ public class SyncKcClientService extends GenericOauth2ClientService<SyncKcClient
     public SyncKcClientService(
             JpaRepository<SyncKcClient, String> repository,
             RefreshTokenService<SyncKcClient> refreshTokenService,
-            @Lazy TokenRetriever<SyncKcClient> tokenRetriever
+            @Lazy TokenManager<SyncKcClient> tokenManager
     ) {
         super(
                 repository,
                 refreshTokenService,
-                tokenRetriever
+                tokenManager
         );
     }
 }

@@ -79,7 +79,7 @@ public abstract class GenericUsergroupIdpSyncHandler<T extends Client>
                 } else if (isAltered) {
                     Map<String, List<Optional<User>>> userDifferenceMap = userDifferenceCalculator
                             .calculate(
-                            usergroupService.findByName(u.getName()).getUsers(),
+                            usergroupService.findById(u.getName()).getUsers(),
                             u.getUsers()
                     );
 

@@ -65,7 +65,7 @@ class WinIdpModelExistenceValidatorTest {
 
     @Test
     void testValidateUsergroupMemberExistence_UserExistsInUsergroup() {
-        when(usergroupManager.getUsergroupMembers(client, "group1", true)).thenReturn(Arrays.asList(user1, user2));
+        when(usergroupManager.getUsergroupMembers(client, "group1", false)).thenReturn(Arrays.asList(user1, user2));
 
         assertTrue(validator.validateUsergroupMemberExistence(client, "group1", "user1"));
         assertFalse(validator.validateUsergroupMemberExistence(client, "group1", "user3"));

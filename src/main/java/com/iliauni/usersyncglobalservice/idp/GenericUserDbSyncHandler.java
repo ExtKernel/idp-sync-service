@@ -33,7 +33,7 @@ public class GenericUserDbSyncHandler implements UserDbSyncHandler {
                     if (isNew) {
                         userService.save(Optional.of(u));
                     } else {
-                        userService.deleteByUsername(u.getUsername());
+                        userService.deleteById(u.getUsername());
                     }
                 });
             });

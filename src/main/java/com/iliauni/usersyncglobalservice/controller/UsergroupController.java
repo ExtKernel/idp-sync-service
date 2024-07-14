@@ -25,7 +25,7 @@ public class UsergroupController {
 
     @GetMapping("/{usergroupName}")
     public Usergroup findByName(@PathVariable String usergroupName) {
-        return service.findByName(usergroupName);
+        return service.findById(usergroupName);
     }
 
     @GetMapping()
@@ -40,6 +40,6 @@ public class UsergroupController {
 
     @DeleteMapping("/{usergroupName}")
     public void delete(@PathVariable String usergroupName) {
-        service.deleteByName(usergroupName);
+        service.deleteById(usergroupName);
     }
 }

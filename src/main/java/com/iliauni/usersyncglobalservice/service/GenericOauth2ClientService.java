@@ -4,7 +4,7 @@ import com.iliauni.usersyncglobalservice.exception.NoRecordOfRefreshTokenForTheC
 import com.iliauni.usersyncglobalservice.model.AccessToken;
 import com.iliauni.usersyncglobalservice.model.Oauth2Client;
 import com.iliauni.usersyncglobalservice.model.RefreshToken;
-import com.iliauni.usersyncglobalservice.token.TokenRetriever;
+import com.iliauni.usersyncglobalservice.token.TokenManager;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.Instant;
@@ -13,18 +13,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-public class GenericOauth2ClientService<T extends Oauth2Client> extends GenericClientService<T> implements Oauth2ClientService<T> {
+public class GenericOauth2ClientService<T extends Oauth2Client>
+        extends GenericClientService<T>
+        implements Oauth2ClientService<T> {
     private final RefreshTokenService<T> refreshTokenService;
-    private final TokenRetriever<T> tokenRetriever;
+    private final TokenManager<T> tokenManager;
 
     public GenericOauth2ClientService(
             JpaRepository<T, String> repository,
             RefreshTokenService<T> refreshTokenService,
-            TokenRetriever<T> tokenRetriever
+            TokenManager<T> tokenManager
     ) {
         super(repository);
         this.refreshTokenService = refreshTokenService;
-        this.tokenRetriever = tokenRetriever;
+        this.tokenManager = tokenManager;
     }
 
     @Override
@@ -32,9 +34,13 @@ public class GenericOauth2ClientService<T extends Oauth2Client> extends GenericC
             String clientId,
             String tokenEndpointUrl
     ) {
-        return tokenRetriever.retrieveAccessToken(
+        return tokenManager.getAccessToken(
                 findById(clientId),
-                tokenEndpointUrl
+                tokenEndpointUrl,
+                getRefreshToken(
+                        clientId,
+                        tokenEndpointUrl
+                )
         );
     }
 
@@ -82,7 +88,7 @@ public class GenericOauth2ClientService<T extends Oauth2Client> extends GenericC
         RefreshToken refreshToken = refreshTokenService.generateAndSave(
                 client,
                 tokenEndpointUrl,
-                tokenRetriever
+                tokenManager
         );
         refreshTokens.add(refreshToken);
 

@@ -1,7 +1,7 @@
 package com.iliauni.usersyncglobalservice.service;
 
 import com.iliauni.usersyncglobalservice.model.WinClient;
-import com.iliauni.usersyncglobalservice.token.TokenRetriever;
+import com.iliauni.usersyncglobalservice.token.TokenManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,12 +14,12 @@ public class WinClientService extends GenericOauth2ClientService<WinClient> {
     public WinClientService(
             JpaRepository<WinClient, String> repository,
             RefreshTokenService<WinClient> refreshTokenService,
-            @Lazy TokenRetriever<WinClient> tokenRetriever
+            @Lazy TokenManager<WinClient> tokenManager
     ) {
         super(
                 repository,
                 refreshTokenService,
-                tokenRetriever
+                tokenManager
         );
     }
 }

@@ -36,7 +36,7 @@ public class GenericUsergroupDbSyncHandler implements UsergroupDbSyncHandler {
                     } else if (isAltered) {
                         usergroupService.update(Optional.of(u));
                     } else {
-                        usergroupService.deleteByName(u.getName());
+                        usergroupService.deleteById(u.getName());
                     }
                 });
             });
