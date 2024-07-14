@@ -1,16 +1,16 @@
 package com.iliauni.usersyncglobalservice.token;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.iliauni.usersyncglobalservice.model.Oauth2Client;
+import com.iliauni.usersyncglobalservice.model.AccessToken;
+import com.iliauni.usersyncglobalservice.model.Client;
 import com.iliauni.usersyncglobalservice.model.RefreshToken;
 
-public interface TokenRequestSender<T extends Oauth2Client> {
-    JsonNode getAccessToken(
+public interface TokenManager<T extends Client> {
+    AccessToken getAccessToken(
             T client,
             String tokenEndpointUrl,
             RefreshToken refreshToken
     );
-    JsonNode getRefreshToken(
+    RefreshToken getRefreshToken(
             T client,
             String tokenEndpointUrl
     );
