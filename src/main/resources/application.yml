@@ -6,17 +6,20 @@ ipaCertPath: ${IPA_CERT_PATH}
 
 kcAdminCliClientId: ${KC_ADMIN_CLI_CLIENT_ID}
 
-principalRoleName: ${PRINCIPAL_ROLE_NAME}
+principalRoleName: ${PRINCIPAL_ROLE_NAME:administrator}
 
 eureka:
     client:
-        service-url:
-            default-zone: ${EUREKA_URI:http://localhost:8761/eureka}
+        serviceUrl:
+            defaultZone: ${EUREKA_URI}
 logging:
     level:
+        org:
+            springframework:
+                security: DEBUG
         root: warn
 server:
-    port: ${SERVER_PORT}
+    port: ${SERVER_PORT:8000}
 spring:
     application:
         name: user-sync-global-service
