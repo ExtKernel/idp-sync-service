@@ -121,8 +121,8 @@ public class SyncKcIdpRequestBuilder implements IdpRequestBuilder<SyncKcClient> 
         String clientIp = client.getIp();
         String clientPort = client.getPort();
 
-        if (clientFqdn != null & clientPort != null) {
-            return mergeHostWithPort(clientFqdn, clientPort);
+        if (clientFqdn != null) {
+            return clientFqdn;
         } else if (clientIp != null & clientPort != null) {
             return mergeHostWithPort(clientIp, clientPort);
         } else {
@@ -145,8 +145,8 @@ public class SyncKcIdpRequestBuilder implements IdpRequestBuilder<SyncKcClient> 
         String kcIp = client.getKcIp();
         String kcPort = client.getPort();
 
-        if (kcFqdn != null & kcPort != null) {
-            return mergeHostWithPort(kcFqdn, kcPort);
+        if (kcFqdn != null) {
+            return kcFqdn;
         } else if (kcIp != null & kcPort != null) {
             return mergeHostWithPort(kcIp, kcPort);
         } else {

@@ -37,7 +37,6 @@ class SyncKcIdpRequestBuilderTest {
         SyncKcClient client = new SyncKcClient();
         client.setId("1");
         client.setFqdn("example.com");
-        client.setPort("8443");
         client.setRealm("testRealm");
         String protocol = "https";
         String endpoint = "/api/resource";
@@ -46,7 +45,7 @@ class SyncKcIdpRequestBuilderTest {
         String result = syncKcIdpRequestBuilder.buildRequestUrl(client, protocol, endpoint);
 
         // Then
-        assertEquals("https://example.com:8443/admin/realms/testRealm/api/resource", result);
+        assertEquals("https://example.com/admin/realms/testRealm/api/resource", result);
     }
 
     @Test
@@ -87,14 +86,13 @@ class SyncKcIdpRequestBuilderTest {
         SyncKcClient client = new SyncKcClient();
         client.setId("1");
         client.setKcFqdn("example.com");
-        client.setPort("8443");
         String protocol = "https";
 
         // When
         String result = syncKcIdpRequestBuilder.buildAuthRequestUrl(client, protocol);
 
         // Then
-        assertEquals("https://example.com:8443/realms/master/protocol/openid-connect/token", result);
+        assertEquals("https://example.com/realms/master/protocol/openid-connect/token", result);
     }
 
     @Test

@@ -106,7 +106,7 @@ public class WinIdpRequestBuilder implements IdpRequestBuilder<WinClient> {
         }
 
         if (kcFqdn != null) {
-            return protocol + "://" + kcFqdn + ":" + kcPort
+            return protocol + "://" + kcFqdn
                     + "/realms/" + kcRealm + "/protocol/openid-connect/token";
         } else if (kcIp != null) {
             return protocol + "://" + kcIp + ":" + kcPort

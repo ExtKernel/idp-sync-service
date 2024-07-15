@@ -85,7 +85,6 @@ class WinIdpRequestBuilderTest {
         WinClient client = new WinClient();
         client.setId("1");
         client.setKcFqdn("example.com");
-        client.setPort("8443");
         client.setRealm("testRealm");
         String protocol = "https";
 
@@ -93,7 +92,7 @@ class WinIdpRequestBuilderTest {
         String result = winIdpRequestBuilder.buildAuthRequestUrl(client, protocol);
 
         // Then
-        assertEquals("https://example.com:8443/realms/testRealm/protocol/openid-connect/token", result);
+        assertEquals("https://example.com/realms/testRealm/protocol/openid-connect/token", result);
     }
 
     @Test
@@ -102,7 +101,7 @@ class WinIdpRequestBuilderTest {
         WinClient client = new WinClient();
         client.setId("1");
         client.setKcIp("192.168.0.1");
-        client.setPort("8443");
+        client.setKcPort("8443");
         client.setRealm("testRealm");
         String protocol = "https";
 
