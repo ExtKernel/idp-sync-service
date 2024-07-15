@@ -1,10 +1,10 @@
 # Variables to inject in Java code
-ipaApiEndpoint: ${IPA_API_ENDPOINT}
-ipaApiAuthEndpoint: ${IPA_API_AUTH_ENDPOINT}
+ipaApiEndpoint: ${IPA_API_ENDPOINT:https://${IPA_HOSTNAME}/ipa/session/json}
+ipaApiAuthEndpoint: ${IPA_API_AUTH_ENDPOINT:https://${IPA_HOSTNAME}/ipa/session/login_password}
 ipaHostname: ${IPA_HOSTNAME}
 ipaCertPath: ${IPA_CERT_PATH}
 
-kcAdminCliClientId: ${KC_ADMIN_CLI_CLIENT_ID}
+kcAdminCliClientId: ${KC_ADMIN_CLI_CLIENT_ID:admin-cli}
 
 principalRoleName: ${PRINCIPAL_ROLE_NAME:administrator}
 
@@ -22,7 +22,7 @@ server:
     port: ${SERVER_PORT:8000}
 spring:
     application:
-        name: user-sync-global-service
+        name: idp-sync-service
     cloud:
         loadbalancer:
             cache:
@@ -45,6 +45,6 @@ spring:
                 jwt:
                     issuer-uri: http://${KC_BASE_URL}/realms/${KC_REALM}
                 opaquetoken:
-                    client-id: user-sync-global-service
+                    client-id: idp-sync-service
                     client-secret: ${CLIENT_SECRET}
                     introspection-uri: http://${KC_BASE_URL}/realms/${KC_REALM}/protocol/openid-connect/token/introspect
