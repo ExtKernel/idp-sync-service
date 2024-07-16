@@ -64,5 +64,5 @@ public interface IdpRequestBuilder<T extends Client> {
             String protocol
     );
 
-    RestTemplate getRestTemplate();
+    RestTemplate getRestTemplate(T client);
 }

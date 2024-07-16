@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +20,8 @@ import java.util.Objects;
 @MappedSuperclass
 public class Client {
     @Id
-    @Column(name = "id", nullable = false)
+    @NotNull
+    @Column(name = "id")
     private String id;
 
     @Column(name = "fqdn")
@@ -49,12 +51,19 @@ public class Client {
         this.id = id;
     }
 
-    public Client(String id, String fqdn) {
+    public Client(
+            String id,
+            String fqdn
+    ) {
         this.id = id;
         this.fqdn = fqdn;
     }
 
-    public Client(String id, String ip, String port) {
+    public Client(
+            String id,
+            String ip,
+            String port
+    ) {
         this.id = id;
         this.ip = ip;
         this.port = port;

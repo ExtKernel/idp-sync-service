@@ -1,6 +1,8 @@
 package com.iliauni.idpsyncservice.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +17,10 @@ import java.util.Objects;
 @NoArgsConstructor
 @Entity
 public class IpaClient extends CookieClient {
+    @NotNull
+    @Column(name = "cert_path")
+    private String certPath;
+
     public IpaClient(String id) {
         super(id);
     }
@@ -38,8 +44,12 @@ public class IpaClient extends CookieClient {
     public final boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o)
+                .getHibernateLazyInitializer()
+                .getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this)
+                .getHibernateLazyInitializer()
+                .getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         IpaClient ipaClient = (IpaClient) o;
         return getId() != null && Objects.equals(getId(), ipaClient.getId());
@@ -47,6 +57,9 @@ public class IpaClient extends CookieClient {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+        return this instanceof HibernateProxy ? ((HibernateProxy) this)
+                .getHibernateLazyInitializer()
+                .getPersistentClass()
+                .hashCode() : getClass().hashCode();
     }
 }

@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +31,6 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
     private final IdpRequestBuilder<IpaClient> requestBuilder;
     private final IdpJsonObjectMapper jsonObjectMapper;
     private final ObjectMapper objectMapper;
-    private final RestTemplate restTemplate;
 
     @Value("${ipaApiEndpoint}")
     private String ipaApiEndpoint;
@@ -48,7 +46,6 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
     ) {
         this.requestBuilder = requestBuilder;
         this.jsonObjectMapper = jsonObjectMapper;
-        this.restTemplate = requestBuilder.getRestTemplate();
         this.objectMapper = objectMapper;
     }
 
@@ -199,7 +196,7 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
             Map<String, Object> requestBody
     ) {
         try {
-            return restTemplate.exchange(
+            return requestBuilder.getRestTemplate(client).exchange(
                     requestBuilder.buildRequestUrl(
                             client,
                             "https",

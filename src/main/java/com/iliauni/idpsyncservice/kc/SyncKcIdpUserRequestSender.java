@@ -42,7 +42,8 @@ public class SyncKcIdpUserRequestSender implements IdpUserRequestSender<SyncKcCl
     ) {
         this.requestBuilder = requestBuilder;
         this.jsonObjectMapper = jsonObjectMapper;
-        this.restTemplate = requestBuilder.getRestTemplate();
+        // pass null as RestTemplate building for SyncKc client doesn't depend on the client
+        this.restTemplate = requestBuilder.getRestTemplate(null);
         this.idExtractor = idExtractor;
         this.objectMapper = objectMapper;
     }

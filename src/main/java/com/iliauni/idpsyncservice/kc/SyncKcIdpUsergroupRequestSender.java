@@ -3,7 +3,6 @@ package com.iliauni.idpsyncservice.kc;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iliauni.idpsyncservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.idpsyncservice.exception.UsergroupJsonReadingException;
 import com.iliauni.idpsyncservice.exception.UsergroupMembersJsonReadingException;
 import com.iliauni.idpsyncservice.exception.UsergroupsJsonReadingException;
@@ -16,7 +15,6 @@ import com.iliauni.idpsyncservice.model.Usergroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
@@ -45,14 +43,15 @@ public class SyncKcIdpUsergroupRequestSender implements IdpUsergroupRequestSende
             @Qualifier("syncKcIdpJsonObjectMapper") IdpJsonObjectMapper jsonObjectMapper,
             @Lazy IdpUserRequestSender<SyncKcClient> userRequestSender,
             SyncKcIdpModelIdExtractor idExtractor,
-            ObjectMapper objectMapper,
-            RestTemplateBuilder restTemplateBuilder) {
+            ObjectMapper objectMapper
+    ) {
         this.requestBuilder = requestBuilder;
         this.jsonObjectMapper = jsonObjectMapper;
         this.userRequestSender = userRequestSender;
         this.idExtractor = idExtractor;
         this.objectMapper = objectMapper;
-        this.restTemplate = restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build();
+        // pass null as RestTemplate building for SyncKc client doesn't depend on the client
+        this.restTemplate = requestBuilder.getRestTemplate(null);
     }
 
     @Override

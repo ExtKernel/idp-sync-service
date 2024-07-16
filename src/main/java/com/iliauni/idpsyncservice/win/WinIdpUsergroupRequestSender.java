@@ -3,7 +3,6 @@ package com.iliauni.idpsyncservice.win;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iliauni.idpsyncservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.idpsyncservice.exception.UsergroupJsonReadingException;
 import com.iliauni.idpsyncservice.exception.UsergroupMembersJsonReadingException;
 import com.iliauni.idpsyncservice.exception.UsergroupsJsonReadingException;
@@ -14,7 +13,6 @@ import com.iliauni.idpsyncservice.model.Usergroup;
 import com.iliauni.idpsyncservice.model.WinClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -30,13 +28,13 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
     public WinIdpUsergroupRequestSender(
             IdpRequestBuilder<WinClient> requestBuilder,
             @Qualifier("winIdpJsonObjectMapper") IdpJsonObjectMapper jsonObjectMapper,
-            ObjectMapper objectMapper,
-            RestTemplateBuilder restTemplateBuilder
+            ObjectMapper objectMapper
     ) {
         this.requestBuilder = requestBuilder;
         this.jsonObjectMapper = jsonObjectMapper;
         this.objectMapper = objectMapper;
-        this.restTemplate = restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build();
+        // pass null as RestTemplate building for Win client doesn't depend on the client
+        this.restTemplate = requestBuilder.getRestTemplate(null);
     }
 
     @Override
@@ -168,8 +166,9 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
                             requestBuilder.buildRequestUrl(
                                     client,
                                     "http",
-                                    "/groups/get-users/"
-                                            + usergroupName + "/"
+                                    "/groups/"
+                                            + usergroupName
+                                            + "/users/"
                             ),
                             HttpMethod.GET,
                             requestBuilder.buildAuthOnlyHttpRequestEntity(

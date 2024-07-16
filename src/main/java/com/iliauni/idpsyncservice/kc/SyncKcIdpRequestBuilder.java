@@ -1,7 +1,5 @@
 package com.iliauni.idpsyncservice.kc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.exception.KcClientHasNoKcFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.exception.RestTemplateResponseErrorHandler;
@@ -58,7 +56,7 @@ public class SyncKcIdpRequestBuilder implements IdpRequestBuilder<SyncKcClient> 
             String tokenEndpointUrl
     ) {
         return new HttpEntity(
-                buildEmptyRequestBody(),
+                null,
                 buildHeaders(
                         clientService.generateAccessToken(
                                 clientId,
@@ -92,7 +90,7 @@ public class SyncKcIdpRequestBuilder implements IdpRequestBuilder<SyncKcClient> 
     }
 
     @Override
-    public RestTemplate getRestTemplate() {
+    public RestTemplate getRestTemplate(SyncKcClient client) {
         return restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build();
     }
 
@@ -163,10 +161,5 @@ public class SyncKcIdpRequestBuilder implements IdpRequestBuilder<SyncKcClient> 
             String port
     ) {
         return host + ":" + port;
-    }
-
-    private ObjectNode buildEmptyRequestBody() {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.createObjectNode();
     }
 }

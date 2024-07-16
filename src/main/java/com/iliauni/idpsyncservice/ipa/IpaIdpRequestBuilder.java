@@ -1,7 +1,5 @@
 package com.iliauni.idpsyncservice.ipa;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.idpsyncservice.idp.IdpRequestBuilder;
@@ -17,7 +15,6 @@ import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.client5.http.ssl.TrustAllStrategy;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
@@ -48,9 +45,6 @@ import java.util.Collections;
 @Component
 public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
     CookieClientService<IpaClient> clientService;
-
-    @Value("${ipaCertPath}")
-    private String ipaCertPath;
 
     /**
      * Constructs an {@code IpaIdpRequestBuilder} instance with the specified {@link IpaClientService}.
@@ -86,7 +80,7 @@ public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
             String authEndpointUrl
     ) {
         return new HttpEntity<>(
-                buildEmptyRequestBody(),
+                null,
                 buildHeaders(
                         clientService.generateAndSaveCookieJar(
                                 clientId,
@@ -117,10 +111,10 @@ public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
     }
 
     @Override
-    public RestTemplate getRestTemplate() {
+    public RestTemplate getRestTemplate(IpaClient client) {
         try {
             // Create a RestTemplate with the custom HttpClient, interceptor and error handler
-            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(buildHttpClientWithIpaCert());
+            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(buildHttpClientWithIpaCert(client.getCertPath()));
             RestTemplate restTemplate = new RestTemplate(requestFactory);
             restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
             restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
@@ -133,7 +127,8 @@ public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
                 CertificateException |
                 IOException exception) {
             return null; // bc idk how to handle this shit. Anyway, a problem of future me
-        }    }
+        }
+    }
 
     /**
      * Builds the HTTP headers for the request with the given cookie.
@@ -158,7 +153,7 @@ public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
      *
      * @return the configured HttpClient
      */
-    private HttpClient buildHttpClientWithIpaCert() throws
+    private HttpClient buildHttpClientWithIpaCert(String ipaCertPath) throws
             NoSuchAlgorithmException,
             KeyStoreException,
             KeyManagementException,
@@ -236,10 +231,5 @@ public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
             String port
     ) {
         return host + ":" + port;
-    }
-
-    private ObjectNode buildEmptyRequestBody() {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.createObjectNode();
     }
 }

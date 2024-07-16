@@ -1,7 +1,5 @@
 package com.iliauni.idpsyncservice.win;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.exception.KcClientHasNoKcFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.exception.KcClientHasNoKcRealmException;
@@ -55,7 +53,7 @@ public class WinIdpRequestBuilder implements IdpRequestBuilder<WinClient> {
             String tokenEndpointUrl
     ) {
         return new HttpEntity(
-                buildEmptyRequestBody(),
+                null,
                 buildHeaders(
                         clientService.generateAccessToken(
                                 clientId,
@@ -121,7 +119,7 @@ public class WinIdpRequestBuilder implements IdpRequestBuilder<WinClient> {
     }
 
     @Override
-    public RestTemplate getRestTemplate() {
+    public RestTemplate getRestTemplate(WinClient client) {
         return restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build();
     }
 
@@ -160,10 +158,5 @@ public class WinIdpRequestBuilder implements IdpRequestBuilder<WinClient> {
 
     private String getWinIpWithPort(WinClient client) {
         return client.getIp() + ":" + client.getPort();
-    }
-
-    private ObjectNode buildEmptyRequestBody() {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.createObjectNode();
     }
 }

@@ -126,7 +126,11 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
             // call getUsergroupMembers without validation
             // because if called from this method,
             // it means the usergroup exists and doesn't need a validation
-            usergroup.setUsers(getUsergroupMembers(
+
+            if (blackListFilter.filter(
+                    client,
+                    usergroup
+            ) != null) usergroup.setUsers(getUsergroupMembers(
                     client,
                     usergroup.getName(),
                     false
