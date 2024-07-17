@@ -43,11 +43,6 @@ import java.util.Collections;
  */
 @Component
 public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJarRequestBuilder<T> {
-    @Value("${ipaHostname}")
-    private String ipaHostname;
-
-    @Value("${ipaCertPath}")
-    private String ipaCertPath;
 
     /**
      * @inheritDoc
@@ -60,7 +55,11 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
         requestBody.add("user", client.getPrincipalUsername());
         requestBody.add("password", client.getPrincipalPassword());
 
-        return new HttpEntity<>(requestBody, setHeaders());
+        if (client.getIp() != null && client.getPort() != null) {
+            return new HttpEntity<>(requestBody, setHeaders(client.getIp()));
+        } else {
+            return new HttpEntity<>(requestBody, setHeaders(client.getFqdn()));
+        }
     }
 
     /**
@@ -68,7 +67,7 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
      *
      * @return the constructed HTTP headers
      */
-    private HttpHeaders setHeaders() {
+    private HttpHeaders setHeaders(String ipaHostname) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
@@ -82,10 +81,10 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
      * Retrieves a configured RestTemplate instance with custom HttpClient, interceptor, and error handler.
      */
     @Override
-    public RestTemplate getRestTemplate() {
+    public RestTemplate getRestTemplate(IpaClient client) {
         try {
             // Create a RestTemplate with the custom HttpClient, interceptor and error handler
-            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(buildHttpClientWithIpaCert());
+            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(buildHttpClientWithIpaCert(client.getCertPath()));
             RestTemplate restTemplate = new RestTemplate(requestFactory);
             restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
             restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
@@ -106,7 +105,7 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
      *
      * @return the configured HttpClient
      */
-    private HttpClient buildHttpClientWithIpaCert() throws
+    private HttpClient buildHttpClientWithIpaCert(String ipaCertPath) throws
             NoSuchAlgorithmException,
             KeyStoreException,
             KeyManagementException,

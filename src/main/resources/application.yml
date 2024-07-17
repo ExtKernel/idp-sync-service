@@ -1,11 +1,14 @@
 # Variables to inject in Java code
-ipaApiEndpoint: ${IPA_API_ENDPOINT:https://${IPA_HOSTNAME}/ipa/session/json}
-ipaApiAuthEndpoint: ${IPA_API_AUTH_ENDPOINT:https://${IPA_HOSTNAME}/ipa/session/login_password}
-ipaHostname: ${IPA_HOSTNAME}
-ipaCertPath: ${IPA_CERT_PATH}
 
+# The FreeIPA API endpoint for general requests (excluding hostname, ip, port, and protocol)
+ipaApiEndpoint: ${IPA_API_ENDPOINT:/ipa/session/json}
+# The FreeIPA API endpoint to get cookies for auth (excluding hostname, ip, port, and protocol)
+ipaApiAuthEndpoint: ${IPA_API_AUTH_ENDPOINT:/ipa/session/login_password}
+
+# The name of the admin-cli Keycloak client
 kcAdminCliClientId: ${KC_ADMIN_CLI_CLIENT_ID:admin-cli}
 
+# The role name of the user that can access secured endpoints
 principalRoleName: ${PRINCIPAL_ROLE_NAME:administrator}
 
 eureka:

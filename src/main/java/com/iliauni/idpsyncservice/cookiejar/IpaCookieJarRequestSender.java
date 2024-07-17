@@ -39,7 +39,7 @@ public class IpaCookieJarRequestSender<T extends IpaClient> implements CookieJar
             T client,
             String endpointUrl
     ) {
-        ResponseEntity<Map> response = requestBuilder.getRestTemplate().exchange(
+        ResponseEntity<Map> response = requestBuilder.getRestTemplate(client).exchange(
                 endpointUrl,
                 HttpMethod.POST,
                 requestBuilder.buildHttpRequestEntity(client),

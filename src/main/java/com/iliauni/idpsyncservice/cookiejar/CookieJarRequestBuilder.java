@@ -25,5 +25,5 @@ public interface CookieJarRequestBuilder<T extends IpaClient> {
      *
      * @return the RestTemplate instance
      */
-    RestTemplate getRestTemplate();
+    RestTemplate getRestTemplate(T client);
 }
