@@ -41,11 +41,14 @@ public class IpaIdpUserManager extends GenericIdpUserManager<IpaClient> {
                 username
         );
 
-        return super.getJsonObjectMapper().mapUserJsonNodeToUser(
-                getDirectResult(
-                        super.getRequestSender().sendGetUserRequest(
-                                client,
-                                username
+        return super.getBlackListFilter().filter(
+                client,
+                super.getJsonObjectMapper().mapUserJsonNodeToUser(
+                        getDirectResult(
+                                super.getRequestSender().sendGetUserRequest(
+                                        client,
+                                        username
+                                )
                         )
                 )
         );
@@ -60,7 +63,10 @@ public class IpaIdpUserManager extends GenericIdpUserManager<IpaClient> {
             users.add(super.getJsonObjectMapper().mapUserJsonNodeToUser(user));
         }
 
-        return users;
+        return super.getBlackListFilter().filter(
+                client,
+                users
+        );
     }
 
     /**

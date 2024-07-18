@@ -6,6 +6,7 @@ import com.iliauni.idpsyncservice.model.Usergroup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,13 +57,15 @@ class IpaIdpMapObjectMapperTest {
     // Test the buildUserCredentialsMap method to ensure it correctly builds a credentials map
     @Test
     void testBuildUserCredentialsMap() {
-        // Define a password
+        // Define a credentials map
         String password = "password123";
+        Map<String, String> validCredentialsMap = new HashMap<>();
+        validCredentialsMap.put("password", password);
 
         // Call the buildUserCredentialsMap method
         Map<String, Object> credentialsMap = mapper.buildUserCredentialsMap(password);
 
         // Verify that the map contains the correct password value
-        assertEquals("password123", credentialsMap.get("value"));
+        assertEquals(validCredentialsMap.get("password"), credentialsMap.get("password"));
     }
 }

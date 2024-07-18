@@ -8,6 +8,7 @@ import com.iliauni.idpsyncservice.model.ApiAccessKcClient;
 import com.iliauni.idpsyncservice.model.SyncKcClient;
 import com.iliauni.idpsyncservice.service.Oauth2ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,6 +24,9 @@ import org.springframework.web.client.RestTemplate;
 public class SyncKcIdpRequestBuilder implements IdpRequestBuilder<SyncKcClient> {
     private final Oauth2ClientService<ApiAccessKcClient> clientService;
     private final RestTemplateBuilder restTemplateBuilder;
+
+    @Value("${kcAdminCliClientId}")
+    private String kcAdminCliClientId;
 
     @Autowired
     public SyncKcIdpRequestBuilder(
@@ -43,7 +47,7 @@ public class SyncKcIdpRequestBuilder implements IdpRequestBuilder<SyncKcClient> 
                 requestBody,
                 buildHeaders(
                         clientService.generateAccessToken(
-                                clientId,
+                                kcAdminCliClientId,
                                 tokenEndpointUrl
                         ).getToken()
                 )
@@ -59,7 +63,7 @@ public class SyncKcIdpRequestBuilder implements IdpRequestBuilder<SyncKcClient> 
                 null,
                 buildHeaders(
                         clientService.generateAccessToken(
-                                clientId,
+                                kcAdminCliClientId,
                                 tokenEndpointUrl
                         ).getToken()
                 )

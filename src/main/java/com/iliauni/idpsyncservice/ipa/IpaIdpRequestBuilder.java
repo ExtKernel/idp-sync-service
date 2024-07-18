@@ -15,6 +15,7 @@ import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.client5.http.ssl.TrustAllStrategy;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
@@ -46,6 +47,9 @@ import java.util.Collections;
 public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
     CookieClientService<IpaClient> clientService;
 
+    @Value("${ipaApiAuthEndpoint}")
+    private String ipaAuthEndpoint;
+
     /**
      * Constructs an {@code IpaIdpRequestBuilder} instance with the specified {@link IpaClientService}.
      *
@@ -57,7 +61,7 @@ public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
     }
 
     @Override
-    public HttpEntity buildHttpRequestEntity(
+    public HttpEntity<String> buildHttpRequestEntity(
             String clientId,
             String requestBody,
             String authEndpointUrl
@@ -107,7 +111,7 @@ public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
     ) {
         return protocol + "://"
                 + getClientHostUrl(client)
-                + "/ipa/session/login_password";
+                + ipaAuthEndpoint;
     }
 
     @Override
@@ -210,26 +214,15 @@ public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
 
     private String getClientHostUrl(IpaClient client) {
         String clientFqdn = client.getFqdn();
-        String clientIp = client.getIp();
-        String clientPort = client.getPort();
 
-        if (clientFqdn != null & clientPort != null) {
-            return mergeHostWithPort(clientFqdn, clientPort);
-        } else if (clientIp != null & clientPort != null) {
-            return mergeHostWithPort(clientIp, clientPort);
+        if (clientFqdn != null) {
+            return clientFqdn;
         } else {
             throw new ClientHasNoFqdnOrIpAndPortException(
-                    "Keycloak client with ID "
+                    "FreeIPA client with ID "
                             + client.getId()
-                            + " has no FQDN, IP or port"
+                            + " has no FQDN"
             );
         }
-    }
-
-    private String mergeHostWithPort(
-            String host,
-            String port
-    ) {
-        return host + ":" + port;
     }
 }

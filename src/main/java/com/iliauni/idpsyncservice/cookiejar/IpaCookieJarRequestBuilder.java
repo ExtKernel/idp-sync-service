@@ -1,5 +1,6 @@
 package com.iliauni.idpsyncservice.cookiejar;
 
+import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.idpsyncservice.model.IpaClient;
 import org.apache.hc.client5.http.classic.HttpClient;
@@ -10,7 +11,6 @@ import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.client5.http.ssl.TrustAllStrategy;
 import org.apache.hc.core5.ssl.SSLContexts;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
@@ -55,10 +55,14 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
         requestBody.add("user", client.getPrincipalUsername());
         requestBody.add("password", client.getPrincipalPassword());
 
-        if (client.getIp() != null && client.getPort() != null) {
-            return new HttpEntity<>(requestBody, setHeaders(client.getIp()));
-        } else {
+        if (client.getFqdn() != null) {
             return new HttpEntity<>(requestBody, setHeaders(client.getFqdn()));
+        } else {
+            throw new ClientHasNoFqdnOrIpAndPortException(
+                    "FreeIPA client with ID "
+                            + client.getId()
+                            + " has no FQDN"
+            );
         }
     }
 
@@ -71,7 +75,7 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
-        headers.set("referer", "https://" + ipaHostname + "/ipa");
+        headers.set("Referer", "https://" + ipaHostname + "/ipa");
 
         return headers;
     }
@@ -95,8 +99,9 @@ public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJa
                 KeyStoreException |
                 KeyManagementException |
                 CertificateException |
-                IOException exception) {
-            return null; // bc idk how to handle this shit. Anyway, a problem of future me
+                IOException exception
+        ) {
+            return null; // bc IDK how to handle this shit. Anyway, a problem of future me
         }
     }
 

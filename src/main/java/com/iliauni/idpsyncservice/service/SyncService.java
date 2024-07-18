@@ -77,14 +77,14 @@ public class SyncService {
     public void syncUsergroups(Optional<List<Usergroup>> optionalUsergroups) {
         // sync users first to not have a situation
         // that we're adding a non-existing user as a member to a user group
-//        syncUsersFromIdpClients(
-//                ipaCookieClientService,
-//                ipaIdpUserManager
-//        );
-//        syncUsersFromIdpClients(
-//                syncKcOauth2ClientService,
-//                syncKcIdpUserManager
-//        );
+        syncUsersFromIdpClients(
+                ipaCookieClientService,
+                ipaIdpUserManager
+        );
+        syncUsersFromIdpClients(
+                syncKcOauth2ClientService,
+                syncKcIdpUserManager
+        );
         syncUsersFromIdpClients(
                 winOauth2ClientService,
                 winIdpUserManager
@@ -107,16 +107,16 @@ public class SyncService {
             // sync with IDPs first to not have a situation
             // that we already have updated the DB
             // and a difference calculator isn't returning any difference
-//            syncUsergroupsForAllIdpClients(
-//                    differenceMap,
-//                    ipaCookieClientService,
-//                    ipaUsergroupIdpSyncHandler
-//            );
-//            syncUsergroupsForAllIdpClients(
-//                    differenceMap,
-//                    syncKcOauth2ClientService,
-//                    syncKcUsergroupIdpSyncHandler
-//            );
+            syncUsergroupsForAllIdpClients(
+                    differenceMap,
+                    ipaCookieClientService,
+                    ipaUsergroupIdpSyncHandler
+            );
+            syncUsergroupsForAllIdpClients(
+                    differenceMap,
+                    syncKcOauth2ClientService,
+                    syncKcUsergroupIdpSyncHandler
+            );
             syncUsergroupsForAllIdpClients(
                     differenceMap,
                     winOauth2ClientService,
@@ -146,16 +146,16 @@ public class SyncService {
             // sync with IDPs first to not have a situation
             // that we already have updated the DB
             // and a difference calculator isn't returning any difference
-//            syncUsersForAllIdpClients(
-//                    differenceMap,
-//                    ipaCookieClientService,
-//                    ipaUserIdpSyncHandler
-//            );
-//            syncUsersForAllIdpClients(
-//                    differenceMap,
-//                    syncKcOauth2ClientService,
-//                    syncKcUserIdpSyncHandler
-//            );
+            syncUsersForAllIdpClients(
+                    differenceMap,
+                    ipaCookieClientService,
+                    ipaUserIdpSyncHandler
+            );
+            syncUsersForAllIdpClients(
+                    differenceMap,
+                    syncKcOauth2ClientService,
+                    syncKcUserIdpSyncHandler
+            );
             syncUsersForAllIdpClients(
                     differenceMap,
                     winOauth2ClientService,

@@ -36,7 +36,7 @@ public class IpaIdpMapObjectMapper implements IdpMapObjectMapper {
     @Override
     public Map<String, Object> buildUserCredentialsMap(String password) {
         Map<String, Object> userCredentials = new HashMap<>();
-        userCredentials.put("value", password);
+        userCredentials.put("password", password);
 
         return userCredentials;
     }

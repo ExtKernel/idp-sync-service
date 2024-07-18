@@ -141,10 +141,10 @@ class IpaIdpJsonObjectMapperTest {
     void mapUserJsonNodeToUser_Success() {
         // Given
         ObjectNode userJsonNode = JsonNodeFactory.instance.objectNode();
-        userJsonNode.put("uid", "testUser");
-        userJsonNode.put("givenname", "John");
-        userJsonNode.put("sn", "Doe");
-        userJsonNode.put("mail", "john.doe@example.com");
+        userJsonNode.set("uid", JsonNodeFactory.instance.arrayNode().add("testUser"));
+        userJsonNode.set("givenname", JsonNodeFactory.instance.arrayNode().add("John"));
+        userJsonNode.set("sn", JsonNodeFactory.instance.arrayNode().add("Doe"));
+        userJsonNode.set("mail", JsonNodeFactory.instance.arrayNode().add("john.doe@example.com"));
 
         // When
         User result = ipaIdpJsonObjectMapper.mapUserJsonNodeToUser(userJsonNode);
@@ -161,8 +161,8 @@ class IpaIdpJsonObjectMapperTest {
     void mapUsergroupJsonNodeToUsergroup_Success() {
         // Given
         ObjectNode usergroupJsonNode = JsonNodeFactory.instance.objectNode();
-        usergroupJsonNode.put("cn", "group1");
-        usergroupJsonNode.put("description", "Description for group1");
+        usergroupJsonNode.put("cn", JsonNodeFactory.instance.arrayNode().add("group1"));
+        usergroupJsonNode.put("description", JsonNodeFactory.instance.arrayNode().add("Description for group1"));
 
         // When
         Usergroup result = ipaIdpJsonObjectMapper.mapUsergroupJsonNodeToUsergroup(usergroupJsonNode);

@@ -7,7 +7,7 @@ import com.iliauni.idpsyncservice.exception.UsergroupJsonReadingException;
 import com.iliauni.idpsyncservice.exception.UsergroupMembersJsonReadingException;
 import com.iliauni.idpsyncservice.exception.UsergroupsJsonReadingException;
 import com.iliauni.idpsyncservice.exception.WritingRequestBodyToStringException;
-import com.iliauni.idpsyncservice.idp.IdpJsonObjectMapper;
+import com.iliauni.idpsyncservice.idp.IdpMapObjectMapper;
 import com.iliauni.idpsyncservice.idp.IdpRequestBuilder;
 import com.iliauni.idpsyncservice.idp.IdpUsergroupRequestSender;
 import com.iliauni.idpsyncservice.model.IpaClient;
@@ -29,7 +29,10 @@ import java.util.Map;
 @Component
 public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<IpaClient> {
     private final IdpRequestBuilder<IpaClient> requestBuilder;
-    private final IdpJsonObjectMapper jsonObjectMapper;
+    // a temporary fix, implemented because of specifics the FreeIPA's API
+    // using IdpMapObjectMapper instead of IdpJsonObjectMapper
+    // private final IdpJsonObjectMapper jsonObjectMapper;
+    private final IdpMapObjectMapper mapObjectMapper;
     private final ObjectMapper objectMapper;
 
     @Value("${ipaApiEndpoint}")
@@ -41,11 +44,13 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
     @Autowired
     public IpaIdpUsergroupRequestSender(
             IdpRequestBuilder<IpaClient> requestBuilder,
-            @Qualifier("ipaIdpJsonObjectMapper") IdpJsonObjectMapper jsonObjectMapper,
+//            @Qualifier("ipaIdpJsonObjectMapper") IdpJsonObjectMapper jsonObjectMapper,
+            @Qualifier("ipaIdpMapObjectMapper") IdpMapObjectMapper mapObjectMapper,
             ObjectMapper objectMapper
     ) {
         this.requestBuilder = requestBuilder;
-        this.jsonObjectMapper = jsonObjectMapper;
+//        this.jsonObjectMapper = jsonObjectMapper;
+        this.mapObjectMapper = mapObjectMapper;
         this.objectMapper = objectMapper;
     }
 
@@ -58,7 +63,9 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
         requestBody.put("method", "group_add");
         requestBody.put("params", new Object[]{
                 usergroup.getName(),
-                jsonObjectMapper.mapUsergroupToJsonString(usergroup)
+//                a part of the temporary fix. Map to a Hashmap instead
+//                jsonObjectMapper.mapUsergroupToJsonString(usergroup)
+                mapObjectMapper.mapUsergroupToMap(usergroup)
         });
 
         sendRestTemplateRequest(client, requestBody);
@@ -75,7 +82,7 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_add_member");
         requestBody.put("params", new Object[]{
-                usergroupName,
+                new Object[]{usergroupName},
                 new HashMap<>().put("user", username)
         });
 
@@ -89,7 +96,10 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
     ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_show");
-        requestBody.put("params", new Object[]{usergroupName, new HashMap<>()});
+        requestBody.put("params", new Object[]{
+                new Object[]{usergroupName},
+                new HashMap<>()
+        });
 
         try {
             return objectMapper.readTree(
@@ -113,7 +123,10 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
     public JsonNode sendGetUsergroupsRequest(IpaClient client) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_find");
-        requestBody.put("params", new Object[]{"", new HashMap<>()});
+        requestBody.put("params", new Object[]{
+                new Object[]{""},
+                new HashMap<>()
+        });
 
         try {
             return objectMapper.readTree(
@@ -140,7 +153,10 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
     ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_show");
-        requestBody.put("params", new Object[]{usergroupName, new HashMap<>()});
+        requestBody.put("params", new Object[]{
+                new Object[]{usergroupName},
+                new HashMap<>()
+        });
 
         try {
             return objectMapper.readTree(
@@ -167,7 +183,10 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
     ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_del");
-        requestBody.put("params", new Object[]{usergroupName, new HashMap<>()});
+        requestBody.put("params", new Object[]{
+                new Object[]{usergroupName},
+                new HashMap<>()
+        });
 
         sendRestTemplateRequest(client, requestBody);
     }
@@ -181,7 +200,7 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_remove_member");
         requestBody.put("params", new Object[]{
-                usergroupName,
+                new Object[]{usergroupName},
                 new HashMap<>().put("user", username)
         });
 

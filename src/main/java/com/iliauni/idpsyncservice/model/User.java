@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,7 +15,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Table(name = "sync_user")
 @Entity
-public class User {
+public class User implements Serializable {
 
     public User(String username) {
         this.username = username;
@@ -48,6 +49,7 @@ public class User {
             CascadeType.MERGE
     })
     @Column(name = "usergroups")
+    @ToString.Exclude
     private List<Usergroup> usergroups;
 
     @Override

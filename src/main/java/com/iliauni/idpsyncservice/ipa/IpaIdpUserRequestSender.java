@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iliauni.idpsyncservice.exception.UserJsonReadingException;
 import com.iliauni.idpsyncservice.exception.UsersJsonReadingException;
 import com.iliauni.idpsyncservice.exception.WritingRequestBodyToStringException;
-import com.iliauni.idpsyncservice.idp.IdpJsonObjectMapper;
+import com.iliauni.idpsyncservice.idp.IdpMapObjectMapper;
 import com.iliauni.idpsyncservice.idp.IdpRequestBuilder;
 import com.iliauni.idpsyncservice.idp.IdpUserRequestSender;
 import com.iliauni.idpsyncservice.model.IpaClient;
@@ -27,7 +27,10 @@ import java.util.Map;
 @Component
 public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> {
     private final IdpRequestBuilder<IpaClient> requestBuilder;
-    private final IdpJsonObjectMapper jsonObjectMapper;
+    // a temporary fix, implemented because of specifics the FreeIPA's API
+    // using IdpMapObjectMapper instead of IdpJsonObjectMapper
+    //  private final IdpJsonObjectMapper jsonObjectMapper;
+    private final IdpMapObjectMapper mapObjectMapper;
     private final ObjectMapper objectMapper;
 
     @Value("${ipaApiEndpoint}")
@@ -39,11 +42,13 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
     @Autowired
     public IpaIdpUserRequestSender(
             IdpRequestBuilder<IpaClient> requestBuilder,
-            @Qualifier("ipaIdpJsonObjectMapper") IdpJsonObjectMapper jsonObjectMapper,
+//            @Qualifier("ipaIdpJsonObjectMapper") IdpJsonObjectMapper jsonObjectMapper,
+            @Qualifier("ipaIdpMapObjectMapper") IdpMapObjectMapper mapObjectMapper,
             ObjectMapper objectMapper
     ) {
         this.requestBuilder = requestBuilder;
-        this.jsonObjectMapper = jsonObjectMapper;
+        this.mapObjectMapper = mapObjectMapper;
+//        this.jsonObjectMapper = jsonObjectMapper;
         this.objectMapper = objectMapper;
     }
 
@@ -54,7 +59,12 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
     ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "user_add");
-        requestBody.put("params", new Object[]{"", jsonObjectMapper.mapUserToJsonString(user)});
+        requestBody.put("params", new Object[]{
+                new Object[]{""},
+                // the temporary fix. Map to a Hashmap instead
+                //  jsonObjectMapper.mapUserToJsonString(user)
+                mapObjectMapper.mapUserToMap(user)
+        });
 
         sendRestTemplateRequest(
                 client,
@@ -71,7 +81,10 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
     ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "user_show");
-        requestBody.put("params", new Object[]{username, new HashMap<>()});
+        requestBody.put("params", new Object[]{
+                new Object[]{username},
+                new HashMap<>()
+        });
 
         try {
             return objectMapper.readTree(
@@ -94,7 +107,10 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
     public JsonNode sendGetUsersRequest(IpaClient client) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "user_find");
-        requestBody.put("params", new Object[]{"", new HashMap<>()});
+        requestBody.put("params", new Object[]{
+                new Object[]{""},
+                new HashMap<>()
+        });
 
         try {
             return objectMapper.readTree(
@@ -122,8 +138,11 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "passwd");
         requestBody.put("params", new Object[]{
-                username,
-                jsonObjectMapper.buildCredentialsRepresentation(newPassword)
+                new Object[]{username},
+                // credentials are built incorrectly too in the IpaIdpJsonObjectMapper
+                // they should be represented by a map {"password": "$value"}
+                //  jsonObjectMapper.buildCredentialsRepresentation(newPassword)
+                mapObjectMapper.buildUserCredentialsMap(newPassword)
         });
 
         sendRestTemplateRequest(
@@ -141,7 +160,10 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
     ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "user_del");
-        requestBody.put("params", new Object[]{username, new HashMap<>()});
+        requestBody.put("params", new Object[]{
+                new Object[]{username},
+                new HashMap<>()
+        });
 
         sendRestTemplateRequest(
                 client,

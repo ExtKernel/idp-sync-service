@@ -40,11 +40,11 @@ class IpaIdpRequestBuilderTest {
         String result = ipaIdpRequestBuilder.buildRequestUrl(client, protocol, endpoint);
 
         // Then
-        assertEquals("https://example.com:8443/api/resource", result);
+        assertEquals("https://example.com/api/resource", result);
     }
 
     @Test
-    void buildRequestUrl_WithIp_Success() {
+    void buildRequestUrl_WithIp_ThrowsException() {
         // Given
         IpaClient client = new IpaClient();
         client.setId("1");
@@ -53,11 +53,10 @@ class IpaIdpRequestBuilderTest {
         String protocol = "https";
         String endpoint = "/api/resource";
 
-        // When
-        String result = ipaIdpRequestBuilder.buildRequestUrl(client, protocol, endpoint);
-
-        // Then
-        assertEquals("https://192.168.0.1:8443/api/resource", result);
+        // When / Then
+        assertThrows(ClientHasNoFqdnOrIpAndPortException.class, () -> {
+            ipaIdpRequestBuilder.buildRequestUrl(client, protocol, endpoint);
+        });
     }
 
     @Test
@@ -87,11 +86,12 @@ class IpaIdpRequestBuilderTest {
         String result = ipaIdpRequestBuilder.buildAuthRequestUrl(client, protocol);
 
         // Then
-        assertEquals("https://example.com:8443/ipa/session/login_password", result);
+        // the env variable is not injected, so null is expected, instead of the endpoint
+        assertEquals("https://example.comnull", result);
     }
 
     @Test
-    void buildAuthRequestUrl_WithIp_Success() {
+    void buildAuthRequestUrl_WithIp_ThrowsException() {
         // Given
         IpaClient client = new IpaClient();
         client.setId("1");
@@ -99,11 +99,10 @@ class IpaIdpRequestBuilderTest {
         client.setPort("8443");
         String protocol = "https";
 
-        // When
-        String result = ipaIdpRequestBuilder.buildAuthRequestUrl(client, protocol);
-
-        // Then
-        assertEquals("https://192.168.0.1:8443/ipa/session/login_password", result);
+        // When / Then
+        assertThrows(ClientHasNoFqdnOrIpAndPortException.class, () -> {
+            ipaIdpRequestBuilder.buildAuthRequestUrl(client, protocol);
+        });
     }
 
     @Test

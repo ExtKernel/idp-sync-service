@@ -1,5 +1,6 @@
 package com.iliauni.idpsyncservice.cookiejar;
 
+import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.model.IpaClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -40,11 +41,25 @@ public class IpaCookieJarRequestSender<T extends IpaClient> implements CookieJar
             String endpointUrl
     ) {
         ResponseEntity<Map> response = requestBuilder.getRestTemplate(client).exchange(
-                endpointUrl,
+                "https://" + getClientHostUrl(client) + endpointUrl,
                 HttpMethod.POST,
                 requestBuilder.buildHttpRequestEntity(client),
                 Map.class);
 
         return response.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
+    }
+
+    private String getClientHostUrl(IpaClient client) {
+        String clientFqdn = client.getFqdn();
+
+        if (clientFqdn != null) {
+            return clientFqdn;
+        } else {
+            throw new ClientHasNoFqdnOrIpAndPortException(
+                    "FreeIPA client with ID "
+                            + client.getId()
+                            + " has no FQDN"
+            );
+        }
     }
 }

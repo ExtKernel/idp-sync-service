@@ -3,12 +3,14 @@ package com.iliauni.idpsyncservice.ipa;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.iliauni.idpsyncservice.exception.UserToJsonMappingException;
 import com.iliauni.idpsyncservice.exception.UsergroupToJsonMappingException;
 import com.iliauni.idpsyncservice.idp.IdpJsonObjectMapper;
 import com.iliauni.idpsyncservice.idp.IdpMapObjectMapper;
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.Usergroup;
+import com.iliauni.idpsyncservice.model.UsergroupSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,9 @@ public class IpaIdpJsonObjectMapper implements IdpJsonObjectMapper {
     ) {
         this.mapObjectMapper = mapObjectMapper;
         this.objectMapper = objectMapper;
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(Usergroup.class, new UsergroupSerializer());
+        objectMapper.registerModule(module);
     }
 
     @Override
@@ -61,18 +66,28 @@ public class IpaIdpJsonObjectMapper implements IdpJsonObjectMapper {
     @Override
     public User mapUserJsonNodeToUser(JsonNode userJsonNode) {
         return new User(
-                userJsonNode.path("uid").asText(),
-                userJsonNode.path("givenname").asText(),
-                userJsonNode.path("sn").asText(),
-                userJsonNode.path("mail").asText()
+                userJsonNode.path("uid").isArray() && !userJsonNode.path("uid").isEmpty()
+                        ? userJsonNode.path("uid").get(0).asText()
+                        : userJsonNode.asText(),
+                userJsonNode.path("givenname").isArray() && !userJsonNode.path("givenname").isEmpty()
+                        ? userJsonNode.path("givenname").get(0).asText(null)
+                        : null,
+                userJsonNode.path("sn").isArray() && !userJsonNode.path("sn").isEmpty()
+                        ? userJsonNode.path("sn").get(0).asText(null)
+                        : null,
+                userJsonNode.path("mail").isArray() && !userJsonNode.path("mail").isEmpty()
+                        ? userJsonNode.path("mail").get(0).asText(null)
+                        : null
         );
     }
 
     @Override
     public Usergroup mapUsergroupJsonNodeToUsergroup(JsonNode usergroupJsonNode) {
         return new Usergroup(
-                usergroupJsonNode.path("cn").asText(),
-                usergroupJsonNode.path("description").asText()
+                usergroupJsonNode.path("cn").get(0).asText(),
+                usergroupJsonNode.path("description").isArray() && !usergroupJsonNode.path("description").isEmpty()
+                        ? usergroupJsonNode.path("description").get(0).asText(null)
+                        : null
         );
     }
 }

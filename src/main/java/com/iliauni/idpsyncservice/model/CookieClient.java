@@ -44,7 +44,7 @@ public class CookieClient extends Client {
     }
 
     @OneToMany(fetch = FetchType.EAGER)
-    @Column(name = "cookie", nullable = true)
+    @Column(name = "cookie")
     @ToString.Exclude
     private List<Cookie> cookies;
 

@@ -101,7 +101,7 @@ public class IpaIdpUsergroupManager extends GenericIdpUsergroupManager<IpaClient
         for (JsonNode userJson : getDirectResult(super.getRequestSender().sendGetUsergroupMembersRequest(
                 client,
                 usergroupName
-        ))) {
+        )).path("member_user")) {
             users.add(super.getJsonObjectMapper().mapUserJsonNodeToUser(userJson));
         }
 
