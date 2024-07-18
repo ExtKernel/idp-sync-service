@@ -51,9 +51,6 @@ public abstract class GenericTokenRequestSender<T extends Oauth2Client> implemen
             String tokenEndpointUrl
     ) {
         try {
-            System.out.println(client.getId());
-            System.out.println(tokenEndpointUrl);
-
             return objectMapper.readTree(restTemplate.exchange(
                     tokenEndpointUrl,
                     HttpMethod.POST,

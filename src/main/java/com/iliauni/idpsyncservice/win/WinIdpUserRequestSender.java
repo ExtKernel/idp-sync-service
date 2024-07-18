@@ -31,7 +31,7 @@ public class WinIdpUserRequestSender implements IdpUserRequestSender<WinClient> 
     ) {
         this.requestBuilder = requestBuilder;
         this.jsonObjectMapper = jsonObjectMapper;
-        // pass null as RestTemplate building for Win client doesn't depend on the client
+        // pass null as RestTemplate building for a Win client doesn't depend on the client
         this.restTemplate = requestBuilder.getRestTemplate(null);
         this.objectMapper = objectMapper;
     }

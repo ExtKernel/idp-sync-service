@@ -33,7 +33,7 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
         this.requestBuilder = requestBuilder;
         this.jsonObjectMapper = jsonObjectMapper;
         this.objectMapper = objectMapper;
-        // pass null as RestTemplate building for Win client doesn't depend on the client
+        // pass null as RestTemplate building for a Win client doesn't depend on the client
         this.restTemplate = requestBuilder.getRestTemplate(null);
     }
 
