@@ -13,6 +13,7 @@ import com.iliauni.idpsyncservice.model.Usergroup;
 import com.iliauni.idpsyncservice.model.WinClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -38,7 +39,7 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
     }
 
     @Override
-    public Usergroup sendCreateUsergroupRequest(
+    public synchronized Usergroup sendCreateUsergroupRequest(
             WinClient client,
             Usergroup usergroup
     ) {
@@ -58,7 +59,7 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
                         )
                 ),
                 String.class
-            );
+        );
 
         return usergroup;
     }
@@ -116,7 +117,9 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
             );
         } catch (JsonProcessingException exception) {
             throw new UsergroupJsonReadingException(
-                    "An exception occurred while reading JSON received from the request to retrieve a user group for Windows client with id "
+                    "An exception occurred while reading JSON" +
+                            " received from the request to retrieve a user group"
+                            + " for Windows client with id "
                             + client.getId() + ": "
                             + exception.getMessage(),
                     exception
@@ -124,8 +127,9 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
         }
     }
 
+    @Cacheable("winUsergroups")
     @Override
-    public JsonNode sendGetUsergroupsRequest(WinClient client) {
+    public synchronized JsonNode sendGetUsergroupsRequest(WinClient client) {
         try {
             return objectMapper.readTree(
                     restTemplate.exchange(
@@ -147,7 +151,9 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
             );
         } catch (JsonProcessingException exception) {
             throw new UsergroupsJsonReadingException(
-                    "An exception occurred while reading JSON received from the request to retrieve user groups for Windows client with id "
+                    "An exception occurred while reading JSON"
+                            + " received from the request to retrieve user groups"
+                            + " for Windows client with id "
                             + client.getId() + ": "
                             + exception.getMessage(),
                     exception
@@ -183,7 +189,9 @@ public class WinIdpUsergroupRequestSender implements IdpUsergroupRequestSender<W
             );
         } catch (JsonProcessingException exception) {
             throw new UsergroupMembersJsonReadingException(
-                    "An exception occurred while reading JSON received from the request to retrieve user group members for Windows client with id "
+                    "An exception occurred while reading JSON"
+                            + " received from the request to retrieve user group members"
+                            + " for Windows client with id "
                             + client.getId() + ": "
                             + exception.getMessage(),
                     exception

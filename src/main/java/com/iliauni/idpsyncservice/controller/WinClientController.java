@@ -14,7 +14,7 @@ import java.util.Optional;
 @RequestMapping("/secured/client/Win")
 @RestController
 public class WinClientController {
-    Oauth2ClientService<WinClient> clientService;
+    private final Oauth2ClientService<WinClient> clientService;
 
     @Autowired
     public WinClientController(Oauth2ClientService<WinClient> clientService) {

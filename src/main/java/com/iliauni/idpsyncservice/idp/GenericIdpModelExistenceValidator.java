@@ -22,7 +22,6 @@ public abstract class GenericIdpModelExistenceValidator<T extends Client> implem
             T client,
             String usergroupName
     ) {
-        // turn off the validation, because it's not needed and causes stackoverflow
         return usergroupManager.getUsergroups(client).stream()
                 .anyMatch(usergroup -> usergroup.getName().equals(usergroupName));
     }
@@ -44,9 +43,13 @@ public abstract class GenericIdpModelExistenceValidator<T extends Client> implem
             String usergroupName,
             String username
     ) {
-        // turn off the validation, because it's not needed and causes stackoverflow
+        // turn off the validation, because it's unnecessary and causes stackoverflow
         return validateUserExistenceInList(
-                usergroupManager.getUsergroupMembers(client, usergroupName, false),
+                usergroupManager.getUsergroupMembers(
+                        client,
+                        usergroupName,
+                        false
+                ),
                 username
         );
     }
@@ -55,13 +58,14 @@ public abstract class GenericIdpModelExistenceValidator<T extends Client> implem
      * Validates that user exists in the provided lists using username.
      *
      * @param users the list of users.
-     * @param username the username of the user to check existence of.
+     * @param username the username of the user to check the existence of.
      * @return true, if the user exists in the list. False, if it doesn't.
      */
     private boolean validateUserExistenceInList(
             List<User> users,
             String username
     ) {
-        return users.stream().anyMatch(user -> user.getUsername().equals(username));
+        return users.stream()
+                .anyMatch(user -> user.getUsername().equals(username));
     }
 }

@@ -14,9 +14,18 @@ public class WinIdpMapObjectMapper implements IdpMapObjectMapper {
     public Map<String, Object> mapUserToMap(User user) {
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("username", user.getUsername());
-        userMap.put("fistName", user.getFirstname());
-        userMap.put("lastName", user.getLastname());
-        userMap.put("password", buildUserCredentialsMap(user.getPassword()).get("value"));
+
+        // add user's first name, if not null
+        String firstName = user.getFirstname();
+        if (firstName != null) userMap.put("firstName", user.getFirstname());
+
+        // add user's last name, if not null
+        String lastName = user.getLastname();
+        if (lastName != null) userMap.put("lastName", user.getLastname());
+
+        // add user's password, if not null
+        String password = user.getPassword();
+        if (password != null) userMap.put("password", user.getPassword());
 
         return userMap;
     }

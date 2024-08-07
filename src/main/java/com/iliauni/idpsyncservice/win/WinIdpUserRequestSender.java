@@ -12,6 +12,7 @@ import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.WinClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -96,6 +97,7 @@ public class WinIdpUserRequestSender implements IdpUserRequestSender<WinClient> 
         }
     }
 
+    @Cacheable("winUsers")
     @Override
     public JsonNode sendGetUsersRequest(WinClient client) {
         try {

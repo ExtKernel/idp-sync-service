@@ -15,6 +15,7 @@ import com.iliauni.idpsyncservice.model.Usergroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,7 @@ import org.springframework.web.client.RestTemplate;
  * A component class implementing the {@link IdpUsergroupRequestSender} interface
  * for sending requests related to user groups in an Identity Provider (IDP) context
  * specific to Keycloak (KC) systems.
-*/
+ */
 @Component
 public class SyncKcIdpUsergroupRequestSender implements IdpUsergroupRequestSender<SyncKcClient> {
     private final IdpRequestBuilder<SyncKcClient> requestBuilder;
@@ -99,7 +100,7 @@ public class SyncKcIdpUsergroupRequestSender implements IdpUsergroupRequestSende
                                 + idExtractor.getUsergroupId(
                                         sendGetUsergroupsRequest(client),
                                         usergroupName
-                                )
+                        )
                 ),
                 HttpMethod.PUT,
                 requestBuilder.buildAuthOnlyHttpRequestEntity(
@@ -128,7 +129,7 @@ public class SyncKcIdpUsergroupRequestSender implements IdpUsergroupRequestSende
                                             + idExtractor.getUsergroupId(
                                                     sendGetUsergroupsRequest(client),
                                                     usergroupName
-                                            )
+                                    )
                             ),
                             HttpMethod.GET,
                             requestBuilder.buildAuthOnlyHttpRequestEntity(
@@ -152,8 +153,9 @@ public class SyncKcIdpUsergroupRequestSender implements IdpUsergroupRequestSende
         }
     }
 
+    @Cacheable("synckcUsergroups")
     @Override
-    public JsonNode sendGetUsergroupsRequest(SyncKcClient client) {
+    public synchronized JsonNode sendGetUsergroupsRequest(SyncKcClient client) {
         try {
             return objectMapper.readTree(
                     restTemplate.exchange(
@@ -199,7 +201,7 @@ public class SyncKcIdpUsergroupRequestSender implements IdpUsergroupRequestSende
                                             + idExtractor.getUsergroupId(
                                                     sendGetUsergroupsRequest(client),
                                                     usergroupName
-                                            )
+                                    )
                                             + "/members"
                             ),
                             HttpMethod.GET,
@@ -237,7 +239,7 @@ public class SyncKcIdpUsergroupRequestSender implements IdpUsergroupRequestSende
                                 + idExtractor.getUsergroupId(
                                         sendGetUsergroupsRequest(client),
                                         usergroupName
-                                )
+                        )
                 ),
                 HttpMethod.DELETE,
                 requestBuilder.buildAuthOnlyHttpRequestEntity(
@@ -265,12 +267,12 @@ public class SyncKcIdpUsergroupRequestSender implements IdpUsergroupRequestSende
                                 + idExtractor.getUserId(
                                         userRequestSender.sendGetUsersRequest(client),
                                         username
-                                )
+                        )
                                 + "/groups/"
                                 + idExtractor.getUsergroupId(
                                         sendGetUsergroupsRequest(client),
                                         usergroupName
-                                )
+                        )
                 ),
                 HttpMethod.DELETE,
                 requestBuilder.buildAuthOnlyHttpRequestEntity(

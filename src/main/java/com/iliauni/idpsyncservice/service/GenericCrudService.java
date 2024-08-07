@@ -2,8 +2,10 @@ package com.iliauni.idpsyncservice.service;
 
 import com.iliauni.idpsyncservice.exception.ModelIsNullException;
 import com.iliauni.idpsyncservice.exception.ModelNotFoundException;
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +17,10 @@ import java.util.Optional;
  * @param <T> the type of objects on which CRUD operations will be performed.
  * @param <ID> the type of the id of the {@link T} objects.
  */
+@Transactional(
+        isolation = Isolation.READ_COMMITTED,
+        propagation = Propagation.REQUIRES_NEW
+)
 public abstract class GenericCrudService<T, ID> implements CrudService<T, ID> {
     private final JpaRepository<T, ID> repository;
 
@@ -22,7 +28,7 @@ public abstract class GenericCrudService<T, ID> implements CrudService<T, ID> {
         this.repository = repository;
     }
 
-    @Transactional
+//    @Transactional
     @Override
     public T save(Optional<T> optionalT) {
         return optionalT.map(repository::save).orElseThrow(() -> new ModelIsNullException(
@@ -42,7 +48,7 @@ public abstract class GenericCrudService<T, ID> implements CrudService<T, ID> {
         ));
     }
 
-    @Transactional
+//    @Transactional
     @Override
     public T update(Optional<T> optionalT) {
         return optionalT.map(repository::save).orElseThrow(() -> new ModelIsNullException(
@@ -50,7 +56,7 @@ public abstract class GenericCrudService<T, ID> implements CrudService<T, ID> {
         ));
     }
 
-    @Transactional
+//    @Transactional
     @Override
     public void deleteById(ID id) {
         repository.deleteById(id);

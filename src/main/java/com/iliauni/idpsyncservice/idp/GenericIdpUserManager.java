@@ -5,6 +5,7 @@ import com.iliauni.idpsyncservice.exception.UserAlreadyExistsOnTheClientExceptio
 import com.iliauni.idpsyncservice.exception.UserDoesNotExistOnTheClientException;
 import com.iliauni.idpsyncservice.model.Client;
 import com.iliauni.idpsyncservice.model.User;
+import com.iliauni.idpsyncservice.service.ClientService;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -12,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class GenericIdpUserManager<T extends Client> implements IdpUserManager<T> {
+
+    @Getter(AccessLevel.PROTECTED)
+    private final ClientService<T> clientService;
 
     @Getter(AccessLevel.PROTECTED)
     private final IdpJsonObjectMapper jsonObjectMapper;
@@ -26,11 +30,13 @@ public abstract class GenericIdpUserManager<T extends Client> implements IdpUser
     private final UserIdpRequestSenderResultBlackListFilter<T> blackListFilter;
 
     public GenericIdpUserManager(
+            ClientService<T> clientService,
             IdpJsonObjectMapper jsonObjectMapper,
             IdpUserRequestSender<T> requestSender,
             IdpModelExistenceValidator<T> modelExistenceValidator,
             UserIdpRequestSenderResultBlackListFilter<T> blackListFilter
     ) {
+        this.clientService = clientService;
         this.jsonObjectMapper = jsonObjectMapper;
         this.requestSender = requestSender;
         this.modelExistenceValidator = modelExistenceValidator;
@@ -42,25 +48,28 @@ public abstract class GenericIdpUserManager<T extends Client> implements IdpUser
      *                before sending a request to create or not.
      */
     @Override
-    public User createUser(
+    public synchronized User createUser(
             T client,
             User user,
             boolean validate
     ) {
-        try {
-            validateUserDoesNotExists(
-                    client,
-                    user.getUsername()
-            );
-        } catch (UserAlreadyExistsOnTheClientException exception) {
-            return null;
-        }
+        validateUserDoesNotExists(
+                client,
+                user.getUsername()
+        );
 
-
-        return requestSender.sendCreateUserRequest(
+        User createdUser = requestSender.sendCreateUserRequest(
                 client,
                 user
         );
+
+        // clear the cache after modifying users on the client
+        // if not cleared,
+        // ModelExistenceValidator and other classes
+        // that depend on the output of getUsers are likely to break
+        clientService.clearClientUserCache(client);
+
+        return createdUser;
     }
 
     /**
@@ -68,7 +77,7 @@ public abstract class GenericIdpUserManager<T extends Client> implements IdpUser
      *                before sending a request to get it or not.
      */
     @Override
-    public User getUser(
+    public synchronized User getUser(
             T client,
             String username,
             boolean validate
@@ -89,7 +98,7 @@ public abstract class GenericIdpUserManager<T extends Client> implements IdpUser
     }
 
     @Override
-    public List<User> getUsers(T client) {
+    public synchronized List<User> getUsers(T client) {
         List<User> users = new ArrayList<>();
 
         // iterate over JSON nodes which represent users and map each one to an object
@@ -104,11 +113,11 @@ public abstract class GenericIdpUserManager<T extends Client> implements IdpUser
     }
 
     /**
-     * @param validate validate that the user group exists
+     * @param validate validate that the user exists
      *                before sending a request to update its password or not.
      */
     @Override
-    public String updateUserPassword(
+    public synchronized String updateUserPassword(
             T client,
             String username,
             String newPassword,
@@ -119,19 +128,27 @@ public abstract class GenericIdpUserManager<T extends Client> implements IdpUser
                 username
         );
 
-        return requestSender.sendUpdateUserPasswordRequest(
+        String updatedPassword = requestSender.sendUpdateUserPasswordRequest(
                 client,
                 username,
                 newPassword
         );
+
+        // clear the cache after modifying users on the client
+        // if not cleared,
+        // ModelExistenceValidator and other classes
+        // that depend on the output of getUsers are likely to break
+        clientService.clearClientUserCache(client);
+
+        return updatedPassword;
     }
 
     /**
-     * @param validate validate that the user group exists
+     * @param validate validate that the user exists
      *                before sending a request to delete it or not.
      */
     @Override
-    public void deleteUser(
+    public synchronized void deleteUser(
             T client,
             String username,
             boolean validate
@@ -145,9 +162,16 @@ public abstract class GenericIdpUserManager<T extends Client> implements IdpUser
                 client,
                 username
         );
+
+        // clear the cache after modifying users on the client
+        // if not cleared,
+        // ModelExistenceValidator and other classes
+        // that depend on the output of getUsers are likely to break
+        clientService.clearClientUserCache(client);
     }
 
-    protected void validateUserExists(
+    @Override
+    public void validateUserExists(
             T client,
             String username
     ) {
@@ -164,7 +188,8 @@ public abstract class GenericIdpUserManager<T extends Client> implements IdpUser
         }
     }
 
-    protected void validateUserDoesNotExists(
+    @Override
+    public void validateUserDoesNotExists(
             T client,
             String username
     ) {

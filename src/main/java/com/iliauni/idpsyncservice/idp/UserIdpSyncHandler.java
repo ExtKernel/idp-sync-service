@@ -5,7 +5,6 @@ import com.iliauni.idpsyncservice.model.User;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * An interface to handle synchronization of users in an Identity Provider (IDP) context.
@@ -21,6 +20,6 @@ public interface UserIdpSyncHandler<T extends Client> {
      */
     void sync(
             T client,
-            Map<String, List<Optional<User>>> differenceMap
+            Map<String, List<User>> differenceMap
     );
 }

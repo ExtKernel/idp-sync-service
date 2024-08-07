@@ -1,13 +1,18 @@
 package com.iliauni.idpsyncservice.difference;
 
 import com.iliauni.idpsyncservice.model.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A component class implementing the {@link DifferenceCalculator} interface for calculating the difference between two lists of {@link User} objects.
  */
+@Slf4j
 @Component
 public class UserDifferenceCalculator implements DifferenceCalculator<User> {
 
@@ -24,11 +29,11 @@ public class UserDifferenceCalculator implements DifferenceCalculator<User> {
      *         organized by categories, where each category key is mapped to a list of optional {@link User} objects
      */
     @Override
-    public Map<String, List<Optional<User>>> calculate(
+    public Map<String, List<User>> calculate(
             List<User> originalList,
             List<User> targetList
     ) {
-        Map<String, List<Optional<User>>> differenceMap = new HashMap<>();
+        Map<String, List<User>> differenceMap = new HashMap<>();
 
         differenceMap.put("missing", calculateMissingUsers(
                 originalList,
@@ -43,29 +48,29 @@ public class UserDifferenceCalculator implements DifferenceCalculator<User> {
         return differenceMap;
     }
 
-    private List<Optional<User>> calculateMissingUsers(
+    private List<User> calculateMissingUsers(
             List<User> originalList,
             List<User> targetList
     ) {
-        List<Optional<User>> missingUsers = new ArrayList<>();
+        List<User> missingUsers = new ArrayList<>();
 
         // append missing users
         originalList.stream()
                 .filter(user -> !targetList.contains(user))
-                .forEach(user -> missingUsers.add(Optional.ofNullable(user)));
+                .forEach(missingUsers::add);
 
         return missingUsers;
     }
 
-    private List<Optional<User>> calculateNewUsers(
+    private List<User> calculateNewUsers(
             List<User> originalList,
             List<User> targetList
     ) {
-        List<Optional<User>> newUsers = new ArrayList<>();
+        List<User> newUsers = new ArrayList<>();
 
         targetList.stream()
                 .filter(user -> !originalList.contains(user))
-                .forEach(user -> newUsers.add(Optional.ofNullable(user)));
+                .forEach(newUsers::add);
 
         return newUsers;
     }

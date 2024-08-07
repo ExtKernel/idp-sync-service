@@ -6,6 +6,7 @@ import com.iliauni.idpsyncservice.idp.IdpRequestBuilder;
 import com.iliauni.idpsyncservice.model.IpaClient;
 import com.iliauni.idpsyncservice.service.CookieClientService;
 import com.iliauni.idpsyncservice.service.IpaClientService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
@@ -43,6 +44,7 @@ import java.util.Collections;
  * A component class implementing the {@link IdpRequestBuilder} interface
  * for building HTTP request entities and API base URLs specific to FreeIPA (Identity, Policy, and Audit) IDP systems.
  */
+@Slf4j
 @Component
 public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
     CookieClientService<IpaClient> clientService;
@@ -130,7 +132,12 @@ public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
                 KeyManagementException |
                 CertificateException |
                 IOException exception) {
-            return null; // bc idk how to handle this shit. Anyway, a problem of future me
+            log.error(
+                    "RestTemplate wasn't built for the FreeIPA client with id "
+                            + client.getId()
+                            + " . Most likely, due to an invalid certificate path"
+            );
+            return null; // bc IDK how to handle this
         }
     }
 

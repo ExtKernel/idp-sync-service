@@ -2,7 +2,6 @@ package com.iliauni.idpsyncservice.difference;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * An interface for calculating the difference between lists of elements of type T and organizing them into a map.
@@ -19,7 +18,7 @@ public interface DifferenceCalculator<T> {
      * @return a map containing list representing the differences between the original and target lists
      *         organized by categories, where each category key is mapped to a list of optional elements
      */
-    Map<String, List<Optional<T>>> calculate(
+    Map<String, List<T>> calculate(
             List<T> originalList,
             List<T> targetList
     );

@@ -73,7 +73,7 @@ class WinIdpJsonObjectMapperTest {
             winIdpJsonObjectMapper.mapUserToJsonString(user);
         } catch (UserToJsonMappingException e) {
             // Then
-            assertEquals("An exception occurred while mapping a FreeIPA user to a JSON string: N/A", e.getMessage());
+            assertEquals("An exception occurred while mapping a Win user to a JSON string: N/A", e.getMessage());
             assertEquals(JsonProcessingException.class, e.getCause().getClass());
         }
 
@@ -117,7 +117,7 @@ class WinIdpJsonObjectMapperTest {
             winIdpJsonObjectMapper.mapUsergroupToJsonString(usergroup);
         } catch (UsergroupToJsonMappingException e) {
             // Then
-            assertEquals("An exception occurred while mapping a FreeIPA user group to a JSON string: N/A", e.getMessage());
+            assertEquals("An exception occurred while mapping a Win user group to a JSON string: N/A", e.getMessage());
             assertEquals(JsonProcessingException.class, e.getCause().getClass());
         }
 

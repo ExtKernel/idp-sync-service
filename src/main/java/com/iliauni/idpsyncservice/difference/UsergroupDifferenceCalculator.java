@@ -5,7 +5,10 @@ import com.iliauni.idpsyncservice.model.Usergroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A component class implementing the {@link DifferenceCalculator} interface
@@ -33,11 +36,11 @@ public class UsergroupDifferenceCalculator implements DifferenceCalculator<Userg
      * it will not be present in the map.
      */
     @Override
-    public Map<String, List<Optional<Usergroup>>> calculate(
+    public Map<String, List<Usergroup>> calculate(
             List<Usergroup> originalList,
             List<Usergroup> targetList
     ) {
-        Map<String, List<Optional<Usergroup>>> differenceMap = new HashMap<>();
+        Map<String, List<Usergroup>> differenceMap = new HashMap<>();
 
         differenceMap.put("missing", calculateMissingUsergroups(
                 originalList,
@@ -57,39 +60,39 @@ public class UsergroupDifferenceCalculator implements DifferenceCalculator<Userg
         return differenceMap;
     }
 
-    private List<Optional<Usergroup>> calculateMissingUsergroups(
+    private List<Usergroup> calculateMissingUsergroups(
             List<Usergroup> originalList,
             List<Usergroup> targetList
     ) {
-        List<Optional<Usergroup>> missingUsergroups = new ArrayList<>();
+        List<Usergroup> missingUsergroups = new ArrayList<>();
 
         // append missing usergroups
         originalList.stream()
                 .filter(usergroup -> !targetList.contains(usergroup))
-                .forEach(usergroup -> missingUsergroups.add(Optional.of(usergroup)));
+                .forEach(missingUsergroups::add);
 
         return missingUsergroups;
     }
 
-    private List<Optional<Usergroup>> calculateNewUsergroups(
+    private List<Usergroup> calculateNewUsergroups(
             List<Usergroup> originalList,
             List<Usergroup> targetList
     ) {
-        List<Optional<Usergroup>> newUsergroups = new ArrayList<>();
+        List<Usergroup> newUsergroups = new ArrayList<>();
 
         // append new usergroups
         targetList.stream()
                 .filter(usergroup -> !originalList.contains(usergroup))
-                .forEach(usergroup -> newUsergroups.add(Optional.of(usergroup)));
+                .forEach(newUsergroups::add);
 
         return newUsergroups;
     }
 
-    private List<Optional<Usergroup>> calculateAlteredUsergroups(
+    private List<Usergroup> calculateAlteredUsergroups(
             List<Usergroup> originalList,
             List<Usergroup> targetList
     ) {
-        List<Optional<Usergroup>> alteredUsergroups = new ArrayList<>();
+        List<Usergroup> alteredUsergroups = new ArrayList<>();
 
         // append altered usergroups
         targetList.stream()
@@ -114,7 +117,7 @@ public class UsergroupDifferenceCalculator implements DifferenceCalculator<Userg
                             targetUsergroupMembers
                     );
                 })
-                .forEach(usergroup -> alteredUsergroups.add(Optional.of(usergroup)));
+                .forEach(alteredUsergroups::add);
 
         return alteredUsergroups;
     }

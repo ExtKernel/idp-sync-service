@@ -14,7 +14,7 @@ import java.util.Optional;
 @RequestMapping("/secured/client/IPA")
 @RestController
 public class IpaClientController {
-    CookieClientService<IpaClient> clientService;
+    private final CookieClientService<IpaClient> clientService;
 
     @Autowired
     public IpaClientController(CookieClientService<IpaClient> clientService) {

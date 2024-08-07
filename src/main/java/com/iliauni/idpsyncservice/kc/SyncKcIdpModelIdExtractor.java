@@ -5,10 +5,9 @@ import com.iliauni.idpsyncservice.exception.KcUserWithUsernameNotFoundException;
 import com.iliauni.idpsyncservice.exception.KcUsergroupWithNameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
-
 @Component
 public class SyncKcIdpModelIdExtractor {
+
     /**
      * Retrieves an ID of the user group with the specified name among groups in the given JSON node.
      *
@@ -22,11 +21,15 @@ public class SyncKcIdpModelIdExtractor {
             String usergroupName
     ) {
         for (JsonNode usergroup : usergroups) {
-            if (usergroup.get("name").asText().equals(usergroupName)) {
+            if (usergroup.path("name").asText().equals(usergroupName)) {
                 return usergroup.path("id").asText();
             }
         }
-        throw new KcUsergroupWithNameNotFoundException("Keycloak user group with name " + usergroupName + " was not found");
+        throw new KcUsergroupWithNameNotFoundException(
+                "Keycloak user group with name "
+                        + usergroupName
+                        + " was not found"
+        );
     }
 
     /**
@@ -42,11 +45,14 @@ public class SyncKcIdpModelIdExtractor {
             String username
     ) {
         for (JsonNode user : users) {
-            if (Objects.equals(user.get("username").toString(), username)) {
-                return user.get("id").toString();
+            if (user.path("username").asText().equals(username)) {
+                return user.path("id").asText();
             }
         }
         throw new KcUserWithUsernameNotFoundException(
-                "Keycloak user with username " + username + " was not found");
+                "Keycloak user with username "
+                        + username
+                        + " was not found"
+        );
     }
 }

@@ -3,14 +3,12 @@ package com.iliauni.idpsyncservice.ipa;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.iliauni.idpsyncservice.exception.UserToJsonMappingException;
 import com.iliauni.idpsyncservice.exception.UsergroupToJsonMappingException;
 import com.iliauni.idpsyncservice.idp.IdpJsonObjectMapper;
 import com.iliauni.idpsyncservice.idp.IdpMapObjectMapper;
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.Usergroup;
-import com.iliauni.idpsyncservice.model.UsergroupSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -27,9 +25,6 @@ public class IpaIdpJsonObjectMapper implements IdpJsonObjectMapper {
     ) {
         this.mapObjectMapper = mapObjectMapper;
         this.objectMapper = objectMapper;
-        SimpleModule module = new SimpleModule();
-        module.addSerializer(Usergroup.class, new UsergroupSerializer());
-        objectMapper.registerModule(module);
     }
 
     @Override

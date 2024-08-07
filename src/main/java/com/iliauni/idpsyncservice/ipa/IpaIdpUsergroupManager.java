@@ -5,6 +5,7 @@ import com.iliauni.idpsyncservice.idp.*;
 import com.iliauni.idpsyncservice.model.IpaClient;
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.Usergroup;
+import com.iliauni.idpsyncservice.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
@@ -18,21 +19,25 @@ public class IpaIdpUsergroupManager extends GenericIdpUsergroupManager<IpaClient
 
     @Autowired
     public IpaIdpUsergroupManager(
+            ClientService<IpaClient> clientService,
             @Qualifier("ipaIdpJsonObjectMapper") IdpJsonObjectMapper jsonObjectMapper,
             IdpUsergroupRequestSender<IpaClient> requestSender,
             @Lazy IdpModelExistenceValidator<IpaClient> modelExistenceValidator,
+            @Lazy IdpUserManager<IpaClient> userManager,
             UsergroupIdpRequestSenderResultBlackListFilter<IpaClient> blackListFilter
     ) {
         super(
+                clientService,
                 jsonObjectMapper,
                 requestSender,
                 modelExistenceValidator,
+                userManager,
                 blackListFilter
         );
     }
 
     @Override
-    public Usergroup getUsergroup(
+    public synchronized Usergroup getUsergroup(
             IpaClient client,
             String usergroupName,
             boolean validate
@@ -55,7 +60,7 @@ public class IpaIdpUsergroupManager extends GenericIdpUsergroupManager<IpaClient
     }
 
     @Override
-    public List<Usergroup> getUsergroups(IpaClient client) {
+    public synchronized List<Usergroup> getUsergroups(IpaClient client) {
         List<Usergroup> usergroups = new ArrayList<>();
 
         for (JsonNode usergroupJson : getDirectResult(
@@ -81,7 +86,7 @@ public class IpaIdpUsergroupManager extends GenericIdpUsergroupManager<IpaClient
     }
 
     @Override
-    public List<User> getUsergroupMembers(
+    public synchronized List<User> getUsergroupMembers(
             IpaClient client,
             String usergroupName,
             boolean validate

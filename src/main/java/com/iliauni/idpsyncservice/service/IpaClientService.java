@@ -13,16 +13,20 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class IpaClientService extends GenericCrudService<IpaClient, String> implements CookieClientService<IpaClient> {
+public class IpaClientService extends GenericCrudService<IpaClient, String>
+        implements CookieClientService<IpaClient> {
     private final CookieService<IpaClient> cookieService;
+    private final CacheService cacheService;
 
     @Autowired
     public IpaClientService(
             IpaClientRepository repository,
-            CookieService<IpaClient> cookieService
+            CookieService<IpaClient> cookieService,
+            CacheService cacheService
     ) {
         super(repository);
         this.cookieService = cookieService;
+        this.cacheService = cacheService;
     }
 
     @Override
@@ -49,5 +53,15 @@ public class IpaClientService extends GenericCrudService<IpaClient, String> impl
         save(Optional.of(client));
 
         return cookie;
+    }
+
+    @Override
+    public void clearClientUserCache(IpaClient client) {
+        cacheService.clearCacheByName("ipaUsers");
+    }
+
+    @Override
+    public void clearClientUsergroupsCache(IpaClient client) {
+        cacheService.clearCacheByName("ipaUsergroups");
     }
 }

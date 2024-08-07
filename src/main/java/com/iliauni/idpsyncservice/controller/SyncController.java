@@ -10,25 +10,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequestMapping("/secured/sync")
 @RestController
 public class SyncController {
-    SyncService service;
+    private final SyncService<Usergroup> usergroupSyncService;
+    private final SyncService<User> userSyncService;
 
     @Autowired
-    public SyncController(SyncService service) {
-        this.service = service;
+    public SyncController(
+            SyncService<Usergroup> usergroupSyncService,
+            SyncService<User> userSyncService
+    ) {
+        this.usergroupSyncService = usergroupSyncService;
+        this.userSyncService = userSyncService;
     }
 
     @PostMapping("/usergroups")
     public void syncUsergroups(@RequestBody List<Usergroup> usergroups) {
-        service.syncUsergroups(Optional.of(usergroups));
+        usergroupSyncService.sync(usergroups);
     }
 
     @PostMapping("/users")
     public void syncUsers(@RequestBody List<User> users) {
-        service.syncUsers(Optional.of(users));
+        userSyncService.sync(users);
     }
 }

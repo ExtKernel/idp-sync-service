@@ -11,7 +11,7 @@ import java.util.Optional;
 @RequestMapping("/secured/group")
 @RestController
 public class UsergroupController {
-    UsergroupService service;
+    private final UsergroupService service;
 
     @Autowired
     public UsergroupController(UsergroupService service) {

@@ -13,11 +13,13 @@ public class WinClientService extends GenericOauth2ClientService<WinClient> {
     @Autowired
     public WinClientService(
             JpaRepository<WinClient, String> repository,
+            CacheService cacheService,
             RefreshTokenService<WinClient> refreshTokenService,
             @Lazy TokenManager<WinClient> tokenManager
     ) {
         super(
                 repository,
+                cacheService,
                 refreshTokenService,
                 tokenManager
         );

@@ -14,7 +14,7 @@ import java.util.Optional;
 @RequestMapping("/secured/client/API/KC")
 @RestController
 public class ApiAccessKcClientController {
-    Oauth2ClientService<ApiAccessKcClient> clientService;
+    private final Oauth2ClientService<ApiAccessKcClient> clientService;
 
     @Autowired
     public ApiAccessKcClientController(Oauth2ClientService<ApiAccessKcClient> clientService) {

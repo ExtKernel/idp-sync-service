@@ -15,6 +15,7 @@ import com.iliauni.idpsyncservice.model.Usergroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
@@ -62,7 +63,7 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_add");
         requestBody.put("params", new Object[]{
-                usergroup.getName(),
+                new Object[]{usergroup.getName()},
 //                a part of the temporary fix. Map to a Hashmap instead
 //                jsonObjectMapper.mapUsergroupToJsonString(usergroup)
                 mapObjectMapper.mapUsergroupToMap(usergroup)
@@ -81,9 +82,13 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
     ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_add_member");
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("user", username);
+
         requestBody.put("params", new Object[]{
                 new Object[]{usergroupName},
-                new HashMap<>().put("user", username)
+                options
         });
 
         sendRestTemplateRequest(client, requestBody);
@@ -119,6 +124,7 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
         }
     }
 
+    @Cacheable("ipaUsergroups")
     @Override
     public JsonNode sendGetUsergroupsRequest(IpaClient client) {
         Map<String, Object> requestBody = new HashMap<>();
@@ -199,9 +205,13 @@ public class IpaIdpUsergroupRequestSender implements IdpUsergroupRequestSender<I
     ) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "group_remove_member");
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("user", username);
+
         requestBody.put("params", new Object[]{
                 new Object[]{usergroupName},
-                new HashMap<>().put("user", username)
+                options
         });
 
         sendRestTemplateRequest(

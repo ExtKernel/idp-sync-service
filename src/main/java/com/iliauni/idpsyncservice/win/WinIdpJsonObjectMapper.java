@@ -36,7 +36,7 @@ public class WinIdpJsonObjectMapper implements IdpJsonObjectMapper {
             return objectMapper.writeValueAsString(mapObjectMapper.mapUserToMap(user));
         } catch (JsonProcessingException exception) {
             throw new UserToJsonMappingException(
-                    "An exception occurred while mapping a FreeIPA user to a JSON string: "
+                    "An exception occurred while mapping a Win user to a JSON string: "
                             + exception.getMessage(),
                     exception
             );
@@ -49,7 +49,7 @@ public class WinIdpJsonObjectMapper implements IdpJsonObjectMapper {
             return objectMapper.writeValueAsString(mapObjectMapper.mapUsergroupToMap(usergroup));
         } catch (JsonProcessingException exception) {
             throw new UsergroupToJsonMappingException(
-                    "An exception occurred while mapping a FreeIPA user group to a JSON string: "
+                    "An exception occurred while mapping a Win user group to a JSON string: "
                             + exception.getMessage(),
                     exception
             );

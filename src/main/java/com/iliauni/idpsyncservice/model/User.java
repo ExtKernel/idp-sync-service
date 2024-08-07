@@ -21,7 +21,12 @@ public class User implements Serializable {
         this.username = username;
     }
 
-    public User(String username, String firstname, String lastname, String email) {
+    public User(
+            String username,
+            String firstname,
+            String lastname,
+            String email
+    ) {
         this.username = username;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -29,7 +34,11 @@ public class User implements Serializable {
     }
 
     @Id
-    @Column(name = "username", nullable = false, unique = true)
+    @Column(
+            name = "username",
+            nullable = false,
+            unique = true
+    )
     private String username;
 
     @Column(name = "firstname")
@@ -44,7 +53,7 @@ public class User implements Serializable {
     @Column(name = "password")
     private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "users", cascade = {
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "users", cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE
     })

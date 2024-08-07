@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.iliauni.idpsyncservice.idp.*;
 import com.iliauni.idpsyncservice.model.IpaClient;
 import com.iliauni.idpsyncservice.model.User;
+import com.iliauni.idpsyncservice.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
@@ -17,12 +18,14 @@ public class IpaIdpUserManager extends GenericIdpUserManager<IpaClient> {
 
     @Autowired
     public IpaIdpUserManager(
+            ClientService<IpaClient> clientService,
             @Qualifier("ipaIdpJsonObjectMapper") IdpJsonObjectMapper jsonObjectMapper,
             IdpUserRequestSender<IpaClient> requestSender,
             @Lazy IdpModelExistenceValidator<IpaClient> modelExistenceValidator,
             UserIdpRequestSenderResultBlackListFilter<IpaClient> blackListFilter
     ) {
         super(
+                clientService,
                 jsonObjectMapper,
                 requestSender,
                 modelExistenceValidator,

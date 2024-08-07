@@ -1,20 +1,23 @@
 package com.iliauni.idpsyncservice.idp;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.iliauni.idpsyncservice.exception.UserDoesNotExistOnTheClientException;
-import com.iliauni.idpsyncservice.exception.UsergroupAlreadyExistsOnTheClientException;
-import com.iliauni.idpsyncservice.exception.UsergroupDoesNotExistOnTheClientException;
-import com.iliauni.idpsyncservice.exception.UsergroupMemberAlreadyExistsOnTheClientException;
+import com.iliauni.idpsyncservice.exception.*;
 import com.iliauni.idpsyncservice.model.Client;
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.Usergroup;
+import com.iliauni.idpsyncservice.service.ClientService;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public abstract class GenericIdpUsergroupManager<T extends Client> implements IdpUsergroupManager<T> {
+
+    @Getter(AccessLevel.PROTECTED)
+    private final ClientService<T> clientService;
 
     @Getter(AccessLevel.PROTECTED)
     private final IdpJsonObjectMapper jsonObjectMapper;
@@ -26,17 +29,24 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
     private final IdpModelExistenceValidator<T> modelExistenceValidator;
 
     @Getter(AccessLevel.PROTECTED)
+    private final IdpUserManager<T> userManager;
+
+    @Getter(AccessLevel.PROTECTED)
     private final UsergroupIdpRequestSenderResultBlackListFilter<T> blackListFilter;
 
     public GenericIdpUsergroupManager(
+            ClientService<T> clientService,
             IdpJsonObjectMapper jsonObjectMapper,
             IdpUsergroupRequestSender<T> requestSender,
             IdpModelExistenceValidator<T> modelExistenceValidator,
+            IdpUserManager<T> userManager,
             UsergroupIdpRequestSenderResultBlackListFilter<T> blackListFilter
     ) {
+        this.clientService = clientService;
         this.jsonObjectMapper = jsonObjectMapper;
         this.requestSender = requestSender;
         this.modelExistenceValidator = modelExistenceValidator;
+        this.userManager = userManager;
         this.blackListFilter = blackListFilter;
     }
 
@@ -45,7 +55,7 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
      *                before sending a request to create or not.
      */
     @Override
-    public Usergroup createUsergroup(
+    public synchronized Usergroup createUsergroup(
             T client,
             Usergroup usergroup,
             boolean validate
@@ -55,10 +65,18 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
                 usergroup.getName()
         );
 
-        return requestSender.sendCreateUsergroupRequest(
+        Usergroup createdUsergroup = requestSender.sendCreateUsergroupRequest(
                 client,
                 usergroup
         );
+
+        // clear the cache after modifying user groups on the client
+        // if not cleared,
+        // ModelExistenceValidator and other classes
+        // that depend on the output of getUsergroups are likely to break
+        clientService.clearClientUsergroupsCache(client);
+
+        return createdUsergroup;
     }
 
     /**
@@ -67,13 +85,38 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
      *                before sending a request to add the member or not.
      */
     @Override
-    public void addUsergroupMember(
+    public synchronized void addUsergroupMember(
             T client,
             String usergroupName,
             String username,
             boolean validate
     ) {
         if (validate) {
+            try {
+                userManager.validateUserExists(
+                        client,
+                        username
+                );
+            } catch (UserDoesNotExistOnTheClientException exception) {
+                log.info(
+                        "User group with username "
+                                + username
+                                + " in going to be created on the client with id "
+                                + client.getId()
+                                + " during process of adding a user group member to a user group with name "
+                                + usergroupName
+                                + " ,because the user doesn't exist on the client"
+                );
+
+                // don't validate, because if the request
+                // comes from here, we know that the user doesn't exist
+                // and it's ok
+                userManager.createUser(
+                        client,
+                        new User(username),
+                        false
+                );
+            }
             validateUsergroupExists(
                     client,
                     usergroupName
@@ -90,6 +133,12 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
                 usergroupName,
                 username
         );
+
+        // clear the cache after modifying user groups on the client
+        // if not cleared,
+        // ModelExistenceValidator and other classes
+        // that depend on the output of getUsergroups are likely to break
+        clientService.clearClientUsergroupsCache(client);
     }
 
     /**
@@ -97,7 +146,7 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
      *                before sending a request to get it or not.
      */
     @Override
-    public Usergroup getUsergroup(
+    public synchronized Usergroup getUsergroup(
             T client,
             String usergroupName,
             boolean validate
@@ -117,25 +166,29 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
     }
 
     @Override
-    public List<Usergroup> getUsergroups(T client) {
+    public synchronized List<Usergroup> getUsergroups(T client) {
         List<Usergroup> usergroups = new ArrayList<>();
 
         for (JsonNode usergroupJson : requestSender.sendGetUsergroupsRequest(client)) {
             Usergroup usergroup = jsonObjectMapper.mapUsergroupJsonNodeToUsergroup(usergroupJson);
 
-            // call getUsergroupMembers without validation
-            // because if called from this method,
-            // it means the usergroup exists and doesn't need a validation
-
+            // if the user group is blacklisted
+            // there's no point in wasting time on retrieving its members
             if (blackListFilter.filter(
                     client,
                     usergroup
-            ) != null) usergroup.setUsers(getUsergroupMembers(
-                    client,
-                    usergroup.getName(),
-                    false
-                )
-            );
+            ) != null){
+                // call getUsergroupMembers without validation
+                // because if called from this method,
+                // it means the usergroup exists and doesn't need a validation
+                usergroup.setUsers(getUsergroupMembers(
+                                client,
+                                usergroup.getName(),
+                                false
+                        )
+                );
+            }
+
             usergroups.add(usergroup);
         }
 
@@ -150,7 +203,7 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
      *                sending a request to get its members or not.
      */
     @Override
-    public List<User> getUsergroupMembers(
+    public synchronized List<User> getUsergroupMembers(
             T client,
             String usergroupName,
             boolean validate
@@ -182,7 +235,7 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
      *                before sending a request to delete it or not.
      */
     @Override
-    public void deleteUsergroup(
+    public synchronized void deleteUsergroup(
             T client,
             String usergroupName,
             boolean validate
@@ -196,6 +249,12 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
                 client,
                 usergroupName
         );
+
+        // clear the cache after modifying user groups on the client
+        // if not cleared,
+        // ModelExistenceValidator and other classes
+        // that depend on the output of getUsergroups are likely to break
+        clientService.clearClientUsergroupsCache(client);
     }
 
     /**
@@ -204,17 +263,28 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
      *                before sending a request to remove the member or not.
      */
     @Override
-    public void removeUsergroupMember(
+    public synchronized void removeUsergroupMember(
             T client,
             String usergroupName,
             String username,
             boolean validate
     ) {
         if (validate) {
-            validateUserExists(
-                    client,
-                    username
-            );
+            try {
+                userManager.validateUserExists(
+                        client,
+                        username
+                );
+            } catch (UserDoesNotExistOnTheClientException exception) {
+                log.info(
+                        "A user group with username "
+                                + username
+                                + " wasn't removed as a member from usergroup with name "
+                                + usergroupName
+                                + " , because the user doesn't exist on the client with id "
+                                + client.getId()
+                );
+            }
             validateUsergroupMemberExists(
                     client,
                     usergroupName,
@@ -227,9 +297,15 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
                 usergroupName,
                 username
         );
+
+        // clear the cache after modifying user groups on the client
+        // if not cleared,
+        // ModelExistenceValidator and other classes
+        // that depend on the output of getUsergroups are likely to break
+        clientService.clearClientUsergroupsCache(client);
     }
 
-    protected void validateUsergroupExists(
+    public void validateUsergroupExists(
             T client,
             String usergroupName
     ) {
@@ -238,7 +314,7 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
                 usergroupName
         )) {
             throw new UsergroupDoesNotExistOnTheClientException(
-                    "User group with name(id) "
+                    "A user group with name(id) "
                             + usergroupName
                             + " doesn't exist on the client with id "
                             + client.getId()
@@ -246,7 +322,7 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
         }
     }
 
-    protected void validateUsergroupDoesNotExist(
+    public void validateUsergroupDoesNotExist(
             T client,
             String usergroupName
     ) {
@@ -255,7 +331,7 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
                 usergroupName
         )) {
             throw new UsergroupAlreadyExistsOnTheClientException(
-                    "User group with name(id) "
+                    "A user group with name(id) "
                             + usergroupName
                             + " already exists on the client with id "
                             + client.getId()
@@ -263,7 +339,7 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
         }
     }
 
-    protected void validateUsergroupMemberExists(
+    public void validateUsergroupMemberExists(
             T client,
             String usergroupName,
             String username
@@ -273,8 +349,8 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
                 usergroupName,
                 username
         )) {
-            throw new UsergroupMemberAlreadyExistsOnTheClientException(
-                    "User with username "
+            throw new UsergroupMemberDoesNotExistOnTheClientException(
+                    "A user group with name(id) "
                             + username
                             + " is not a member of user group with name(id) "
                             + usergroupName
@@ -284,7 +360,7 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
         }
     }
 
-    protected void validateUsergroupMemberDoesNotExist(
+    public void validateUsergroupMemberDoesNotExist(
             T client,
             String usergroupName,
             String username
@@ -295,28 +371,11 @@ public abstract class GenericIdpUsergroupManager<T extends Client> implements Id
                 username
         )) {
             throw new UsergroupMemberAlreadyExistsOnTheClientException(
-                    "User with username "
+                    "A user group with name(id) "
                             + username
                             + " is already a member of user group with name(id) "
                             + usergroupName
                             + " on the client with id "
-                            + client.getId()
-            );
-        }
-    }
-
-    protected void validateUserExists(
-            T client,
-            String username
-    ) {
-        if (!modelExistenceValidator.validateUserExistence(
-                client,
-                username
-        )) {
-            throw new UserDoesNotExistOnTheClientException(
-                    "User with username "
-                            + username
-                            + " doesn't exist on the client with id "
                             + client.getId()
             );
         }

@@ -19,12 +19,13 @@ public class GenericOauth2ClientService<T extends Oauth2Client>
     private final RefreshTokenService<T> refreshTokenService;
     private final TokenManager<T> tokenManager;
 
-    public GenericOauth2ClientService(
+    protected GenericOauth2ClientService(
             JpaRepository<T, String> repository,
+            CacheService cacheService,
             RefreshTokenService<T> refreshTokenService,
             TokenManager<T> tokenManager
     ) {
-        super(repository);
+        super(repository, cacheService);
         this.refreshTokenService = refreshTokenService;
         this.tokenManager = tokenManager;
     }

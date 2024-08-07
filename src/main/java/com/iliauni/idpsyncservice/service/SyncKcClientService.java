@@ -13,11 +13,13 @@ public class SyncKcClientService extends GenericOauth2ClientService<SyncKcClient
     @Autowired
     public SyncKcClientService(
             JpaRepository<SyncKcClient, String> repository,
+            CacheService cacheService,
             RefreshTokenService<SyncKcClient> refreshTokenService,
             @Lazy TokenManager<SyncKcClient> tokenManager
     ) {
         super(
                 repository,
+                cacheService,
                 refreshTokenService,
                 tokenManager
         );

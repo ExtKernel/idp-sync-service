@@ -14,7 +14,7 @@ import java.util.Optional;
 @RequestMapping("/secured/client/KC")
 @RestController
 public class SyncKcClientController {
-    Oauth2ClientService<SyncKcClient> clientService;
+    private final Oauth2ClientService<SyncKcClient> clientService;
 
     @Autowired
     public SyncKcClientController(Oauth2ClientService<SyncKcClient> clientService) {

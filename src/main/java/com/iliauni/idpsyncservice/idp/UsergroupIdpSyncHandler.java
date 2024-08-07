@@ -5,7 +5,6 @@ import com.iliauni.idpsyncservice.model.Usergroup;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * An interface to handle synchronization of user groups in an Identity Provider (IDP) context.
@@ -21,6 +20,6 @@ public interface UsergroupIdpSyncHandler<T extends Client> {
      */
     void sync(
             T client,
-            Map<String, List<Optional<Usergroup>>> differenceMap
+            Map<String, List<Usergroup>> differenceMap
     );
 }

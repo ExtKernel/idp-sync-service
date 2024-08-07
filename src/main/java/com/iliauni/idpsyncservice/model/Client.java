@@ -1,9 +1,6 @@
 package com.iliauni.idpsyncservice.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,11 +36,17 @@ public class Client {
     @Column(name = "principal_password")
     private String principalPassword;
 
-    @ElementCollection
+    // use an EAGER FetchType to not cause multithreading problems
+    // the collection should be loaded before parallel processing starts
+    // so EntityManager won't be used in parallel
+    @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "usergroup_blacklist")
     private List<String> usergroupBlacklist;
 
-    @ElementCollection
+    // use an EAGER FetchType to not cause multithreading problems
+    // the collection should be loaded before parallel processing starts
+    // so EntityManager won't be used in parallel
+    @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "user_blacklist")
     private List<String> userBlacklist;
 

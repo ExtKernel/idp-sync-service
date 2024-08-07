@@ -4,7 +4,6 @@ import com.iliauni.idpsyncservice.model.Usergroup;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public interface UsergroupDbSyncHandler {
     /**
@@ -14,6 +13,6 @@ public interface UsergroupDbSyncHandler {
      *                     to be applied while performing synchronization.
      */
     void sync(
-            Map<String, List<Optional<Usergroup>>> differenceMap
+            Map<String, List<Usergroup>> differenceMap
     );
 }

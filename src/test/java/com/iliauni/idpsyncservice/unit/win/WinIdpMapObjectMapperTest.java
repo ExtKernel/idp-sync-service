@@ -35,7 +35,7 @@ class WinIdpMapObjectMapperTest {
 
         // Verify that the map contains the correct values
         assertEquals("testuser", userMap.get("username"));
-        assertEquals("Test", userMap.get("fistName"));
+        assertEquals("Test", userMap.get("firstName"));
         assertEquals("User", userMap.get("lastName"));
         assertEquals("password123", userMap.get("password"));
     }

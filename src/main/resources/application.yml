@@ -19,7 +19,7 @@ logging:
     level:
         org:
             springframework:
-                security: DEBUG
+                security: warn
         root: warn
 server:
     port: ${SERVER_PORT:8000}
@@ -51,3 +51,5 @@ spring:
                     client-id: idp-sync-service
                     client-secret: ${CLIENT_SECRET}
                     introspection-uri: http://${KC_BASE_URL}/realms/${KC_REALM}/protocol/openid-connect/token/introspect
+    jpa:
+        open-in-view: true

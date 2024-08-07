@@ -3,14 +3,11 @@ LABEL authors="exkernel"
 
 WORKDIR /app
 
-COPY . /app
+ARG JAR_FILE=target/*.jar
 
-RUN yum install -y wget && \
-    wget https://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo && \
-    sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo && \
-    yum install -y apache-maven && \
-    mvn package
+COPY ${JAR_FILE} /app/app.jar
+COPY ./ca.crt /app/ca.crt
 
 EXPOSE 8000
 
-CMD ["mvn", "spring-boot:run"]
+CMD ["java", "-jar", "/app/app.jar"]

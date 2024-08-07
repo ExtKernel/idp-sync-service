@@ -11,10 +11,13 @@ import com.iliauni.idpsyncservice.idp.IdpRequestBuilder;
 import com.iliauni.idpsyncservice.idp.IdpUserRequestSender;
 import com.iliauni.idpsyncservice.model.IpaClient;
 import com.iliauni.idpsyncservice.model.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -24,6 +27,7 @@ import java.util.Map;
  * A component class implementing the {@link IdpUserRequestSender} interface for sending user-related requests
  * in an Identity Provider (IDP) context specific to FreeIPA (Identity, Policy, and Audit) systems.
  */
+@Slf4j
 @Component
 public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> {
     private final IdpRequestBuilder<IpaClient> requestBuilder;
@@ -60,7 +64,7 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("method", "user_add");
         requestBody.put("params", new Object[]{
-                new Object[]{""},
+                new Object[]{user.getUsername()},
                 // the temporary fix. Map to a Hashmap instead
                 //  jsonObjectMapper.mapUserToJsonString(user)
                 mapObjectMapper.mapUserToMap(user)
@@ -103,6 +107,7 @@ public class IpaIdpUserRequestSender implements IdpUserRequestSender<IpaClient> 
         }
     }
 
+    @Cacheable("ipaUsers")
     @Override
     public JsonNode sendGetUsersRequest(IpaClient client) {
         Map<String, Object> requestBody = new HashMap<>();

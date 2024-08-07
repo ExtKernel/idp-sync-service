@@ -5,11 +5,13 @@ import com.iliauni.idpsyncservice.model.Client;
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.Usergroup;
 import com.iliauni.idpsyncservice.service.UsergroupService;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * An abstract class implementing {@link UsergroupIdpSyncHandler} for synchronizing user groups
@@ -22,6 +24,7 @@ import java.util.Optional;
  *
  * @param <T> an IDP client type. Defines synchronization specifics.
  */
+@Slf4j
 public abstract class GenericUsergroupIdpSyncHandler<T extends Client>
         implements UsergroupIdpSyncHandler<T> {
     private final UsergroupService usergroupService;
@@ -41,15 +44,15 @@ public abstract class GenericUsergroupIdpSyncHandler<T extends Client>
     @Override
     public void sync(
             T client,
-            Map<String, List<Optional<Usergroup>>> differenceMap
+            Map<String, List<Usergroup>> differenceMap
     ) {
-        buildSyncFlagsMap().forEach((key, flags) -> {
-            Boolean isNew = flags[0];
-            Boolean isAltered = flags[1];
+        buildSyncFlagsMap().forEach((entryKey, value) -> {
+            Boolean isNew = value[0];
+            Boolean isAltered = value[1];
 
             forceUsergroupChangesOnIdp(
                     client,
-                    differenceMap.getOrDefault(key, new ArrayList<>()),
+                    differenceMap.getOrDefault(entryKey, new ArrayList<>()),
                     isNew,
                     isAltered
             );
@@ -68,87 +71,138 @@ public abstract class GenericUsergroupIdpSyncHandler<T extends Client>
      */
     private void forceUsergroupChangesOnIdp(
             T client,
-            List<Optional<Usergroup>> usergroups,
+            List<Usergroup> usergroups,
             boolean isNew,
             boolean isAltered
     ) {
-        usergroups.forEach(usergroup -> {
-            usergroup.ifPresent(u -> {
-                if (isNew) {
-                    usergroupManager.createUsergroup(client, u, true);
-                } else if (isAltered) {
-                    Map<String, List<Optional<User>>> userDifferenceMap = userDifferenceCalculator
-                            .calculate(
-                            usergroupService.findById(u.getName()).getUsers(),
-                            u.getUsers()
+        List<CompletableFuture<Void>> voidFutures = new ArrayList<>();
+
+        usergroups.parallelStream().forEach(usergroup -> {
+            if (isNew) {
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                    usergroupManager.createUsergroup(
+                            client,
+                            usergroup,
+                            true
                     );
 
-                    buildSyncFlagsMap()
-                            .entrySet()
-                            .stream()
-                            // filter out "altered" as a user can't have such state
-                            .filter(entry -> !entry.getKey().equals("altered"))
-                            .forEach(entry -> {
-                                String entryKey = entry.getKey();
-                                Boolean isUserNew = entry.getValue()[0];
+                    if (!usergroup.getUsers().isEmpty()) {
+                        forceUsergroupMembersChangesOnIdp(
+                                client,
+                                usergroup,
+                                usergroup.getUsers(),
+                                true
+                        );
+                    }
+                });
 
-                                forceUsergroupMembersChangesOnIdp(
-                                        client,
-                                        Optional.of(u),
-                                        userDifferenceMap.getOrDefault(entryKey, new ArrayList<>()),
-                                        isUserNew
-                                );
-                            });
-                } else {
-                    usergroupManager.deleteUsergroup(client, u.getName(), true);
-                }
-            });
+                voidFutures.add(future);
+            } else if (isAltered) {
+                Map<String, List<User>> userDifferenceMap = userDifferenceCalculator
+                        .calculate(
+                                usergroupService.findById(usergroup.getName()).getUsers(),
+                                usergroup.getUsers()
+                        );
+
+                buildSyncFlagsMap().entrySet().stream()
+                        .filter(entry -> !entry.getKey().equals("altered"))
+                        .forEach(entry -> {
+                            String entryKey = entry.getKey();
+                            Boolean isUserNew = entry.getValue()[0];
+
+                            CompletableFuture<Void> future = CompletableFuture.runAsync(() ->
+                                    forceUsergroupMembersChangesOnIdp(
+                                            client,
+                                            usergroup,
+                                            userDifferenceMap.getOrDefault(entryKey, new ArrayList<>()),
+                                            isUserNew
+                                    )
+                            );
+                            voidFutures.add(future);
+                        });
+
+            } else {
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() ->
+                        usergroupManager.deleteUsergroup(
+                                client,
+                                usergroup.getName(),
+                                true
+                        )
+                );
+                voidFutures.add(future);
+            }
         });
+
+        try {
+            CompletableFuture.allOf(voidFutures.toArray(new CompletableFuture[0])).get();
+        } catch (InterruptedException | ExecutionException exception) {
+            log.error(
+                    "Error occurred while forcing user group changes on IDP" +
+                            " asynchronously for a client with id "
+                            + client.getId(),
+                    exception
+            );
+        }
     }
 
     /**
      * Forces(makes) the changes on an IDP client using UsergroupManager,
      * synchronizing user group members.
      *
-     * @param client a client to perform synchronization on.
-     * @param usergroup a user group to synchronize members of.
+     * @param client the client to perform synchronization on.
+     * @param usergroup the user group to synchronize members of.
      * @param users a list of users to be synchronized.
      * @param isNew if true, a user will be added to the user group as a member.
      *             If false, a member(user) will be removed from the user group.
      */
     private void forceUsergroupMembersChangesOnIdp(
             T client,
-            Optional<Usergroup> usergroup,
-            List<Optional<User>> users,
+            Usergroup usergroup,
+            List<User> users,
             boolean isNew
     ) {
-        usergroup.ifPresent(group -> {
-            users.forEach(user -> {
-                user.ifPresent(u -> {
-                    if (isNew) {
+        List<CompletableFuture<Void>> voidFutures = new ArrayList<>();
+
+        users.forEach(user -> {
+            if (isNew) {
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() ->
                         usergroupManager.addUsergroupMember(
                                 client,
-                                group.getName(),
-                                u.getUsername(),
+                                usergroup.getName(),
+                                user.getUsername(),
                                 true
-                        );
-                    } else {
+                        )
+                );
+                voidFutures.add(future);
+            } else {
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() ->
                         usergroupManager.removeUsergroupMember(
                                 client,
-                                group.getName(),
-                                u.getUsername(),
+                                usergroup.getName(),
+                                user.getUsername(),
                                 true
-                        );
-                    }
-                });
-            });
+                        )
+                );
+                voidFutures.add(future);
+            }
         });
+
+        try {
+            CompletableFuture.allOf(voidFutures.toArray(new CompletableFuture[0])).get();
+        } catch (InterruptedException | ExecutionException exception) {
+            log.error(
+                    "Error occurred while forcing user group member changes on IDP" +
+                            " asynchronously for a client with id "
+                            + client.getId(),
+                    exception
+            );
+        }
     }
 
     /**
      * Builds a map containing boolean representations of flags,
      * which are supposed to be passed to synchronization methods.
-     * Such as: "new", "altered", "missing", etc.
+     * Such as "new", "altered", "missing", etc.
      * The keys are meant to match the keys of difference map, generated by DifferenceCalculator.
      * This exists for the sake of reducing boilerplate and adding some scalability.
      *

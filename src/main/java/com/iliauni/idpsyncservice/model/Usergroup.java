@@ -47,11 +47,11 @@ public class Usergroup implements Serializable {
                     )
             }
     )
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE
     })
-    @Column(name = "users", nullable = true)
+    @Column(name = "users")
     @ToString.Exclude
     private List<User> users;
 

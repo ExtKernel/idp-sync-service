@@ -7,6 +7,7 @@ import com.iliauni.idpsyncservice.model.AccessToken;
 import com.iliauni.idpsyncservice.model.RefreshToken;
 import com.iliauni.idpsyncservice.model.WinClient;
 import com.iliauni.idpsyncservice.repository.WinClientRepository;
+import com.iliauni.idpsyncservice.service.CacheService;
 import com.iliauni.idpsyncservice.service.RefreshTokenService;
 import com.iliauni.idpsyncservice.service.WinClientService;
 import com.iliauni.idpsyncservice.token.TokenManager;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.*;
 
 class WinClientServiceTest {
     private WinClientRepository repository;
+    private CacheService cacheService;
     private RefreshTokenService<WinClient> refreshTokenService;
     private TokenManager<WinClient> tokenManager;
     private WinClientService service;
@@ -35,7 +37,7 @@ class WinClientServiceTest {
         repository = Mockito.mock(WinClientRepository.class);
         refreshTokenService = Mockito.mock(RefreshTokenService.class);
         tokenManager = Mockito.mock(TokenManager.class);
-        service = new WinClientService(repository, refreshTokenService, tokenManager);
+        service = new WinClientService(repository, cacheService, refreshTokenService, tokenManager);
     }
 
     @Test

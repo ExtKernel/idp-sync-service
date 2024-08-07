@@ -7,6 +7,7 @@ import com.iliauni.idpsyncservice.model.AccessToken;
 import com.iliauni.idpsyncservice.model.RefreshToken;
 import com.iliauni.idpsyncservice.model.SyncKcClient;
 import com.iliauni.idpsyncservice.repository.SyncKcClientRepository;
+import com.iliauni.idpsyncservice.service.CacheService;
 import com.iliauni.idpsyncservice.service.RefreshTokenService;
 import com.iliauni.idpsyncservice.service.SyncKcClientService;
 import com.iliauni.idpsyncservice.token.TokenManager;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.*;
 
 class SyncKcClientServiceTest {
     private SyncKcClientRepository repository;
+    private CacheService cacheService;
     private RefreshTokenService<SyncKcClient> refreshTokenService;
     private TokenManager<SyncKcClient> tokenManager;
     private SyncKcClientService service;
@@ -35,7 +37,7 @@ class SyncKcClientServiceTest {
         repository = Mockito.mock(SyncKcClientRepository.class);
         refreshTokenService = Mockito.mock(RefreshTokenService.class);
         tokenManager = Mockito.mock(TokenManager.class);
-        service = new SyncKcClientService(repository, refreshTokenService, tokenManager);
+        service = new SyncKcClientService(repository, cacheService, refreshTokenService, tokenManager);
     }
 
     @Test

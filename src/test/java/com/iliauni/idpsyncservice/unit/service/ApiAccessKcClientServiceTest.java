@@ -8,6 +8,7 @@ import com.iliauni.idpsyncservice.model.ApiAccessKcClient;
 import com.iliauni.idpsyncservice.model.RefreshToken;
 import com.iliauni.idpsyncservice.repository.ApiAccessKcClientRepository;
 import com.iliauni.idpsyncservice.service.ApiAccessKcClientService;
+import com.iliauni.idpsyncservice.service.CacheService;
 import com.iliauni.idpsyncservice.service.RefreshTokenService;
 import com.iliauni.idpsyncservice.token.TokenManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.*;
 
 class ApiAccessKcClientServiceTest {
     private ApiAccessKcClientRepository repository;
+    private CacheService cacheService;
     private RefreshTokenService<ApiAccessKcClient> refreshTokenService;
     private TokenManager<ApiAccessKcClient> tokenManager;
     private ApiAccessKcClientService service;
@@ -35,7 +37,12 @@ class ApiAccessKcClientServiceTest {
         repository = Mockito.mock(ApiAccessKcClientRepository.class);
         refreshTokenService = Mockito.mock(RefreshTokenService.class);
         tokenManager = Mockito.mock(TokenManager.class);
-        service = new ApiAccessKcClientService(repository, refreshTokenService, tokenManager);
+        service = new ApiAccessKcClientService(
+                repository,
+                cacheService,
+                refreshTokenService,
+                tokenManager
+        );
     }
 
     @Test
@@ -147,14 +154,28 @@ class ApiAccessKcClientServiceTest {
 
         when(repository.save(client)).thenReturn(client);
         when(repository.findById(clientId)).thenReturn(Optional.of(client));
-        when(refreshTokenService.generateAndSave(any(), eq(tokenEndpointUrl), eq(tokenManager))).thenReturn(refreshToken);
-        when(tokenManager.getAccessToken(client, tokenEndpointUrl, refreshToken)).thenReturn(accessToken);
+        when(refreshTokenService.generateAndSave(
+                any(),
+                eq(tokenEndpointUrl),
+                eq(tokenManager)
+        )).thenReturn(refreshToken);
+        when(tokenManager.getAccessToken(
+                client,
+                tokenEndpointUrl,
+                refreshToken
+        )).thenReturn(accessToken);
 
         // when
-        AccessToken result = service.generateAccessToken(clientId, tokenEndpointUrl);
+        AccessToken result = service.generateAccessToken(
+                clientId,
+                tokenEndpointUrl
+        );
 
         // should
-        assertEquals(accessToken, result);
+        assertEquals(
+                accessToken,
+                result
+        );
     }
 
     @Test
@@ -171,10 +192,16 @@ class ApiAccessKcClientServiceTest {
         when(repository.findById(clientId)).thenReturn(Optional.of(client));
 
         // when
-        RefreshToken result = service.getRefreshToken(clientId, tokenEndpointUrl);
+        RefreshToken result = service.getRefreshToken(
+                clientId,
+                tokenEndpointUrl
+        );
 
         // should
-        assertEquals(refreshToken, result);
+        assertEquals(
+                refreshToken,
+                result
+        );
     }
 
     @Test
@@ -188,14 +215,28 @@ class ApiAccessKcClientServiceTest {
 
         when(repository.save(client)).thenReturn(client);
         when(repository.findById(clientId)).thenReturn(Optional.of(client));
-        when(refreshTokenService.generateAndSave(any(), eq(tokenEndpointUrl), eq(tokenManager))).thenReturn(refreshToken);
+        when(refreshTokenService.generateAndSave(
+                any(),
+                eq(tokenEndpointUrl),
+                eq(tokenManager)
+        )).thenReturn(refreshToken);
 
         // when
-        RefreshToken result = service.getRefreshToken(clientId, tokenEndpointUrl);
+        RefreshToken result = service.getRefreshToken(
+                clientId,
+                tokenEndpointUrl
+        );
 
         // should
-        assertEquals(refreshToken, result);
-        verify(refreshTokenService, times(1)).generateAndSave(any(), eq(tokenEndpointUrl), eq(tokenManager));
+        assertEquals(
+                refreshToken,
+                result
+        );
+        verify(refreshTokenService, times(1)).generateAndSave(
+                any(),
+                eq(tokenEndpointUrl),
+                eq(tokenManager)
+        );
     }
 
     @Test
@@ -213,14 +254,25 @@ class ApiAccessKcClientServiceTest {
         when(repository.save(client)).thenReturn(client);
         when(repository.findById(clientId)).thenReturn(Optional.of(client));
         RefreshToken newRefreshToken = new RefreshToken();
-        when(refreshTokenService.generateAndSave(any(), eq(tokenEndpointUrl), eq(tokenManager))).thenReturn(newRefreshToken);
+        when(refreshTokenService.generateAndSave(
+                any(),
+                eq(tokenEndpointUrl),
+                eq(tokenManager)
+        )).thenReturn(newRefreshToken);
 
         // when
-        RefreshToken result = service.getRefreshToken(clientId, tokenEndpointUrl);
+        RefreshToken result = service.getRefreshToken(
+                clientId,
+                tokenEndpointUrl
+        );
 
         // should
         assertEquals(newRefreshToken, result);
-        verify(refreshTokenService, times(1)).generateAndSave(any(), eq(tokenEndpointUrl), eq(tokenManager));
+        verify(refreshTokenService, times(1)).generateAndSave(
+                any(),
+                eq(tokenEndpointUrl),
+                eq(tokenManager)
+        );
     }
 
     @Test

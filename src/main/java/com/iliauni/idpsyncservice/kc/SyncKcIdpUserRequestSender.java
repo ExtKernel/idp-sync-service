@@ -14,6 +14,7 @@ import com.iliauni.idpsyncservice.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -111,6 +112,7 @@ public class SyncKcIdpUserRequestSender implements IdpUserRequestSender<SyncKcCl
         }
     }
 
+    @Cacheable("syncKcUsers")
     @Override
     public JsonNode sendGetUsersRequest(SyncKcClient client) {
         try {

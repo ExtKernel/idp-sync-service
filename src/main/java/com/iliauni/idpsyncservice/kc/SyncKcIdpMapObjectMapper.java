@@ -18,10 +18,22 @@ public class SyncKcIdpMapObjectMapper implements IdpMapObjectMapper {
     public Map<String, Object> mapUserToMap(User user) {
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("username", user.getUsername());
-        userMap.put("firstName", user.getFirstname());
-        userMap.put("lastName", user.getLastname());
-        userMap.put("email", user.getEmail());
-        userMap.put("credentials", buildUserCredentialsMap(user.getPassword()));
+
+        // add user's first name, if not null
+        String firstName = user.getFirstname();
+        if (firstName != null) userMap.put("firstName", user.getFirstname());
+
+        // add user's last name, if not null
+        String lastName = user.getLastname();
+        if (lastName != null) userMap.put("lastName", user.getLastname());
+
+        // add user's email, if not null
+        String email = user.getEmail();
+        if (email != null) userMap.put("email", user.getEmail());
+
+        // add user's password, if not null
+        String password = user.getPassword();
+        if (password != null) userMap.put("credentials", buildUserCredentialsMap(user.getPassword()));
 
         return userMap;
     }
