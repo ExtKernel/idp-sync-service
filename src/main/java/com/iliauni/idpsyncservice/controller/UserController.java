@@ -38,6 +38,17 @@ public class UserController {
         return service.update(Optional.ofNullable(user));
     }
 
+    @PatchMapping("/{username}")
+    public String updatePassword(
+            @PathVariable String username,
+            @RequestParam String newPassword
+    ) {
+        return service.updatePassword(
+                username,
+                newPassword
+        );
+    }
+
     @DeleteMapping("/{username}")
     public void delete(@PathVariable String username) {
         service.deleteById(username);

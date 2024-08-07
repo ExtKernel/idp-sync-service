@@ -12,4 +12,13 @@ public class UserService extends GenericCrudService<User, String>{
     public UserService(UserRepository repository) {
         super(repository);
     }
+
+    public String updatePassword(
+            String userId,
+            String newPassword
+    ) {
+        findById(userId).setPassword(newPassword);
+
+        return newPassword;
+    }
 }
