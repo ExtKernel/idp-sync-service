@@ -7,14 +7,18 @@ import com.iliauni.idpsyncservice.model.Client;
 import com.iliauni.idpsyncservice.model.IdpClient;
 import com.iliauni.idpsyncservice.model.IdpClientFactory;
 import com.iliauni.idpsyncservice.model.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
+@Slf4j
 @Service
 public class UserSyncService implements SyncService<User> {
 
@@ -36,6 +40,22 @@ public class UserSyncService implements SyncService<User> {
         this.idpClientFactory = idpClientFactory;
     }
 
+    public <T extends Client> void syncPasswordWithAllIdps(
+            IdpClient idpClient,
+            Client client,
+            String username,
+            String newPassword
+    ) {
+        @SuppressWarnings("unchecked")
+        T typedClient = (T) client;
+        idpClient.getUserManager().updateUserPassword(
+                typedClient,
+                username,
+                newPassword,
+                true
+        );
+    }
+
     @Override
     public void sync(List<User> users) {
         List<User> dbUsers = getDbUsers();
@@ -44,8 +64,17 @@ public class UserSyncService implements SyncService<User> {
                 users
         );
 
-        CompletableFuture<Void> idpSyncFuture = syncUsersWithAllIdps(differenceMap);
-        idpSyncFuture.join();
+        try {
+            // wait for all futures to complete
+            syncUsersWithAllIdps(differenceMap).join();
+        } catch (CancellationException | CompletionException exception) {
+            log.error(
+                    "An error occurred while synchronizing users with all IDPs",
+                    exception
+            );
+            throw exception;
+        }
+
 
         userDbSyncHandler.sync(differenceMap);
     }
@@ -73,7 +102,8 @@ public class UserSyncService implements SyncService<User> {
     private <T extends Client> void syncUsersForClient(
             IdpClient<T> idpClient,
             Client client,
-            Map<String, List<User>> differenceMap) {
+            Map<String, List<User>> differenceMap
+    ) {
         @SuppressWarnings("unchecked")
         T typedClient = (T) client;
         idpClient.getUserSyncHandler().sync(
@@ -102,7 +132,8 @@ public class UserSyncService implements SyncService<User> {
 
     private <T extends Client> void syncUsersFromClient(
             IdpClient<T> idpClient,
-            Client client) {
+            Client client
+    ) {
         @SuppressWarnings("unchecked")
         T typedClient = (T) client;
         sync(idpClient.getUserManager().getUsers(typedClient));

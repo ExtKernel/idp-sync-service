@@ -10,8 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CompletionException;
 
 /**
  * An abstract class implementing {@link UsergroupIdpSyncHandler} for synchronizing user groups
@@ -134,14 +135,16 @@ public abstract class GenericUsergroupIdpSyncHandler<T extends Client>
         });
 
         try {
-            CompletableFuture.allOf(voidFutures.toArray(new CompletableFuture[0])).get();
-        } catch (InterruptedException | ExecutionException exception) {
+            // wait for all futures to complete
+            CompletableFuture.allOf(voidFutures.toArray(new CompletableFuture[0])).join();
+        } catch (CancellationException | CompletionException exception) {
             log.error(
                     "Error occurred while forcing user group changes on IDP" +
                             " asynchronously for a client with id "
                             + client.getId(),
                     exception
             );
+            throw exception;
         }
     }
 
@@ -188,14 +191,16 @@ public abstract class GenericUsergroupIdpSyncHandler<T extends Client>
         });
 
         try {
-            CompletableFuture.allOf(voidFutures.toArray(new CompletableFuture[0])).get();
-        } catch (InterruptedException | ExecutionException exception) {
+            // wait for all futures to complete
+            CompletableFuture.allOf(voidFutures.toArray(new CompletableFuture[0])).join();
+        } catch (CancellationException | CompletionException exception) {
             log.error(
                     "Error occurred while forcing user group member changes on IDP" +
                             " asynchronously for a client with id "
                             + client.getId(),
                     exception
             );
+            throw exception;
         }
     }
 

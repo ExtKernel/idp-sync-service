@@ -7,14 +7,18 @@ import com.iliauni.idpsyncservice.model.Client;
 import com.iliauni.idpsyncservice.model.IdpClient;
 import com.iliauni.idpsyncservice.model.IdpClientFactory;
 import com.iliauni.idpsyncservice.model.Usergroup;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
+@Slf4j
 @Service
 public class UsergroupSyncService implements SyncService<Usergroup> {
     private final UsergroupService usergroupService;
@@ -42,8 +46,16 @@ public class UsergroupSyncService implements SyncService<Usergroup> {
                 usergroups
         );
 
-        CompletableFuture<Void> idpSyncFuture = syncUsergroupsWithAllIdps(differenceMap);
-        idpSyncFuture.join();
+        try {
+            // wait for all futures to complete
+            syncUsergroupsWithAllIdps(differenceMap).join();
+        } catch (CancellationException | CompletionException exception) {
+            log.error(
+                    "An error occurred while synchronizing user groups with all IDPs asynchronously",
+                    exception
+            );
+            throw exception;
+        }
 
         usergroupDbSyncHandler.sync(differenceMap);
     }

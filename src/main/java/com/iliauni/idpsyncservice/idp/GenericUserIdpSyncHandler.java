@@ -2,11 +2,14 @@ package com.iliauni.idpsyncservice.idp;
 
 import com.iliauni.idpsyncservice.model.Client;
 import com.iliauni.idpsyncservice.model.User;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 /**
  * An abstract class implementing {@link UserIdpSyncHandler} for synchronizing users
@@ -19,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @param <T> an IDP client type. Defines synchronization specifics.
  */
+@Slf4j
 public abstract class GenericUserIdpSyncHandler<T extends Client> implements UserIdpSyncHandler<T> {
     private final IdpUserManager<T> userManager;
 
@@ -75,8 +79,19 @@ public abstract class GenericUserIdpSyncHandler<T extends Client> implements Use
             }
         });
 
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        CompletableFuture.allOf(voidFutures.toArray(new CompletableFuture[0])).join();
+        try {
+            // wait for all futures to complete
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            CompletableFuture.allOf(voidFutures.toArray(new CompletableFuture[0])).join();
+        } catch (CancellationException | CompletionException exception) {
+            log.error(
+                    "Error occurred while forcing user changes on IDP" +
+                            " asynchronously for a client with id "
+                            + client.getId(),
+                    exception
+            );
+            throw exception;
+        }
     }
 
     /**

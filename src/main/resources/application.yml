@@ -46,10 +46,10 @@ spring:
         oauth2:
             resourceserver:
                 jwt:
-                    issuer-uri: http://${KC_BASE_URL}/realms/${KC_REALM}
+                    issuer-uri: ${OAUTH2_PROVIDER_ISSUER_URL}
                 opaquetoken:
-                    client-id: idp-sync-service
-                    client-secret: ${CLIENT_SECRET}
-                    introspection-uri: http://${KC_BASE_URL}/realms/${KC_REALM}/protocol/openid-connect/token/introspect
+                    client-id: ${OAUTH2_PROVIDER_CLIENT_ID}
+                    client-secret: ${OAUTH2_PROVIDER_CLIENT_SECRET}
+                    introspection-uri: ${OAUTH2_PROVIDER_INTROSPECTION_URL}
     jpa:
         open-in-view: true

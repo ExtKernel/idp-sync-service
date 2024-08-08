@@ -13,7 +13,9 @@ import com.iliauni.idpsyncservice.service.UsergroupService;
 import com.iliauni.idpsyncservice.service.UsergroupSyncService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.HashMap;
