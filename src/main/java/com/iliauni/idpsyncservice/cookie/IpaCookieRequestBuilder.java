@@ -1,4 +1,4 @@
-package com.iliauni.idpsyncservice.cookiejar;
+package com.iliauni.idpsyncservice.cookie;
 
 import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.exception.RestTemplateResponseErrorHandler;
@@ -37,12 +37,12 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 
 /**
- * A component class implementing the {@link CookieJarRequestBuilder} interface for building HTTP request entities and API base URLs specific to FreeIPA cookie jar systems.
+ * A component class implementing the {@link CookieRequestBuilder} interface for building HTTP request entities and API base URLs specific to FreeIPA cookie jar systems.
  *
  * @param <T> a type of FreeIPA client used for the request
  */
 @Component
-public class IpaCookieJarRequestBuilder<T extends IpaClient> implements CookieJarRequestBuilder<T> {
+public class IpaCookieRequestBuilder<T extends IpaClient> implements CookieRequestBuilder<T> {
 
     /**
      * @inheritDoc

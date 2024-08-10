@@ -1,4 +1,4 @@
-package com.iliauni.idpsyncservice.cookiejar;
+package com.iliauni.idpsyncservice.cookie;
 
 import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.model.IpaClient;
@@ -11,22 +11,22 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
- * A component class implementing the {@link CookieJarRequestSender} interface for sending requests to obtain cookies from the FreeIPA IDP system.
+ * A component class implementing the {@link CookieRequestSender} interface for sending requests to obtain cookies from the FreeIPA IDP system.
  *
  * @param <T> the type of FreeIPA client used for the request
  */
 @Component
-public class IpaCookieJarRequestSender<T extends IpaClient> implements CookieJarRequestSender<T> {
-    private final CookieJarRequestBuilder<T> requestBuilder;
+public class IpaCookieRequestSender<T extends IpaClient> implements CookieRequestSender<T> {
+    private final CookieRequestBuilder<T> requestBuilder;
 
     /**
-     * Constructs an {@code IpaCookieJarRequestSender} instance with the specified {@link CookieJarRequestBuilder}.
+     * Constructs an {@code IpaCookieJarRequestSender} instance with the specified {@link CookieRequestBuilder}.
      *
      * @param requestBuilder the request builder for obtaining cookies
      */
     @Autowired
-    public IpaCookieJarRequestSender(
-            CookieJarRequestBuilder<T> requestBuilder
+    public IpaCookieRequestSender(
+            CookieRequestBuilder<T> requestBuilder
     ) {
         this.requestBuilder = requestBuilder;
     }

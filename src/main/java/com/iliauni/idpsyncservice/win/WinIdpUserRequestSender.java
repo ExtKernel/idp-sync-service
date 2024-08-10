@@ -139,7 +139,7 @@ public class WinIdpUserRequestSender implements IdpUserRequestSender<WinClient> 
                 requestBuilder.buildRequestUrl(
                         client,
                         "http",
-                        "/users/update-password/" + username
+                        "/users/update-password/" + username + "/"
                 ),
                 HttpMethod.PATCH,
                 requestBuilder.buildHttpRequestEntity(

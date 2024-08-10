@@ -41,12 +41,26 @@ public class UserController {
     @PatchMapping("/{username}")
     public String updatePassword(
             @PathVariable String username,
-            @RequestParam String newPassword
+            @RequestParam String newPassword,
+            @RequestParam(required = false) boolean sync,
+            @RequestParam(required = false) boolean mail
     ) {
-        return service.updatePassword(
-                username,
-                newPassword
-        );
+        if (sync && mail) {
+            return null; // create a method for that
+        } else if (sync) {
+            return service.updatePassword(
+                    username,
+                    newPassword,
+                    sync
+            );
+        } else if (mail) {
+            return null; // create a method for that
+        } else {
+            return service.updatePassword(
+                    username,
+                    newPassword
+            );
+        }
     }
 
     @DeleteMapping("/{username}")

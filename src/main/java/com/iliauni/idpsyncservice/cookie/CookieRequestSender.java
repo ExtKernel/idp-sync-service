@@ -1,4 +1,4 @@
-package com.iliauni.idpsyncservice.cookiejar;
+package com.iliauni.idpsyncservice.cookie;
 
 import com.iliauni.idpsyncservice.model.IpaClient;
 
@@ -7,7 +7,7 @@ import com.iliauni.idpsyncservice.model.IpaClient;
  *
  * @param <T> the type of client used for the request
  */
-public interface CookieJarRequestSender<T extends IpaClient> {
+public interface CookieRequestSender<T extends IpaClient> {
 
     /**
      * Retrieves a cookie token for the specified client.

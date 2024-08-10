@@ -7,10 +7,12 @@ import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -25,8 +27,8 @@ public class UserService extends GenericCrudService<User, String>{
     @Autowired
     public UserService(
             UserRepository repository,
-            IdpClientFactory idpClientFactory,
-            UserSyncService userSyncService
+            @Lazy IdpClientFactory idpClientFactory,
+            @Lazy UserSyncService userSyncService
     ) {
         super(repository);
         this.idpClientFactory = idpClientFactory;
@@ -40,32 +42,47 @@ public class UserService extends GenericCrudService<User, String>{
         User user = findById(userId);
         user.setPassword(newPassword);
 
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        super.update(Optional.of(user));
+        return newPassword;
+    }
 
-        for (IdpClient<? extends Client> idpClient : idpClientFactory.getAllClients()) {
-            for (Client client : idpClient.getClients()) {
-                futures.add(CompletableFuture.runAsync(() -> {
-                    userSyncService.syncPasswordWithAllIdps(
-                            idpClient,
-                            client,
-                            user.getUsername(),
-                            newPassword
-                    );
-                }));
+    public String updatePassword(
+            String userId,
+            String newPassword,
+            boolean sync
+    ) {
+        User user = findById(userId);
+        user.setPassword(newPassword);
+
+        if (sync) {
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+            for (IdpClient<? extends Client> idpClient : idpClientFactory.getAllClients()) {
+                for (Client client : idpClient.getClients()) {
+                    futures.add(CompletableFuture.runAsync(() -> {
+                        userSyncService.syncPasswordWithAllIdps(
+                                idpClient,
+                                client,
+                                user.getUsername(),
+                                newPassword
+                        );
+                    }));
+                }
+            }
+
+            try {
+                // Wait for all futures to complete
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            } catch (CancellationException | CompletionException exception) {
+                log.error(
+                        "An error occurred while updating the password on IDPs asynchronously",
+                        exception
+                );
+                throw exception;
             }
         }
 
-        try {
-            // Wait for all futures to complete
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        } catch (CancellationException | CompletionException exception) {
-            log.error(
-                    "An error occurred while updating the password on IDPs asynchronously",
-                    exception
-            );
-            throw exception;
-        }
-
+        super.update(Optional.of(user));
         return newPassword;
     }
 }

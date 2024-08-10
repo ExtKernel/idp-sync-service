@@ -1,6 +1,6 @@
 package com.iliauni.idpsyncservice.service;
 
-import com.iliauni.idpsyncservice.cookiejar.IpaCookieJarRetriever;
+import com.iliauni.idpsyncservice.cookie.IpaCookieRetriever;
 import com.iliauni.idpsyncservice.exception.CookieJarIsNullException;
 import com.iliauni.idpsyncservice.model.Cookie;
 import com.iliauni.idpsyncservice.model.IpaClient;
@@ -14,11 +14,11 @@ import java.util.Optional;
 @Service
 public class CookieService<T extends IpaClient> extends GenericCrudService<Cookie, Long> {
     CookieRepository repository;
-    IpaCookieJarRetriever<T> cookieJarRetriever;
+    IpaCookieRetriever<T> cookieJarRetriever;
 
 
     @Autowired
-    public CookieService(CookieRepository repository, IpaCookieJarRetriever<T> cookieJarRetriever) {
+    public CookieService(CookieRepository repository, IpaCookieRetriever<T> cookieJarRetriever) {
         super(repository);
         this.repository = repository;
         this.cookieJarRetriever = cookieJarRetriever;

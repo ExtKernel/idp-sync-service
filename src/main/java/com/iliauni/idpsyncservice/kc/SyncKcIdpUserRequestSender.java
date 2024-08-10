@@ -112,7 +112,7 @@ public class SyncKcIdpUserRequestSender implements IdpUserRequestSender<SyncKcCl
         }
     }
 
-    @Cacheable("syncKcUsers")
+    @Cacheable("synckcUsers")
     @Override
     public JsonNode sendGetUsersRequest(SyncKcClient client) {
         try {

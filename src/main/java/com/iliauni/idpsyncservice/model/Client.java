@@ -21,6 +21,10 @@ public class Client {
     @Column(name = "id")
     private String id;
 
+    @NotNull
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "fqdn")
     private String fqdn;
 

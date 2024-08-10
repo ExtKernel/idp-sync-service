@@ -1,4 +1,4 @@
-package com.iliauni.idpsyncservice.cookiejar;
+package com.iliauni.idpsyncservice.cookie;
 
 import com.iliauni.idpsyncservice.model.IpaClient;
 import org.springframework.http.HttpEntity;
@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
  *
  * @param <T> the type of client used for the request
  */
-public interface CookieJarRequestBuilder<T extends IpaClient> {
+public interface CookieRequestBuilder<T extends IpaClient> {
 
     /**
      * Builds an HTTP request entity for the given client.

@@ -17,8 +17,11 @@ public class SyncKcIdpMapObjectMapper implements IdpMapObjectMapper {
     @Override
     public Map<String, Object> mapUserToMap(User user) {
         Map<String, Object> userMap = new HashMap<>();
+        // add the necessary fields
         userMap.put("username", user.getUsername());
+        userMap.put("enabled", true);
 
+        // add optional fields
         // add user's first name, if not null
         String firstName = user.getFirstname();
         if (firstName != null) userMap.put("firstName", user.getFirstname());

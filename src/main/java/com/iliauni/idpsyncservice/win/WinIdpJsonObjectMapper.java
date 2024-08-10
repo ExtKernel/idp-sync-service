@@ -58,7 +58,11 @@ public class WinIdpJsonObjectMapper implements IdpJsonObjectMapper {
 
     @Override
     public String buildCredentialsRepresentation(String password) {
-        return password;
+        try {
+            return objectMapper.writeValueAsString(mapObjectMapper.buildUserCredentialsMap(password));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

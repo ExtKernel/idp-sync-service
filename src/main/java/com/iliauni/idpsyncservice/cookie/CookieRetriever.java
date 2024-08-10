@@ -1,11 +1,11 @@
-package com.iliauni.idpsyncservice.cookiejar;
+package com.iliauni.idpsyncservice.cookie;
 
 /**
  * An interface for retrieving a cookie jar for a given client.
  *
  * @param <T> the type of client for which the cookie jar is retrieved
  */
-public interface CookieJarRetriever<T> {
+public interface CookieRetriever<T> {
 
     /**
      * Retrieves the cookie jar for the specified client.

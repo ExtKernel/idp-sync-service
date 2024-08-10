@@ -13,14 +13,9 @@ import java.util.concurrent.CompletionException;
 
 /**
  * An abstract class implementing {@link UserIdpSyncHandler} for synchronizing users
- * in an Identity Provider (IDP) context.
- * The class itself is abstract because it can't operate without a specific client type
- * due to the issue of autowiring generic classes.
- * A client type is supposed to be specified concretely while inheriting!!!
- * Do not use a <T extend SomeClass> or any other generic format,
- * while inheriting as a non-abstract class. There's just no point in doing that.
+ * in the Identity Provider (IDP) context.
  *
- * @param <T> an IDP client type. Defines synchronization specifics.
+ * @param <T> the IDP client type. Defines synchronization specifics.
  */
 @Slf4j
 public abstract class GenericUserIdpSyncHandler<T extends Client> implements UserIdpSyncHandler<T> {

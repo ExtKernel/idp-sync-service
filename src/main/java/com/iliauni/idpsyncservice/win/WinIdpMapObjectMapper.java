@@ -42,7 +42,7 @@ public class WinIdpMapObjectMapper implements IdpMapObjectMapper {
     @Override
     public Map<String, Object> buildUserCredentialsMap(String password) {
         Map<String, Object> credentials = new HashMap<>();
-        credentials.put("value", password);
+        credentials.put("password", password);
 
         return credentials;
     }
