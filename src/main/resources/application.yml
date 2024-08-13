@@ -14,7 +14,7 @@ principalRoleName: ${PRINCIPAL_ROLE_NAME:administrator}
 eureka:
     client:
         serviceUrl:
-            defaultZone: ${EUREKA_URI}
+            defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
 logging:
     level:
         org:
@@ -34,7 +34,7 @@ spring:
     datasource:
         driver-class-name: org.postgresql.Driver
         password: ${DATASOURCE_PASSWORD}
-        url: jdbc:postgresql://${DATASOURCE_URI}/${DATASOURCE_NAME}
+        url: jdbc:postgresql://${DATASOURCE_HOST}/${DATASOURCE_NAME}
         username: ${DATASOURCE_USERNAME}
     devtools:
         livereload:

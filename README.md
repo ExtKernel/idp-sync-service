@@ -192,6 +192,33 @@ Endpoints:
 - `/secured/sync/groups` - expects an array of **user groups**
 - `/secured/sync/users` - expects an array of **users**
 
+# Configuration:
+This section describes the environment variables used by the Java application.
+These variables are injected into the code to configure various aspects of the application.
+
+### General
+- `EUREKA_URI` - the full URL of the Eureka server. This variable has a default value: `http://localhost:8761/eureka`. But very likely will be required to be changed depending on your specific setup
+- `SERVER_PORT`- the server port. This variable has a default value: `8000`
+
+### Database
+The database must be PostgreSQL.
+- `DATASOURCE_HOST` - the URL of the server where the database is hosted
+- `DATASOURCE_NAME` - the name of the database
+- `DATASOURCE_USERNAME` - The username that has the necessary permissions to access and interact with the database
+- `DATASOURCE_PASSWORD` - the password of the user
+
+### Oauth2
+- `OAUTH2_PROVIDER_ISSUER_URL` - the `issuer URL` of your OAuth2 provider server
+- `OAUTH2_PROVIDER_CLIENT_ID` - the `client ID` associated with this application's client on the OAuth2 provider server
+- `OAUTH2_PROVIDER_CLIENT_SECRET` - the client `client secret` associated with this application's client on the OAuth2 provider server
+- `OAUTH2_PROVIDER_INTROSPECTION_URL` - the `token introspection URL` of your OAuth2 provider server
+
+### Clients
+- `IPA_API_ENDPOINT` - the main endpoint of the FreeIPA's JSON API. Has a default value: `/ipa/session/json`
+- `IPA_API_AUTH_ENDPOINT` - the endpoint for FreeIPA's API authentication. Has a default value: `/ipa/session/login_password`
+- `KC_ADMIN_CLI_CLIENT_ID` - the name of Keycloak's (KC) `admin-cli` client. Change only if that changes with a new Keycloak update, which is very unlikely. Has a default value: `admin-cli`
+- `PRINCIPAL_ROLE_NAME` - the role that the OAuth2 user should have to access `secured` endpoints. Has a default value: `administrator`
+
 ## Deprecated!
 ### Development moves
 This service will be developed
