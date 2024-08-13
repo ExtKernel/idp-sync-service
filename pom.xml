@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.iliauni</groupId>
-    <artifactId>user-sync-global-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>user-synchronizitat-global-service</name>
-    <description>user-synchronizitat-global-service</description>
+    <artifactId>idp-sync-service</artifactId>
+    <version>1.0</version>
+    <name>idp-sync-service</name>
+    <description>A Java-based microservice for managing and synchronizing user identities across multiple systems</description>
     <properties>
         <java.version>17</java.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>

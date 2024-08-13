@@ -1,5 +1,11 @@
+# Identity Provider Synchronization Service
+A Java-based microservice for managing and synchronizing user identities across multiple systems including Keycloak, Windows, and FreeIPA.
+
 ## Endpoints
-Every `/secured` endpoint requires an Oauth2 Bearer token.
+Every `/secured` endpoint requires an Oauth2 Bearer token
+that contains the role specified in the `PRINCIPAL_ROLE_NAME` environment variable.
+See the configuration documentation under the **Configuration** section.
+
 # Client
 ## Base client
 Base endpoint that should be added before every following client endpoint: `/secured/client`.
@@ -208,6 +214,7 @@ The database must be PostgreSQL.
 - `DATASOURCE_PASSWORD` - the password of the user
 
 ### Oauth2
+- `PRINCIPAL_ROLE_NAME` - the role that the OAuth2 user should have to access `secured` endpoints. Has a default value: `administrator`. **Note that** the token used to access this app should contain the role 
 - `OAUTH2_PROVIDER_ISSUER_URL` - the `issuer URL` of your OAuth2 provider server
 - `OAUTH2_PROVIDER_CLIENT_ID` - the `client ID` associated with this application's client on the OAuth2 provider server
 - `OAUTH2_PROVIDER_CLIENT_SECRET` - the client `client secret` associated with this application's client on the OAuth2 provider server
@@ -216,8 +223,88 @@ The database must be PostgreSQL.
 ### Clients
 - `IPA_API_ENDPOINT` - the main endpoint of the FreeIPA's JSON API. Has a default value: `/ipa/session/json`
 - `IPA_API_AUTH_ENDPOINT` - the endpoint for FreeIPA's API authentication. Has a default value: `/ipa/session/login_password`
+
+You can visit the [FreeIPA's documentation](https://freeipa.readthedocs.io/en/latest/api/jsonrpc_usage.html) to see if something has changed.
+
 - `KC_ADMIN_CLI_CLIENT_ID` - the name of Keycloak's (KC) `admin-cli` client. Change only if that changes with a new Keycloak update, which is very unlikely. Has a default value: `admin-cli`
-- `PRINCIPAL_ROLE_NAME` - the role that the OAuth2 user should have to access `secured` endpoints. Has a default value: `administrator`
+
+You can visit the [Keycloak's documentation](https://www.keycloak.org/docs/latest/server_admin/) to see if something has changed.
+
+# Usage
+## Java jar
+1) Clone the repository:
+    ```bash
+      git clone https://github.com/ExtKernel/idp-sync-service
+    ```
+2) Navigate to the directory:
+    ```bash
+      cd idp-sync-service
+    ```
+3) Run:
+    ```bash
+      mvn package    
+    ```
+4) Run the .jar file:
+    ```bash
+      java -jar target/idp-sync-service-<VERSION>.jar    
+    ```
+## Maven plugin
+1) Clone the repository:
+    ```bash
+      git clone https://github.com/ExtKernel/idp-sync-service
+    ```
+2) Navigate to the directory:
+    ```bash
+      cd idp-sync-service
+    ```
+3) Run:
+    ```bash
+      mvn spring-boot:run
+    ```
+## Docker
+1) Pull the Docker image:
+    ```bash
+      docker pull exkernel/idp-sync-service:<VERSION>
+    ```
+2) Run the container:
+    ```bash
+      docker run --name=idp-sync-service -p 8000:8000 exkernel/idp-sync-service:<VERSION>
+    ```
+   You can map any external port you want to the internal one.
+   Remember to specify environment variables using the `-e` flag:
+   - `-e EUREKA_URI=<value>`
+   - `-e DATASOURCE_HOST=<value>`
+   - `-e DATASOURCE_USERNAME=<value>`
+   - `-e DATASOURCE_PASSWORD=<value>`
+   - `-e PRINCIPAL_ROLE_NAME=<value>`
+   - `-e OAUTH2_PROVIDER_ISSUER_URL=<value>`
+   - `-e OAUTH2_PROVIDER_CLIENT_ID=<value>`
+   - `-e OAUTH2_PROVIDER_CLIENT_SECRET=<value>`
+   - `-e OAUTH2_PROVIDER_INTROSPECTION_URL=<value>`
+   
+   You may also specify the optional ones if you want:
+   - `-e IPA_API_ENDPOINT=<value>`
+   - `-e IPA_API_AUTH_ENDPOINT=<value>`
+   - `-e KC_ADMIN_CLI_CLIENT_ID=<value>`
+
+**BUT BE AWARE**: `-e SERVER_PORT=<value>` - changes the internal port of the service, which won't be considered by the [Dockerfile](Dockerfile). There always will be port `8000` exposed, until you change it and build the image yourself. 
+
+## Build the Docker image yourself
+If you want to alter the [Dockerfile](Dockerfile) in any way, you'll need to build the image from scratch.
+1) Clone the repository:
+    ```bash
+      git clone https://github.com/ExtKernel/idp-sync-service
+    ```
+2) Navigate to the directory:
+    ```bash
+      cd idp-sync-service
+    ```
+3) Alter the [Dockerfile](Dockerfile)
+4) Build the image:
+    ```bash
+      docker build -t <IMAGE-NAME> .
+    ```
+5) Run the container as explained in the previous section, but using your <IMAGE-NAME>, instead of `exkernel/idp-sync-service:<VERSION>`
 
 ## Deprecated!
 ### Development moves

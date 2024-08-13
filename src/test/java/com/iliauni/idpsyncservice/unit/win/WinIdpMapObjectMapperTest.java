@@ -66,6 +66,6 @@ class WinIdpMapObjectMapperTest {
         Map<String, Object> credentialsMap = mapper.buildUserCredentialsMap(password);
 
         // Verify that the map contains the correct password value
-        assertEquals("password123", credentialsMap.get("value"));
+        assertEquals("password123", credentialsMap.get("password"));
     }
 }

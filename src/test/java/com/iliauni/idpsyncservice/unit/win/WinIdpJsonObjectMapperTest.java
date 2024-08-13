@@ -26,7 +26,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class WinIdpJsonObjectMapperTest {
-
     @Mock
     private IdpMapObjectMapper mapObjectMapper;
 
@@ -126,15 +125,19 @@ class WinIdpJsonObjectMapperTest {
     }
 
     @Test
-    void buildCredentialsRepresentation_Success() {
+    void buildCredentialsRepresentation_Success() throws Exception {
         // Given
         String password = "password";
+        Map<String, Object> credentials = new HashMap<>();
+        credentials.put("password", password);
 
         // When
+        when(mapObjectMapper.buildUserCredentialsMap(password)).thenReturn(credentials);
+        when(objectMapper.writeValueAsString(credentials)).thenReturn("{" + password + "}");
         String result = winIdpJsonObjectMapper.buildCredentialsRepresentation(password);
 
         // Then
-        assertEquals("password", result);
+        assertEquals("{" + password + "}", result);
     }
 
     @Test
