@@ -26,7 +26,7 @@ public class SyncController {
         this.userSyncService = userSyncService;
     }
 
-    @PostMapping("/usergroups")
+    @PostMapping("/groups")
     public void syncUsergroups(@RequestBody List<Usergroup> usergroups) {
         usergroupSyncService.sync(usergroups);
     }

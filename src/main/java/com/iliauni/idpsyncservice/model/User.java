@@ -1,6 +1,7 @@
 package com.iliauni.idpsyncservice.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -34,9 +35,9 @@ public class User implements Serializable {
     }
 
     @Id
+    @NotNull
     @Column(
             name = "username",
-            nullable = false,
             unique = true
     )
     private String username;
