@@ -12,13 +12,15 @@ Base endpoint that should be added before every following client endpoint: `/sec
 
 Base client request body:
 ```json
-  "id": "client-id",
-  "name": "client-name",
-  "fqdn": "client-machine-fqdn", (optional)
-  "ip": "client-machine-ip", (optional)
-  "port": "client-machine-port", (optional)
-  "principalUsername": "client-principal-user-username", (optional)
-  "principalPassword": "client-principal-user-password" (optional)
+{
+   "id": "client-id",
+   "name": "client-name",
+   "fqdn": "client-machine-fqdn", (optional)
+   "ip": "client-machine-ip", (optional)
+   "port": "client-machine-port", (optional)
+   "principalUsername": "client-principal-user-username", (optional)
+   "principalPassword": "client-principal-user-password" (optional)  
+}
 ```
 These fields should be present in every client below.
 Every example of a request body for the clients below will include only specific for the client fields,
@@ -270,7 +272,9 @@ You can visit the [Keycloak's documentation](https://www.keycloak.org/docs/lates
     ```bash
       docker run --name=idp-sync-service -p 8000:8000 exkernel/idp-sync-service:<VERSION>
     ```
-   You can map any external port you want to the internal one.
+   - You can map any external port you want to the internal one
+   - You can give any name to the container
+   
    Remember to specify environment variables using the `-e` flag:
    - `-e EUREKA_URI=<value>`
    - `-e DATASOURCE_HOST=<value>`
@@ -286,6 +290,18 @@ You can visit the [Keycloak's documentation](https://www.keycloak.org/docs/lates
    - `-e IPA_API_ENDPOINT=<value>`
    - `-e IPA_API_AUTH_ENDPOINT=<value>`
    - `-e KC_ADMIN_CLI_CLIENT_ID=<value>`
+
+   ### If you are going to synchronize FreeIPA clients:
+   1) Copy your `ca.crt` certificate file to the container:
+      ```bash
+        docker cp <path-to-certificate-file-on-your-local-machine> <container-id-or-name>:/app/<desired-certificate-file-name>.crt
+      ```
+   2) Make sure you specify the path to the certificate(by default `ca.crt`) file correctly when creating the **(Free)IPA Client**:
+      ```json
+      {
+        "certPath": "/app/<specified-in-the-previous-step-certificate-file-name>.crt"
+      }
+      ```
 
 **BUT BE AWARE**: `-e SERVER_PORT=<value>` - changes the internal port of the service, which won't be considered by the [Dockerfile](Dockerfile). There always will be port `8000` exposed, until you change it and build the image yourself. 
 
