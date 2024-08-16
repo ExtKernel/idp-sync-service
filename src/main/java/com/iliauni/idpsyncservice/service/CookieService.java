@@ -5,11 +5,10 @@ import com.iliauni.idpsyncservice.exception.CookieJarIsNullException;
 import com.iliauni.idpsyncservice.model.Cookie;
 import com.iliauni.idpsyncservice.model.IpaClient;
 import com.iliauni.idpsyncservice.repository.CookieRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.Date;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CookieService<T extends IpaClient> extends GenericCrudService<Cookie, Long> {

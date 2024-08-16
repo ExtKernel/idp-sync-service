@@ -5,14 +5,13 @@ import com.iliauni.idpsyncservice.model.Client;
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.Usergroup;
 import com.iliauni.idpsyncservice.service.UsergroupService;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * An abstract class implementing {@link UsergroupIdpSyncHandler} for synchronizing user groups

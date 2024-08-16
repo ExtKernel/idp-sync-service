@@ -1,8 +1,18 @@
 package com.iliauni.idpsyncservice.cookie;
 
 import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
-import com.iliauni.idpsyncservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.idpsyncservice.model.IpaClient;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Collections;
+import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
@@ -23,18 +33,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
-import javax.net.ssl.SSLContext;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.Collections;
 
 /**
  * A component class implementing the {@link CookieRequestBuilder} interface for building HTTP request entities and API base URLs specific to FreeIPA cookie jar systems.
@@ -91,7 +89,6 @@ public class IpaCookieRequestBuilder<T extends IpaClient> implements CookieReque
             HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(buildHttpClientWithIpaCert(client.getCertPath()));
             RestTemplate restTemplate = new RestTemplate(requestFactory);
             restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
-            restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
 
             return restTemplate;
         } catch (

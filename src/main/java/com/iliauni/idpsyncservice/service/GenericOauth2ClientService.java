@@ -5,13 +5,12 @@ import com.iliauni.idpsyncservice.model.AccessToken;
 import com.iliauni.idpsyncservice.model.Oauth2Client;
 import com.iliauni.idpsyncservice.model.RefreshToken;
 import com.iliauni.idpsyncservice.token.TokenManager;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public class GenericOauth2ClientService<T extends Oauth2Client>
         extends GenericClientService<T>

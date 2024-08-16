@@ -1,5 +1,7 @@
 package com.iliauni.idpsyncservice.config;
 
+import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,9 +20,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
 
 @EnableMethodSecurity
 @EnableWebSecurity

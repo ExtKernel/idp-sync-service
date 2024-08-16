@@ -5,12 +5,11 @@ import com.iliauni.idpsyncservice.exception.ClientNotFoundException;
 import com.iliauni.idpsyncservice.model.Cookie;
 import com.iliauni.idpsyncservice.model.IpaClient;
 import com.iliauni.idpsyncservice.repository.IpaClientRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class IpaClientService extends GenericCrudService<IpaClient, String>

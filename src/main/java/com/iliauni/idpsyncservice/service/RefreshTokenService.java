@@ -5,10 +5,9 @@ import com.iliauni.idpsyncservice.model.Oauth2Client;
 import com.iliauni.idpsyncservice.model.RefreshToken;
 import com.iliauni.idpsyncservice.repository.RefreshTokenRepository;
 import com.iliauni.idpsyncservice.token.TokenManager;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class RefreshTokenService<T extends Oauth2Client> extends GenericCrudService<RefreshToken, Long> {

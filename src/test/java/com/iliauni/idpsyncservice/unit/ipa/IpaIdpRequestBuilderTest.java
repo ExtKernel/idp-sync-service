@@ -1,5 +1,8 @@
 package com.iliauni.idpsyncservice.unit.ipa;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.ipa.IpaIdpRequestBuilder;
 import com.iliauni.idpsyncservice.model.IpaClient;
@@ -9,9 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class IpaIdpRequestBuilderTest {
 

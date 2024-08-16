@@ -2,14 +2,13 @@ package com.iliauni.idpsyncservice.token;
 
 import com.iliauni.idpsyncservice.model.Oauth2Client;
 import com.iliauni.idpsyncservice.model.RefreshToken;
+import java.util.Map;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Map;
 
 public abstract class GenericKcTokenRequestBuilder<T extends Oauth2Client> implements TokenRequestBuilder<T> {
 

@@ -6,11 +6,10 @@ import com.iliauni.idpsyncservice.exception.UserDoesNotExistOnTheClientException
 import com.iliauni.idpsyncservice.model.Client;
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.service.ClientService;
-import lombok.AccessLevel;
-import lombok.Getter;
-
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
 
 public abstract class GenericIdpUserManager<T extends Client> implements IdpUserManager<T> {
 

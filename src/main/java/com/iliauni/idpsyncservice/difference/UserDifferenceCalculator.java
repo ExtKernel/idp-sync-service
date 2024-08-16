@@ -1,13 +1,12 @@
 package com.iliauni.idpsyncservice.difference;
 
 import com.iliauni.idpsyncservice.model.User;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 /**
  * A component class implementing the {@link DifferenceCalculator} interface for calculating the difference between two lists of {@link User} objects.

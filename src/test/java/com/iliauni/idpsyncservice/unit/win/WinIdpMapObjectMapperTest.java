@@ -1,14 +1,13 @@
 package com.iliauni.idpsyncservice.unit.win;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.Usergroup;
 import com.iliauni.idpsyncservice.win.WinIdpMapObjectMapper;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class WinIdpMapObjectMapperTest {
 

@@ -11,6 +11,8 @@ import com.iliauni.idpsyncservice.idp.IdpRequestBuilder;
 import com.iliauni.idpsyncservice.idp.IdpUserRequestSender;
 import com.iliauni.idpsyncservice.model.IpaClient;
 import com.iliauni.idpsyncservice.model.User;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,9 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A component class implementing the {@link IdpUserRequestSender} interface for sending user-related requests

@@ -1,11 +1,10 @@
 package com.iliauni.idpsyncservice.model;
 
 import jakarta.persistence.Entity;
+import java.util.Date;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
 
 @EqualsAndHashCode(callSuper = true)
 @Data

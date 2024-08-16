@@ -1,6 +1,11 @@
 package com.iliauni.idpsyncservice.win;
 
-import com.iliauni.idpsyncservice.idp.*;
+import com.iliauni.idpsyncservice.idp.GenericIdpUsergroupManager;
+import com.iliauni.idpsyncservice.idp.IdpJsonObjectMapper;
+import com.iliauni.idpsyncservice.idp.IdpModelExistenceValidator;
+import com.iliauni.idpsyncservice.idp.IdpUserManager;
+import com.iliauni.idpsyncservice.idp.IdpUsergroupRequestSender;
+import com.iliauni.idpsyncservice.idp.UsergroupIdpRequestSenderResultBlackListFilter;
 import com.iliauni.idpsyncservice.model.WinClient;
 import com.iliauni.idpsyncservice.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;

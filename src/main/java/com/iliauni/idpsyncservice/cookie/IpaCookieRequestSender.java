@@ -2,13 +2,12 @@ package com.iliauni.idpsyncservice.cookie;
 
 import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.model.IpaClient;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 /**
  * A component class implementing the {@link CookieRequestSender} interface for sending requests to obtain cookies from the FreeIPA IDP system.

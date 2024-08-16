@@ -1,17 +1,20 @@
 package com.iliauni.idpsyncservice.idp;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.iliauni.idpsyncservice.exception.*;
+import com.iliauni.idpsyncservice.exception.UserDoesNotExistOnTheClientException;
+import com.iliauni.idpsyncservice.exception.UsergroupAlreadyExistsOnTheClientException;
+import com.iliauni.idpsyncservice.exception.UsergroupDoesNotExistOnTheClientException;
+import com.iliauni.idpsyncservice.exception.UsergroupMemberAlreadyExistsOnTheClientException;
+import com.iliauni.idpsyncservice.exception.UsergroupMemberDoesNotExistOnTheClientException;
 import com.iliauni.idpsyncservice.model.Client;
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.Usergroup;
 import com.iliauni.idpsyncservice.service.ClientService;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 public abstract class GenericIdpUsergroupManager<T extends Client> implements IdpUsergroupManager<T> {

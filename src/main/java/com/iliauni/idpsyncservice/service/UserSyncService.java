@@ -7,16 +7,15 @@ import com.iliauni.idpsyncservice.model.Client;
 import com.iliauni.idpsyncservice.model.IdpClient;
 import com.iliauni.idpsyncservice.model.IdpClientFactory;
 import com.iliauni.idpsyncservice.model.User;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service

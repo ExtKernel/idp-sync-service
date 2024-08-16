@@ -1,5 +1,7 @@
 package com.iliauni.idpsyncservice.unit.token;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iliauni.idpsyncservice.model.AccessToken;
@@ -7,8 +9,6 @@ import com.iliauni.idpsyncservice.model.RefreshToken;
 import com.iliauni.idpsyncservice.token.WinTokenJsonObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class WinTokenJsonObjectMapperTest {
 

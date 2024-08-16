@@ -1,15 +1,14 @@
 package com.iliauni.idpsyncservice.unit.ipa;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.iliauni.idpsyncservice.ipa.IpaIdpMapObjectMapper;
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.Usergroup;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class IpaIdpMapObjectMapperTest {
 

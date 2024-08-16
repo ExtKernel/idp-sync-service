@@ -7,7 +7,6 @@ import com.iliauni.idpsyncservice.exception.UsergroupMemberDoesNotExistOnTheClie
 import com.iliauni.idpsyncservice.model.Client;
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.Usergroup;
-
 import java.util.List;
 
 /**

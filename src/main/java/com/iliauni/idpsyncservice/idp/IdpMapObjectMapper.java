@@ -2,7 +2,6 @@ package com.iliauni.idpsyncservice.idp;
 
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.Usergroup;
-
 import java.util.Map;
 
 /**

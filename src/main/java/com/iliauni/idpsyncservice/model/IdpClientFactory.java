@@ -6,11 +6,10 @@ import com.iliauni.idpsyncservice.idp.UserIdpSyncHandler;
 import com.iliauni.idpsyncservice.idp.UsergroupIdpSyncHandler;
 import com.iliauni.idpsyncservice.service.CookieClientService;
 import com.iliauni.idpsyncservice.service.Oauth2ClientService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class IdpClientFactory {

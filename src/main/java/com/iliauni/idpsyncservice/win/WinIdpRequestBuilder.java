@@ -3,7 +3,6 @@ package com.iliauni.idpsyncservice.win;
 import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.exception.KcClientHasNoKcFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.exception.KcClientHasNoKcRealmException;
-import com.iliauni.idpsyncservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.idpsyncservice.idp.IdpRequestBuilder;
 import com.iliauni.idpsyncservice.model.WinClient;
 import com.iliauni.idpsyncservice.service.Oauth2ClientService;
@@ -120,7 +119,7 @@ public class WinIdpRequestBuilder implements IdpRequestBuilder<WinClient> {
 
     @Override
     public RestTemplate getRestTemplate(WinClient client) {
-        return restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build();
+        return new RestTemplate();
     }
 
     /**

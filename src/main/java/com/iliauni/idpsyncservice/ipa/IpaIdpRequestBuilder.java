@@ -1,11 +1,21 @@
 package com.iliauni.idpsyncservice.ipa;
 
 import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
-import com.iliauni.idpsyncservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.idpsyncservice.idp.IdpRequestBuilder;
 import com.iliauni.idpsyncservice.model.IpaClient;
 import com.iliauni.idpsyncservice.service.CookieClientService;
 import com.iliauni.idpsyncservice.service.IpaClientService;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Collections;
+import javax.net.ssl.SSLContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -27,18 +37,6 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
-import javax.net.ssl.SSLContext;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.Collections;
 
 /**
  * A component class implementing the {@link IdpRequestBuilder} interface
@@ -123,7 +121,6 @@ public class IpaIdpRequestBuilder implements IdpRequestBuilder<IpaClient> {
             HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(buildHttpClientWithIpaCert(client.getCertPath()));
             RestTemplate restTemplate = new RestTemplate(requestFactory);
             restTemplate.setInterceptors(Collections.singletonList(new StatefulRestTemplateInterceptor()));
-            restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
 
             return restTemplate;
         } catch (

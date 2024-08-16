@@ -1,13 +1,12 @@
 package com.iliauni.idpsyncservice.model;
 
 import jakarta.persistence.Entity;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
-
-import java.util.Objects;
 
 /**
  * This class represents a Windows (Win) service registered as a Keycloak (KC) client,

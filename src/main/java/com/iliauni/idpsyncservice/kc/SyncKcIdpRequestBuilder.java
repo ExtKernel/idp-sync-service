@@ -2,7 +2,6 @@ package com.iliauni.idpsyncservice.kc;
 
 import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.exception.KcClientHasNoKcFqdnOrIpAndPortException;
-import com.iliauni.idpsyncservice.exception.RestTemplateResponseErrorHandler;
 import com.iliauni.idpsyncservice.idp.IdpRequestBuilder;
 import com.iliauni.idpsyncservice.model.ApiAccessKcClient;
 import com.iliauni.idpsyncservice.model.SyncKcClient;
@@ -95,7 +94,7 @@ public class SyncKcIdpRequestBuilder implements IdpRequestBuilder<SyncKcClient> 
 
     @Override
     public RestTemplate getRestTemplate(SyncKcClient client) {
-        return restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build();
+        return new RestTemplate();
     }
 
     /**
