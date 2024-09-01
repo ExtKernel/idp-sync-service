@@ -19,7 +19,9 @@ Base client request body:
    "ip": "client-machine-ip", (optional)
    "port": "client-machine-port", (optional)
    "principalUsername": "client-principal-user-username", (optional)
-   "principalPassword": "client-principal-user-password" (optional)  
+   "principalPassword": "client-principal-user-password", (optional)
+   "usergroupBlacklist": ["blacklisted-user-group-name"], (optional)
+   "userBlacklist": ["blacklisted-user-name"] (optional)        
 }
 ```
 These fields should be present in every client below.
