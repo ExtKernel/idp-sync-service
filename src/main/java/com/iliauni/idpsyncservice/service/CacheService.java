@@ -1,10 +1,11 @@
 package com.iliauni.idpsyncservice.service;
 
 import com.iliauni.idpsyncservice.exception.CacheDoesNotExistException;
-import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 public class CacheService {

@@ -1,7 +1,5 @@
 package com.iliauni.idpsyncservice.unit.token;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.iliauni.idpsyncservice.model.ApiAccessKcClient;
 import com.iliauni.idpsyncservice.model.RefreshToken;
 import com.iliauni.idpsyncservice.token.ApiAccessKcTokenRequestBuilder;
@@ -10,6 +8,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ApiAccessKcTokenRequestBuilderTest {
 

@@ -1,10 +1,11 @@
 package com.iliauni.idpsyncservice.difference;
 
 import com.iliauni.idpsyncservice.model.Usergroup;
+import org.springframework.stereotype.Component;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.springframework.stereotype.Component;
 
 @Component
 public class UsergroupListMatcher implements ListMatcher<Usergroup> {

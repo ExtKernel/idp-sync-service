@@ -1,27 +1,18 @@
 package com.iliauni.idpsyncservice.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Objects;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
-@Getter
-@Setter
-@ToString
+import java.util.List;
+
+@Data
 @NoArgsConstructor
 @MappedSuperclass
 public class Client {
     @Id
-    @NotNull
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private String id;
 
     @NotNull
@@ -77,22 +68,5 @@ public class Client {
         this.id = id;
         this.ip = ip;
         this.port = port;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Client client = (Client) o;
-        return Objects.equals(getId(), client.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId());
     }
 }

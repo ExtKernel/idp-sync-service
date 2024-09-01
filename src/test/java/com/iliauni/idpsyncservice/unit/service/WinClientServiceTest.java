@@ -1,13 +1,5 @@
 package com.iliauni.idpsyncservice.unit.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.iliauni.idpsyncservice.exception.ModelIsNullException;
 import com.iliauni.idpsyncservice.exception.ModelNotFoundException;
 import com.iliauni.idpsyncservice.exception.NoRecordOfRefreshTokenForTheClientException;
@@ -19,14 +11,19 @@ import com.iliauni.idpsyncservice.service.CacheService;
 import com.iliauni.idpsyncservice.service.RefreshTokenService;
 import com.iliauni.idpsyncservice.service.WinClientService;
 import com.iliauni.idpsyncservice.token.TokenManager;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 class WinClientServiceTest {
     private WinClientRepository repository;

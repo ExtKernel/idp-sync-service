@@ -1,8 +1,5 @@
 package com.iliauni.idpsyncservice.unit.win;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.iliauni.idpsyncservice.exception.ClientHasNoFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.exception.KcClientHasNoKcFqdnOrIpAndPortException;
 import com.iliauni.idpsyncservice.exception.KcClientHasNoKcRealmException;
@@ -15,6 +12,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WinIdpRequestBuilderTest {
 

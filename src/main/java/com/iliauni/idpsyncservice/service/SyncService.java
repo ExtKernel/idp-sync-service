@@ -1,5 +1,7 @@
 package com.iliauni.idpsyncservice.service;
 
+import com.iliauni.idpsyncservice.model.SyncEvent;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -15,7 +17,7 @@ public interface SyncService<T> {
      *
      * @param entities List of entities to synchronize.
      */
-    void sync(List<T> entities);
+    SyncEvent sync(List<T> entities);
 
     /**
      * Asynchronously retrieves and synchronizes entities from all clients to the database.

@@ -5,8 +5,9 @@ import com.iliauni.idpsyncservice.idp.IdpUsergroupManager;
 import com.iliauni.idpsyncservice.idp.UserIdpSyncHandler;
 import com.iliauni.idpsyncservice.idp.UsergroupIdpSyncHandler;
 import com.iliauni.idpsyncservice.service.ClientService;
-import java.util.List;
 import lombok.Getter;
+
+import java.util.List;
 
 @Getter
 public class IdpClient<T extends Client> {

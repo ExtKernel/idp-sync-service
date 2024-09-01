@@ -1,15 +1,17 @@
 package com.iliauni.idpsyncservice.model;
 
-import jakarta.persistence.MappedSuperclass;
-import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
-@Getter
-@Setter
-@ToString
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
 @MappedSuperclass
 public class AuthModel {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
 }

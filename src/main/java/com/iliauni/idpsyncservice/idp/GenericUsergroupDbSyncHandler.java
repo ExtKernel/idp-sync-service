@@ -2,12 +2,13 @@ package com.iliauni.idpsyncservice.idp;
 
 import com.iliauni.idpsyncservice.model.Usergroup;
 import com.iliauni.idpsyncservice.service.UsergroupService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * A class implementing {@link UsergroupDbSyncHandler} for synchronizing user groups

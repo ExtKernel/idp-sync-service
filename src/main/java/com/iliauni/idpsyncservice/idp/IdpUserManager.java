@@ -4,6 +4,7 @@ import com.iliauni.idpsyncservice.exception.UserAlreadyExistsOnTheClientExceptio
 import com.iliauni.idpsyncservice.exception.UserDoesNotExistOnTheClientException;
 import com.iliauni.idpsyncservice.model.Client;
 import com.iliauni.idpsyncservice.model.User;
+
 import java.util.List;
 
 /**

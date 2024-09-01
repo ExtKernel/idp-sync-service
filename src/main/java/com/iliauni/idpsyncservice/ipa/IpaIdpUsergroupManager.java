@@ -1,22 +1,18 @@
 package com.iliauni.idpsyncservice.ipa;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.iliauni.idpsyncservice.idp.GenericIdpUsergroupManager;
-import com.iliauni.idpsyncservice.idp.IdpJsonObjectMapper;
-import com.iliauni.idpsyncservice.idp.IdpModelExistenceValidator;
-import com.iliauni.idpsyncservice.idp.IdpUserManager;
-import com.iliauni.idpsyncservice.idp.IdpUsergroupRequestSender;
-import com.iliauni.idpsyncservice.idp.UsergroupIdpRequestSenderResultBlackListFilter;
+import com.iliauni.idpsyncservice.idp.*;
 import com.iliauni.idpsyncservice.model.IpaClient;
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.Usergroup;
 import com.iliauni.idpsyncservice.service.ClientService;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class IpaIdpUsergroupManager extends GenericIdpUsergroupManager<IpaClient> {

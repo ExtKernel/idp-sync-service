@@ -3,9 +3,10 @@ package com.iliauni.idpsyncservice.kc;
 import com.iliauni.idpsyncservice.idp.IdpMapObjectMapper;
 import com.iliauni.idpsyncservice.model.User;
 import com.iliauni.idpsyncservice.model.Usergroup;
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.stereotype.Component;
 
 /**
  * A component class implementing the {@link IdpMapObjectMapper} interface for mapping objects to maps in an Identity Provider (IDP) context specific to Keycloak (KC).

@@ -3,51 +3,79 @@ package com.iliauni.idpsyncservice.service;
 import com.iliauni.idpsyncservice.difference.DifferenceCalculator;
 import com.iliauni.idpsyncservice.exception.NoRecordOfUsergroupsException;
 import com.iliauni.idpsyncservice.idp.UsergroupDbSyncHandler;
-import com.iliauni.idpsyncservice.model.Client;
-import com.iliauni.idpsyncservice.model.IdpClient;
-import com.iliauni.idpsyncservice.model.IdpClientFactory;
-import com.iliauni.idpsyncservice.model.Usergroup;
+import com.iliauni.idpsyncservice.model.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import java.util.concurrent.ExecutorService;
 
 @Slf4j
 @Service
 public class UsergroupSyncService implements SyncService<Usergroup> {
+    private final ExecutorService executorService;
     private final UsergroupService usergroupService;
+    private final UsergroupSyncEventService syncEventService;
     private final DifferenceCalculator<Usergroup> usergroupDifferenceCalculator;
     private final UsergroupDbSyncHandler usergroupDbSyncHandler;
     private final IdpClientFactory idpClientFactory;
 
     @Autowired
     public UsergroupSyncService(
+            ExecutorService executorService,
             UsergroupService usergroupService,
+            UsergroupSyncEventService syncEventService,
             DifferenceCalculator<Usergroup> usergroupDifferenceCalculator,
             UsergroupDbSyncHandler usergroupDbSyncHandler,
             IdpClientFactory idpClientFactory
     ) {
+        this.executorService = executorService;
         this.usergroupService = usergroupService;
+        this.syncEventService = syncEventService;
         this.usergroupDifferenceCalculator = usergroupDifferenceCalculator;
         this.usergroupDbSyncHandler = usergroupDbSyncHandler;
         this.idpClientFactory = idpClientFactory;
     }
 
-    public void sync(List<Usergroup> usergroups) {
+    public UsergroupSyncEvent sync(List<Usergroup> usergroups) {
         List<Usergroup> dbUsergroups = getDbUsergroups();
         Map<String, List<Usergroup>> differenceMap = usergroupDifferenceCalculator.calculate(
                 dbUsergroups,
                 usergroups
         );
 
+        UsergroupSyncEvent usergroupSyncEvent = syncEventService.create(
+                "Started asynchronous user group synchronization",
+                differenceMap
+        );
+        performSync(
+                usergroupSyncEvent,
+                differenceMap
+        );
+
+        return usergroupSyncEvent;
+    }
+
+    private void performSync(
+            UsergroupSyncEvent usergroupSyncEvent,
+            Map<String, List<Usergroup>> differenceMap
+    ) {
         try {
             // wait for all futures to complete
             syncUsergroupsWithAllIdps(differenceMap).join();
+
+            // save to the DB if everything went fine on the client side
+            usergroupDbSyncHandler.sync(differenceMap);
+
+            // save the sync event
+            // it couldn't be saved before, because the usergroups were not
+            syncEventService.save(usergroupSyncEvent);
         } catch (CancellationException | CompletionException exception) {
             log.error(
                     "An error occurred while synchronizing user groups with all IDPs asynchronously",
@@ -55,8 +83,6 @@ public class UsergroupSyncService implements SyncService<Usergroup> {
             );
             throw exception;
         }
-
-        usergroupDbSyncHandler.sync(differenceMap);
     }
 
     private CompletableFuture<Void> syncUsergroupsWithAllIdps(

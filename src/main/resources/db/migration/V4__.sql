@@ -6,3 +6,6 @@ ALTER TABLE ipa_client
 
 ALTER TABLE sync_kc_client
     ADD name VARCHAR(255) NOT NULL;
+
+ALTER TABLE win_client
+    ADD name VARCHAR(255) NOT NULL;

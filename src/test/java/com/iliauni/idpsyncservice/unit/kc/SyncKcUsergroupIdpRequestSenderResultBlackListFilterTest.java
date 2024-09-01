@@ -1,16 +1,17 @@
 package com.iliauni.idpsyncservice.unit.kc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import com.iliauni.idpsyncservice.kc.SyncKcUsergroupIdpRequestSenderResultBlackListFilter;
 import com.iliauni.idpsyncservice.model.SyncKcClient;
 import com.iliauni.idpsyncservice.model.Usergroup;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class SyncKcUsergroupIdpRequestSenderResultBlackListFilterTest {
 
