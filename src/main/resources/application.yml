@@ -53,3 +53,7 @@ spring:
                     introspection-uri: ${OAUTH2_PROVIDER_INTROSPECTION_URL}
     jpa:
         open-in-view: true
+    flyway:
+        validate-on-migrate: true
+        baseline-on-migrate: true
+        enabled: true

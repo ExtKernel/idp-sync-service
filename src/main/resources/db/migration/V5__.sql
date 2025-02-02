@@ -34,12 +34,18 @@ CREATE TABLE usergroup_sync_status
 
 ALTER TABLE usergroup_sync_status
     ADD CONSTRAINT FK_USERGROUPSYNCSTATUS_ON_SYNC_EVENT FOREIGN KEY (sync_event_id) REFERENCES usergroup_sync_event (id);
-
 ALTER TABLE usergroup_sync_status
     ADD CONSTRAINT FK_USERGROUPSYNCSTATUS_ON_USERGROUP_NAME FOREIGN KEY (usergroup_name) REFERENCES usergroup (name);
+ALTER TABLE usergroup_sync_event
+    ADD exception BYTEA;
+ALTER TABLE usergroup_sync_event
+    ADD exception_message VARCHAR(255);
 
 ALTER TABLE user_sync_status
     ADD CONSTRAINT FK_USERSYNCSTATUS_ON_SYNC_EVENT FOREIGN KEY (sync_event_id) REFERENCES user_sync_event (id);
-
 ALTER TABLE user_sync_status
     ADD CONSTRAINT FK_USERSYNCSTATUS_ON_USER_USERNAME FOREIGN KEY (user_username) REFERENCES sync_user (username);
+ALTER TABLE user_sync_event
+    ADD exception BYTEA;
+ALTER TABLE user_sync_event
+    ADD exception_message VARCHAR(255);

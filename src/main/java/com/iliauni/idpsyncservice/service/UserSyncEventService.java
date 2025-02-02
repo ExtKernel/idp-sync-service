@@ -43,7 +43,7 @@ public class UserSyncEventService {
      * @param event The {@link UserSyncEvent} to be saved.
      * @return The saved {@link UserSyncEvent}, potentially with updated information (e.g., generated ID).
      */
-    public UserSyncEvent save(UserSyncEvent event) {
+    public synchronized UserSyncEvent save(UserSyncEvent event) {
         return repository.save(event);
     }
 

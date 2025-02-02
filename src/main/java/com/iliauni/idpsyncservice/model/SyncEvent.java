@@ -26,6 +26,12 @@ public class SyncEvent {
     @Column(name = "message")
     private String message;
 
+    @Column(name = "exception")
+    private Exception exception;
+
+    @Column(name = "exception_message")
+    private String exceptionMessage;
+
     @CreationTimestamp
     private Date startDate;
 }
