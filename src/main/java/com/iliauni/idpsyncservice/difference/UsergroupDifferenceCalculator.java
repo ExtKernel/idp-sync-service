@@ -96,7 +96,7 @@ public class UsergroupDifferenceCalculator implements DifferenceCalculator<Userg
 
         // append altered usergroups
         targetList.stream()
-                .filter(originalList::contains)
+                .filter(usergroup -> originalList.contains(usergroup))
                 .filter(usergroup -> {
                     List<User> originalUsergroupMembers = originalList.get(originalList.indexOf(usergroup)).getUsers();
                     // Null-check original Usergroup user list

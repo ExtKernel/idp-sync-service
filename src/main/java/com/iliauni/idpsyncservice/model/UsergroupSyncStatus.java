@@ -12,13 +12,11 @@ import lombok.ToString;
 public class UsergroupSyncStatus extends SyncStatus {
 
     public UsergroupSyncStatus(
-            UsergroupSyncEvent syncEvent,
             Usergroup usergroup,
             SyncStatus status
     ) {
-        this.syncEvent = syncEvent;
-        this.usergroup = usergroup;
         this.status = status;
+        this.usergroup = usergroup;
     }
 
     @ManyToOne

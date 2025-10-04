@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
+@Profile("!test")
 @EnableMethodSecurity
 @EnableWebSecurity
 @Configuration
@@ -33,7 +35,7 @@ public class SecurityConfig {
     @Component
     static class KeycloakAuthoritiesConverter implements Converter<Jwt, List<SimpleGrantedAuthority>> {
         @Override
-        @SuppressWarnings({ "rawtypes", "unchecked" })
+        @SuppressWarnings({"rawtypes", "unchecked"})
         public List<SimpleGrantedAuthority> convert(Jwt jwt) {
             final var realmAccess = (Map<String, Object>) jwt.getClaims().getOrDefault("realm_access", Map.of());
             final var roles = (List<String>) realmAccess.getOrDefault("roles", List.of());

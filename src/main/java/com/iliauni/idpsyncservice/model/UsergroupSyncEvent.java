@@ -1,5 +1,6 @@
 package com.iliauni.idpsyncservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -11,6 +12,7 @@ import lombok.ToString;
 import java.util.List;
 
 @Data
+@ToString
 @NoArgsConstructor
 @Entity
 public class UsergroupSyncEvent extends SyncEvent {
@@ -32,6 +34,7 @@ public class UsergroupSyncEvent extends SyncEvent {
     )
     private List<UsergroupSyncStatus> usergroupSyncStatuses;
 
+    @JsonIgnore
     public List<Usergroup> getNewUsergroups() {
         return usergroupSyncStatuses.stream()
                 .filter(status -> status.getStatus() == UsergroupSyncStatus.SyncStatus.NEW)
@@ -39,6 +42,7 @@ public class UsergroupSyncEvent extends SyncEvent {
                 .toList();
     }
 
+    @JsonIgnore
     public List<Usergroup> getAlteredUsergroups() {
         return usergroupSyncStatuses.stream()
                 .filter(status -> status.getStatus() == UsergroupSyncStatus.SyncStatus.ALTERED)
@@ -46,6 +50,7 @@ public class UsergroupSyncEvent extends SyncEvent {
                 .toList();
     }
 
+    @JsonIgnore
     public List<Usergroup> getMissingUsergroups() {
         return usergroupSyncStatuses.stream()
                 .filter(status -> status.getStatus() == UsergroupSyncStatus.SyncStatus.MISSING)
