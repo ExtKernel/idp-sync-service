@@ -85,7 +85,7 @@ public class SyncControllerIT extends AbstractIntegrationTest {
         User user2 = testFactory.buildUser();
         user2.setUsername("test-user2");
         User user3 = testFactory.buildUser();
-        user3.setUsername("test-user1");
+        user3.setUsername("test-user3");
 
         // Users are the defining factor when the service
         // Will be deciding whether a usergroup is altered or not
