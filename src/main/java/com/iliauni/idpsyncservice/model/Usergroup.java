@@ -8,6 +8,7 @@ import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -78,4 +79,16 @@ public class Usergroup implements Serializable {
     )
     @ToString.Exclude
     private List<UsergroupSyncStatus> syncStatuses;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Usergroup usergroup = (Usergroup) o;
+        return Objects.equals(name, usergroup.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name);
+    }
 }

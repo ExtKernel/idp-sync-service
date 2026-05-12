@@ -121,7 +121,7 @@ public class SyncKcIdpUserRequestSender implements IdpUserRequestSender<SyncKcCl
                             requestBuilder.buildRequestUrl(
                                     client,
                                     "http",
-                                    "/users/"
+                                    "/users"
                             ),
                             HttpMethod.GET,
                             requestBuilder.buildAuthOnlyHttpRequestEntity(

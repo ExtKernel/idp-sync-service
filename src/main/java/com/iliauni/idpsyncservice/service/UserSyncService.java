@@ -71,10 +71,10 @@ public class UserSyncService implements SyncService<User> {
                 "Started asynchronous user synchronization",
                 differenceMap
         );
-        performSync(
+        executorService.submit(() -> performSync(
                 userSyncEvent,
                 differenceMap
-        );
+        ));
 
         return userSyncEvent;
     }
@@ -98,6 +98,10 @@ public class UserSyncService implements SyncService<User> {
                     "An error occurred while synchronizing users with all IDPs",
                     exception
             );
+            userSyncEvent.setException(exception);
+            userSyncEvent.setExceptionMessage(exception.getMessage());
+            syncEventService.save(userSyncEvent);
+
             throw exception;
         }
     }

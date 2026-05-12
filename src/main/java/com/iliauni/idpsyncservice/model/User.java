@@ -1,5 +1,6 @@
 package com.iliauni.idpsyncservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -55,6 +57,7 @@ public class User implements Serializable {
             CascadeType.MERGE
     })
     @Column(name = "usergroups")
+    @JsonIgnore
     @ToString.Exclude
     private List<Usergroup> usergroups;
 
@@ -63,6 +66,19 @@ public class User implements Serializable {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @JsonIgnore
     @ToString.Exclude
     private List<UserSyncStatus> syncStatuses;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(username, user.username);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(username);
+    }
 }

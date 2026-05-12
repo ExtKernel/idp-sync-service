@@ -1,14 +1,11 @@
 # Variables to inject in Java code
-
-# The FreeIPA API endpoint for general requests (excluding hostname, ip, port, and protocol)
+# FreeIPA API endpoint for general requests (excluding hostname, ip, port, and protocol)
 ipaApiEndpoint: ${IPA_API_ENDPOINT:/ipa/session/json}
-# The FreeIPA API endpoint to get cookies for auth (excluding hostname, ip, port, and protocol)
+# FreeIPA API endpoint to get cookies for auth (excluding hostname, ip, port, and protocol)
 ipaApiAuthEndpoint: ${IPA_API_AUTH_ENDPOINT:/ipa/session/login_password}
-
-# The name of the admin-cli Keycloak client
+# Name of the admin-cli Keycloak client
 kcAdminCliClientId: ${KC_ADMIN_CLI_CLIENT_ID:admin-cli}
-
-# The role name of the user that can access secured endpoints
+# Role name of the user that can access secured endpoints
 principalRoleName: ${PRINCIPAL_ROLE_NAME:administrator}
 
 eureka:
@@ -53,3 +50,7 @@ spring:
                     introspection-uri: ${OAUTH2_PROVIDER_INTROSPECTION_URL}
     jpa:
         open-in-view: true
+    flyway:
+        validate-on-migrate: true
+        baseline-on-migrate: true
+        enabled: true

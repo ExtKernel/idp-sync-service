@@ -54,10 +54,10 @@ public class UsergroupSyncService implements SyncService<Usergroup> {
                 "Started asynchronous user group synchronization",
                 differenceMap
         );
-        performSync(
+        executorService.submit(() -> performSync(
                 usergroupSyncEvent,
                 differenceMap
-        );
+        ));
 
         return usergroupSyncEvent;
     }
@@ -81,6 +81,11 @@ public class UsergroupSyncService implements SyncService<Usergroup> {
                     "An error occurred while synchronizing user groups with all IDPs asynchronously",
                     exception
             );
+            usergroupSyncEvent.setException(exception);
+            usergroupSyncEvent.setExceptionMessage(exception.getMessage());
+            log.warn("BUBUBU");
+            log.warn(syncEventService.save(usergroupSyncEvent).toString());
+
             throw exception;
         }
     }
