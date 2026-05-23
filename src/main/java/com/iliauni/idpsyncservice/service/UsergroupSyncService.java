@@ -83,8 +83,7 @@ public class UsergroupSyncService implements SyncService<Usergroup> {
             );
             usergroupSyncEvent.setException(exception);
             usergroupSyncEvent.setExceptionMessage(exception.getMessage());
-            log.warn("BUBUBU");
-            log.warn(syncEventService.save(usergroupSyncEvent).toString());
+            syncEventService.save(usergroupSyncEvent);
 
             throw exception;
         }
